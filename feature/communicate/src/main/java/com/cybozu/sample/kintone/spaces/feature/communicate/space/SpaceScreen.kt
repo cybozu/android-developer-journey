@@ -16,19 +16,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.cybozu.sample.kintone.spaces.feature.communicate.ThreadItemData
 import com.cybozu.sample.kintone.spaces.feature.communicate.sampleThreads
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 
 @Composable
-fun SpaceScreen(navController: NavController, threads: List<ThreadItemData>) {
+fun SpaceScreen(
+    threads: List<ThreadItemData>,
+    onThreadClick: (String) -> Unit
+) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(threads) { thread ->
-            ThreadListItem(thread = thread) {
-                navController.navigate("thread/${thread.id}")
-            }
+            ThreadListItem(
+                thread = thread,
+                onClick = {
+                    onThreadClick(thread.id)
+                }
+            )
         }
     }
 }
@@ -53,6 +57,9 @@ fun ThreadListItem(thread: ThreadItemData, onClick: () -> Unit) {
 @Composable
 fun SpaceScreenPreview() {
     KintoneSpacesTheme {
-        SpaceScreen(navController = rememberNavController(), threads = sampleThreads)
+        SpaceScreen(
+            threads = sampleThreads,
+            onThreadClick = {}
+        )
     }
 }

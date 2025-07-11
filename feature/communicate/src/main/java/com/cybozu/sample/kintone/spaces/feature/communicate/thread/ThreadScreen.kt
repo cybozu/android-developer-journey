@@ -24,14 +24,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.cybozu.sample.kintone.spaces.feature.communicate.MessageItemData
 import com.cybozu.sample.kintone.spaces.feature.communicate.sampleMessages
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 
 @Composable
-fun ThreadScreen(navController: NavController, threadId: String?, messages: List<MessageItemData>) {
+fun ThreadScreen(threadId: String?, messages: List<MessageItemData>) {
     Column(modifier = Modifier.fillMaxSize()) {
         if (threadId == null) {
             Text("Thread not found.", modifier = Modifier.padding(16.dp))
@@ -83,7 +81,6 @@ fun MessageListItem(message: MessageItemData) {
 fun ThreadScreenPreview() {
     KintoneSpacesTheme {
         ThreadScreen(
-            navController = rememberNavController(),
             threadId = "thread-1",
             messages = sampleMessages.filter { it.threadId == "thread-1" }
         )
