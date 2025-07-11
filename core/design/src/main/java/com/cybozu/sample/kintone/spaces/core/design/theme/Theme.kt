@@ -1,4 +1,4 @@
-package com.cybozu.sample.kintone.spaces.ui.theme
+package com.cybozu.sample.kintone.spaces.core.design.theme
 
 import android.app.Activity
 import android.os.Build

@@ -1,4 +1,4 @@
-package com.cybozu.sample.kintone.spaces.ui.space
+package com.cybozu.sample.kintone.spaces.feature.communicate.space
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -18,9 +18,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.cybozu.sample.kintone.spaces.ThreadItemData
-import com.cybozu.sample.kintone.spaces.ui.sampleThreads
-import com.cybozu.sample.kintone.spaces.ui.theme.KintoneSpacesTheme
+import com.cybozu.sample.kintone.spaces.feature.communicate.ThreadItemData
+import com.cybozu.sample.kintone.spaces.feature.communicate.sampleThreads
+import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 
 @Composable
 fun SpaceScreen(navController: NavController, threads: List<ThreadItemData>) {

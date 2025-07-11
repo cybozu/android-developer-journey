@@ -1,4 +1,4 @@
-package com.cybozu.sample.kintone.spaces.ui.thread
+package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,9 +26,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.cybozu.sample.kintone.spaces.MessageItemData
-import com.cybozu.sample.kintone.spaces.ui.sampleMessages
-import com.cybozu.sample.kintone.spaces.ui.theme.KintoneSpacesTheme
+import com.cybozu.sample.kintone.spaces.feature.communicate.MessageItemData
+import com.cybozu.sample.kintone.spaces.feature.communicate.sampleMessages
+import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 
 @Composable
 fun ThreadScreen(navController: NavController, threadId: String?, messages: List<MessageItemData>) {

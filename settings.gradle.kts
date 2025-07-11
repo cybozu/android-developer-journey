@@ -22,3 +22,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Kintone Spaces"
 include(":app")
+include(":core:design")
+include(":feature:communicate")

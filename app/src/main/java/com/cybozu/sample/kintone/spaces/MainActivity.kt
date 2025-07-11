@@ -16,11 +16,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.cybozu.sample.kintone.spaces.ui.theme.KintoneSpacesTheme
-import com.cybozu.sample.kintone.spaces.ui.thread.ThreadScreen
-import com.cybozu.sample.kintone.spaces.ui.sampleMessages
-import com.cybozu.sample.kintone.spaces.ui.sampleThreads
-import com.cybozu.sample.kintone.spaces.ui.space.SpaceScreen
+import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
+import com.cybozu.sample.kintone.spaces.feature.communicate.thread.ThreadScreen
+import com.cybozu.sample.kintone.spaces.feature.communicate.sampleMessages
+import com.cybozu.sample.kintone.spaces.feature.communicate.sampleThreads
+import com.cybozu.sample.kintone.spaces.feature.communicate.space.SpaceScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -67,12 +67,3 @@ fun KintoneSpacesApp() {
         }
     }
 }
-
-data class ThreadItemData(val id: String, val title: String, val lastMessageSnippet: String)
-data class MessageItemData(
-    val id: String,
-    val threadId: String,
-    val userName: String,
-    val userIconUrl: String,
-    val content: String
-)
