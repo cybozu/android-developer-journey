@@ -10,8 +10,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,19 +23,27 @@ import com.cybozu.sample.kintone.spaces.feature.communicate.ThreadItemData
 import com.cybozu.sample.kintone.spaces.feature.communicate.sampleThreads
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SpaceScreen(
     threads: List<ThreadItemData>,
     onThreadClick: (String) -> Unit
 ) {
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(threads) { thread ->
-            ThreadListItem(
-                thread = thread,
-                onClick = {
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text("Spaces") })
+        }
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            items(threads) { thread ->
+                ThreadListItem(thread = thread) {
                     onThreadClick(thread.id)
                 }
-            )
+            }
         }
     }
 }

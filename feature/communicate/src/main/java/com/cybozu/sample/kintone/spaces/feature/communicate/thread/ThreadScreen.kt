@@ -15,9 +15,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,21 +31,31 @@ import com.cybozu.sample.kintone.spaces.feature.communicate.MessageItemData
 import com.cybozu.sample.kintone.spaces.feature.communicate.sampleMessages
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThreadScreen(threadId: String?, messages: List<MessageItemData>) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        if (threadId == null) {
-            Text("Thread not found.", modifier = Modifier.padding(16.dp))
-            return
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(if (threadId != null) "Thread: $threadId" else "Thread not found")
+                }
+            )
         }
-        Text(
-            text = "Messages for Thread: $threadId",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(16.dp)
-        )
-        LazyColumn(modifier = Modifier.weight(1f)) {
-            items(messages) { message ->
-                MessageListItem(message = message)
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            if (threadId == null) {
+                Text("Thread not found.", modifier = Modifier.padding(16.dp))
+                return@Column
+            }
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(messages) { message ->
+                    MessageListItem(message = message)
+                }
             }
         }
     }
