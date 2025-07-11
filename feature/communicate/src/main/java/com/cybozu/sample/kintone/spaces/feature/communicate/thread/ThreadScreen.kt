@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButton
 import com.cybozu.sample.kintone.spaces.feature.communicate.MessageItemData
 import com.cybozu.sample.kintone.spaces.feature.communicate.sampleMessages
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
@@ -39,6 +40,9 @@ fun ThreadScreen(threadId: String?, messages: List<MessageItemData>) {
             TopAppBar(
                 title = {
                     Text(if (threadId != null) "Thread: $threadId" else "Thread not found")
+                },
+                navigationIcon = {
+                    SystemBackNavButton()
                 }
             )
         }
