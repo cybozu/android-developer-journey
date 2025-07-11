@@ -16,17 +16,34 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.cybozu.sample.kintone.spaces.feature.communicate.ThreadItemData
-import com.cybozu.sample.kintone.spaces.feature.communicate.sampleThreads
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.cybozu.sample.kintone.spaces.data.space.KintoneThread
+import com.cybozu.sample.kintone.spaces.feature.communicate.SpaceViewModel
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SpaceScreen(
-    threads: List<ThreadItemData>,
+    onThreadClick: (String) -> Unit,
+    viewModel: SpaceViewModel = hiltViewModel()
+) {
+    val threads by viewModel.threads.collectAsState()
+
+    SpaceContent(
+        threads = threads,
+        onThreadClick = onThreadClick
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SpaceContent(
+    threads: List<KintoneThread>,
     onThreadClick: (String) -> Unit
 ) {
     Scaffold(
@@ -49,7 +66,7 @@ fun SpaceScreen(
 }
 
 @Composable
-fun ThreadListItem(thread: ThreadItemData, onClick: () -> Unit) {
+private fun ThreadListItem(thread: KintoneThread, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -64,12 +81,18 @@ fun ThreadListItem(thread: ThreadItemData, onClick: () -> Unit) {
     }
 }
 
+private val previewThreads = listOf(
+    KintoneThread("thread-1", "Preview Thread 1", "This is a preview message snippet 1..."),
+    KintoneThread("thread-2", "Preview Thread 2", "This is a preview message snippet 2..."),
+    KintoneThread("thread-3", "Preview Thread 3", "This is a preview message snippet 3...")
+)
+
 @Preview(showBackground = true)
 @Composable
-fun SpaceScreenPreview() {
+fun SpaceContentPreview() {
     KintoneSpacesTheme {
-        SpaceScreen(
-            threads = sampleThreads,
+        SpaceContent(
+            threads = previewThreads,
             onThreadClick = {}
         )
     }

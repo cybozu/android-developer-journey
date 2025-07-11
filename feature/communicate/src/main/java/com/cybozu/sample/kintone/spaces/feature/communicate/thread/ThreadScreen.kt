@@ -22,19 +22,46 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButton
-import com.cybozu.sample.kintone.spaces.feature.communicate.MessageItemData
-import com.cybozu.sample.kintone.spaces.feature.communicate.sampleMessages
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.cybozu.sample.kintone.spaces.data.space.KintoneMessage
+import com.cybozu.sample.kintone.spaces.feature.communicate.ThreadViewModel
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
+import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ThreadScreen(threadId: String?, messages: List<MessageItemData>) {
+fun ThreadScreen(
+    threadId: String?,
+    viewModel: ThreadViewModel = hiltViewModel()
+) {
+    val messages by viewModel.messages.collectAsState()
+
+    LaunchedEffect(threadId) {
+        if (threadId != null) {
+            viewModel.loadMessages(threadId)
+        }
+    }
+
+    ThreadContent(
+        threadId = threadId,
+        messages = messages
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ThreadContent(
+    threadId: String?,
+    messages: List<KintoneMessage>
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -65,8 +92,14 @@ fun ThreadScreen(threadId: String?, messages: List<MessageItemData>) {
     }
 }
 
+private val previewMessages = listOf(
+    KintoneMessage("msg-1", "thread-1", "Preview User 1", "", "This is a preview message 1"),
+    KintoneMessage("msg-2", "thread-1", "Preview User 2", "", "This is a preview message 2"),
+    KintoneMessage("msg-3", "thread-1", "Preview User 3", "", "This is a preview message 3")
+)
+
 @Composable
-fun MessageListItem(message: MessageItemData) {
+private fun MessageListItem(message: KintoneMessage) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -95,11 +128,11 @@ fun MessageListItem(message: MessageItemData) {
 
 @Preview(showBackground = true)
 @Composable
-fun ThreadScreenPreview() {
+fun ThreadContentPreview() {
     KintoneSpacesTheme {
-        ThreadScreen(
+        ThreadContent(
             threadId = "thread-1",
-            messages = sampleMessages.filter { it.threadId == "thread-1" }
+            messages = previewMessages
         )
     }
 }
