@@ -1,5 +1,6 @@
 package com.cybozu.sample.kintone.spaces.feature.communicate.space
 
+import app.cash.turbine.test
 import com.cybozu.sample.kintone.spaces.data.space.KintoneMessage
 import com.cybozu.sample.kintone.spaces.data.space.KintoneThread
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
@@ -9,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
@@ -29,24 +31,22 @@ class SpaceViewModelTest {
         Dispatchers.resetMain()
     }
 
-    @Test
-    fun shouldLoadThreadsOnInit() {
+    private fun createViewModel(): SpaceViewModel {
         val repository = FakeSpaceRepository()
-        val viewModel = SpaceViewModel(repository)
-
-        val threads = viewModel.threads.value
-
-        threads.size shouldBe 2
-        threads[0].id shouldBe "thread-1"
-        threads[0].title shouldBe "Test Thread 1"
+        return SpaceViewModel(repository)
     }
 
     @Test
-    fun shouldProvideEmptyThreadsInitially() {
-        val repository = FakeSpaceRepository()
-        val viewModel = SpaceViewModel(repository)
+    fun `スレッド一覧が取得できる`() = runTest {
+        val viewModel = createViewModel()
 
-        viewModel.threads.value.shouldNotBeEmpty()
+        viewModel.threads.test {
+            val threads = expectMostRecentItem()
+
+            threads.size shouldBe 2
+            threads[0].id shouldBe "thread-1"
+            threads[0].title shouldBe "Test Thread 1"
+        }
     }
 }
 
