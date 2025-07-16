@@ -38,15 +38,13 @@ import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButto
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThreadScreen(
-    threadId: String?,
+    threadId: String,
     viewModel: ThreadViewModel = hiltViewModel()
 ) {
     val messages by viewModel.messages.collectAsState()
 
     LaunchedEffect(threadId) {
-        if (threadId != null) {
-            viewModel.loadMessages(threadId)
-        }
+        viewModel.loadMessages(threadId)
     }
 
     ThreadContent(
@@ -91,12 +89,6 @@ fun ThreadContent(
     }
 }
 
-private val previewMessages = listOf(
-    KintoneMessage("msg-1", "thread-1", "Preview User 1", "", "This is a preview message 1"),
-    KintoneMessage("msg-2", "thread-1", "Preview User 2", "", "This is a preview message 2"),
-    KintoneMessage("msg-3", "thread-1", "Preview User 3", "", "This is a preview message 3")
-)
-
 @Composable
 private fun MessageListItem(message: KintoneMessage) {
     Card(
@@ -124,6 +116,12 @@ private fun MessageListItem(message: KintoneMessage) {
         }
     }
 }
+
+private val previewMessages = listOf(
+    KintoneMessage("msg-1", "thread-1", "Preview User 1", "", "This is a preview message 1"),
+    KintoneMessage("msg-2", "thread-1", "Preview User 2", "", "This is a preview message 2"),
+    KintoneMessage("msg-3", "thread-1", "Preview User 3", "", "This is a preview message 3")
+)
 
 @Preview(showBackground = true)
 @Composable
