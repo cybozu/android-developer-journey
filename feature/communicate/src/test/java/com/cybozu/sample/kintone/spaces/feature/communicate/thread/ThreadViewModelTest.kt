@@ -53,11 +53,11 @@ class ThreadViewModelTest {
 }
 
 private class FakeSpaceRepository : SpaceRepository {
-    override fun getAllThreads(): List<KintoneThread> {
+    override suspend fun getAllThreads(): List<KintoneThread> {
         return emptyList()
     }
 
-    override fun getMessagesForThread(threadId: String): List<KintoneMessage> {
+    override suspend fun getMessagesForThread(threadId: String): List<KintoneMessage> {
         if (threadId == "thread-1") {
             return listOf(
                 KintoneMessage("msg-1", "thread-1", "User1", "", "Message 1"),

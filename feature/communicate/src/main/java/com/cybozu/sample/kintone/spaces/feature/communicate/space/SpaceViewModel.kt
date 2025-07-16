@@ -2,7 +2,6 @@ package com.cybozu.sample.kintone.spaces.feature.communicate.space
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cybozu.sample.kintone.spaces.data.space.KintoneThread
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -16,8 +15,8 @@ class SpaceViewModel @Inject constructor(
     private val repository: SpaceRepository
 ) : ViewModel() {
 
-    private val _threads = MutableStateFlow<List<KintoneThread>>(emptyList())
-    val threads: StateFlow<List<KintoneThread>> = _threads.asStateFlow()
+    private val _uiState = MutableStateFlow(SpaceUiState())
+    val uiState: StateFlow<SpaceUiState> = _uiState.asStateFlow()
 
     init {
         loadThreads()
@@ -25,7 +24,16 @@ class SpaceViewModel @Inject constructor(
 
     private fun loadThreads() {
         viewModelScope.launch {
-            _threads.value = repository.getAllThreads()
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            try {
+                val threads = repository.getAllThreads()
+                _uiState.value = _uiState.value.copy(
+                    threads = threads,
+                    isLoading = false
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isLoading = false)
+            }
         }
     }
 }

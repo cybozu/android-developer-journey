@@ -2,11 +2,13 @@ package com.cybozu.sample.kintone.spaces.data.space
 
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.delay
 
 @Singleton
 class LocalSpaceRepository @Inject constructor() : SpaceRepository {
 
-    override fun getAllThreads(): List<KintoneThread> {
+    override suspend fun getAllThreads(): List<KintoneThread> {
+        delay(1000)
         return List(10) {
             KintoneThread(
                 id = "thread-$it",
@@ -16,7 +18,7 @@ class LocalSpaceRepository @Inject constructor() : SpaceRepository {
         }
     }
 
-    override fun getMessagesForThread(threadId: String): List<KintoneMessage> {
+    override suspend fun getMessagesForThread(threadId: String): List<KintoneMessage> {
         return List(50) {
             KintoneMessage(
                 id = "msg-$it",
