@@ -18,7 +18,6 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SpaceViewModelTest {
-
     @Before
     fun setup() {
         val testDispatcher = StandardTestDispatcher()
@@ -36,25 +35,26 @@ class SpaceViewModelTest {
     }
 
     @Test
-    fun `スレッド一覧が取得できる`() = runTest {
-        val viewModel = createViewModel()
+    fun `スレッド一覧が取得できる`() =
+        runTest {
+            val viewModel = createViewModel()
 
-        viewModel.uiState.test {
-            val initialState = awaitItem()
-            initialState.threads shouldBe emptyList()
-            initialState.isLoading shouldBe false
+            viewModel.uiState.test {
+                val initialState = awaitItem()
+                initialState.threads shouldBe emptyList()
+                initialState.isLoading shouldBe false
 
-            val loadingState = awaitItem()
-            loadingState.threads shouldBe emptyList()
-            loadingState.isLoading shouldBe true
+                val loadingState = awaitItem()
+                loadingState.threads shouldBe emptyList()
+                loadingState.isLoading shouldBe true
 
-            val loadedState = awaitItem()
-            loadedState.threads.size shouldBe 2
-            loadedState.threads[0].id shouldBe "thread-1"
-            loadedState.threads[0].title shouldBe "Test Thread 1"
-            loadedState.isLoading shouldBe false
+                val loadedState = awaitItem()
+                loadedState.threads.size shouldBe 2
+                loadedState.threads[0].id shouldBe "thread-1"
+                loadedState.threads[0].title shouldBe "Test Thread 1"
+                loadedState.isLoading shouldBe false
+            }
         }
-    }
 }
 
 private class FakeSpaceRepository : SpaceRepository {
@@ -66,7 +66,5 @@ private class FakeSpaceRepository : SpaceRepository {
         )
     }
 
-    override suspend fun getMessagesForThread(threadId: String): List<KintoneMessage> {
-        return emptyList()
-    }
+    override suspend fun getMessagesForThread(threadId: String): List<KintoneMessage> = emptyList()
 }

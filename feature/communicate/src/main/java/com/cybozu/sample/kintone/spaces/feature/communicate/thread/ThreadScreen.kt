@@ -30,19 +30,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.cybozu.sample.kintone.spaces.data.space.KintoneMessage
-import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButton
+import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
+import com.cybozu.sample.kintone.spaces.data.space.KintoneMessage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThreadScreen(
     threadId: String,
-    viewModel: ThreadViewModel = hiltViewModel(
-        creationCallback = { factory: ThreadViewModelFactory ->
-            factory.create(threadId)
-        }
-    )
+    viewModel: ThreadViewModel =
+        hiltViewModel(
+            creationCallback = { factory: ThreadViewModelFactory ->
+                factory.create(threadId)
+            }
+        ),
 ) {
     val messages by viewModel.messages.collectAsState()
 
@@ -56,7 +57,7 @@ fun ThreadScreen(
 @Composable
 fun ThreadContent(
     threadId: String,
-    messages: List<KintoneMessage>
+    messages: List<KintoneMessage>,
 ) {
     Scaffold(
         topBar = {
@@ -71,9 +72,10 @@ fun ThreadContent(
         }
     ) { innerPadding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
         ) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(messages) { message ->
@@ -87,9 +89,10 @@ fun ThreadContent(
 @Composable
 private fun MessageListItem(message: KintoneMessage) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -98,9 +101,10 @@ private fun MessageListItem(message: KintoneMessage) {
             Icon(
                 imageVector = Icons.Filled.Person,
                 contentDescription = "${message.userName}'s icon",
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
+                modifier =
+                    Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column {
@@ -112,11 +116,12 @@ private fun MessageListItem(message: KintoneMessage) {
     }
 }
 
-private val previewMessages = listOf(
-    KintoneMessage("msg-1", "thread-1", "Preview User 1", "", "This is a preview message 1"),
-    KintoneMessage("msg-2", "thread-1", "Preview User 2", "", "This is a preview message 2"),
-    KintoneMessage("msg-3", "thread-1", "Preview User 3", "", "This is a preview message 3")
-)
+private val previewMessages =
+    listOf(
+        KintoneMessage("msg-1", "thread-1", "Preview User 1", "", "This is a preview message 1"),
+        KintoneMessage("msg-2", "thread-1", "Preview User 2", "", "This is a preview message 2"),
+        KintoneMessage("msg-3", "thread-1", "Preview User 3", "", "This is a preview message 3")
+    )
 
 @Preview(showBackground = true)
 @Composable

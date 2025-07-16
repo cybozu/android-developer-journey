@@ -4,7 +4,6 @@ import app.cash.turbine.test
 import com.cybozu.sample.kintone.spaces.data.space.KintoneMessage
 import com.cybozu.sample.kintone.spaces.data.space.KintoneThread
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -18,7 +17,6 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ThreadViewModelTest {
-
     private val testDispatcher = UnconfinedTestDispatcher()
 
     @Before
@@ -37,23 +35,22 @@ class ThreadViewModelTest {
     }
 
     @Test
-    fun `メッセージ一覧が取得できる`() = runTest {
-        val viewModel = createViewModel()
+    fun `メッセージ一覧が取得できる`() =
+        runTest {
+            val viewModel = createViewModel()
 
-        viewModel.messages.test {
-            val messages = expectMostRecentItem()
+            viewModel.messages.test {
+                val messages = expectMostRecentItem()
 
-            messages.size shouldBe 2
-            messages[0].id shouldBe "msg-1"
-            messages[0].threadId shouldBe "thread-1"
+                messages.size shouldBe 2
+                messages[0].id shouldBe "msg-1"
+                messages[0].threadId shouldBe "thread-1"
+            }
         }
-    }
 }
 
 private class FakeSpaceRepository : SpaceRepository {
-    override suspend fun getAllThreads(): List<KintoneThread> {
-        return emptyList()
-    }
+    override suspend fun getAllThreads(): List<KintoneThread> = emptyList()
 
     override suspend fun getMessagesForThread(threadId: String): List<KintoneMessage> {
         if (threadId == "thread-1") {

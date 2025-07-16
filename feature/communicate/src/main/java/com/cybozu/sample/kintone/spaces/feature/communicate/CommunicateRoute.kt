@@ -6,4 +6,6 @@ import kotlinx.serialization.Serializable
 object SpaceRoute
 
 @Serializable
-data class ThreadRoute(val threadId: String)
+data class ThreadRoute(
+    val threadId: String,
+)

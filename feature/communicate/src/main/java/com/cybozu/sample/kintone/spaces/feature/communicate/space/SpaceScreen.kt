@@ -27,14 +27,14 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.cybozu.sample.kintone.spaces.data.space.KintoneThread
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
+import com.cybozu.sample.kintone.spaces.data.space.KintoneThread
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SpaceScreen(
     onThreadClick: (String) -> Unit,
-    viewModel: SpaceViewModel = hiltViewModel()
+    viewModel: SpaceViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -48,7 +48,7 @@ fun SpaceScreen(
 @Composable
 fun SpaceContent(
     uiState: SpaceUiState,
-    onThreadClick: (String) -> Unit
+    onThreadClick: (String) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -57,18 +57,20 @@ fun SpaceContent(
     ) { innerPadding ->
         if (uiState.isLoading) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
             }
         } else {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
             ) {
                 items(uiState.threads) { thread ->
                     ThreadListItem(thread = thread) {
@@ -81,12 +83,16 @@ fun SpaceContent(
 }
 
 @Composable
-private fun ThreadListItem(thread: KintoneThread, onClick: () -> Unit) {
+private fun ThreadListItem(
+    thread: KintoneThread,
+    onClick: () -> Unit,
+) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable(onClick = onClick)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .clickable(onClick = onClick)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = thread.title, style = MaterialTheme.typography.titleMedium)
@@ -100,23 +106,24 @@ class SpaceContentPreviewParameter :
     CollectionPreviewParameterProvider<SpaceUiState>(
         listOf(
             SpaceUiState(
-                threads = listOf(
-                    KintoneThread(
-                        "thread-1",
-                        "Preview Thread 1",
-                        "This is a preview message snippet 1..."
+                threads =
+                    listOf(
+                        KintoneThread(
+                            "thread-1",
+                            "Preview Thread 1",
+                            "This is a preview message snippet 1..."
+                        ),
+                        KintoneThread(
+                            "thread-2",
+                            "Preview Thread 2",
+                            "This is a preview message snippet 2..."
+                        ),
+                        KintoneThread(
+                            "thread-3",
+                            "Preview Thread 3",
+                            "This is a preview message snippet 3..."
+                        )
                     ),
-                    KintoneThread(
-                        "thread-2",
-                        "Preview Thread 2",
-                        "This is a preview message snippet 2..."
-                    ),
-                    KintoneThread(
-                        "thread-3",
-                        "Preview Thread 3",
-                        "This is a preview message snippet 3..."
-                    )
-                ),
                 isLoading = false
             ),
             SpaceUiState(
@@ -128,7 +135,9 @@ class SpaceContentPreviewParameter :
 
 @Preview(showBackground = true)
 @Composable
-fun SpaceContentPreview(@PreviewParameter(SpaceContentPreviewParameter::class) uiState: SpaceUiState) {
+fun SpaceContentPreview(
+    @PreviewParameter(SpaceContentPreviewParameter::class) uiState: SpaceUiState,
+) {
     KintoneSpacesTheme {
         SpaceContent(
             uiState = uiState,

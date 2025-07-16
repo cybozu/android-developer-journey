@@ -5,5 +5,5 @@ data class KintoneMessage(
     val threadId: String,
     val userName: String,
     val userIconUrl: String,
-    val content: String
+    val content: String,
 )

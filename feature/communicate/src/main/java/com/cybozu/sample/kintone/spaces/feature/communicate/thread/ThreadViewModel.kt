@@ -19,21 +19,22 @@ interface ThreadViewModelFactory {
 }
 
 @HiltViewModel(assistedFactory = ThreadViewModelFactory::class)
-class ThreadViewModel @AssistedInject constructor(
-    @Assisted private val threadId: String,
-    private val repository: SpaceRepository
-) : ViewModel() {
+class ThreadViewModel
+    @AssistedInject
+    constructor(
+        @Assisted private val threadId: String,
+        private val repository: SpaceRepository,
+    ) : ViewModel() {
+        private val _messages = MutableStateFlow<List<KintoneMessage>>(emptyList())
+        val messages: StateFlow<List<KintoneMessage>> = _messages.asStateFlow()
 
-    private val _messages = MutableStateFlow<List<KintoneMessage>>(emptyList())
-    val messages: StateFlow<List<KintoneMessage>> = _messages.asStateFlow()
+        init {
+            loadMessages()
+        }
 
-    init {
-        loadMessages()
-    }
-
-    private fun loadMessages() {
-        viewModelScope.launch {
-            _messages.value = repository.getMessagesForThread(threadId)
+        private fun loadMessages() {
+            viewModelScope.launch {
+                _messages.value = repository.getMessagesForThread(threadId)
+            }
         }
     }
-}

@@ -8,8 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
-import com.cybozu.sample.kintone.spaces.feature.communicate.communicateNavigation
 import com.cybozu.sample.kintone.spaces.feature.communicate.SpaceRoute
+import com.cybozu.sample.kintone.spaces.feature.communicate.communicateNavigation
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

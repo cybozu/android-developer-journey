@@ -11,29 +11,31 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class SpaceViewModel @Inject constructor(
-    private val repository: SpaceRepository
-) : ViewModel() {
+class SpaceViewModel
+    @Inject
+    constructor(
+        private val repository: SpaceRepository,
+    ) : ViewModel() {
+        private val _uiState = MutableStateFlow(SpaceUiState())
+        val uiState: StateFlow<SpaceUiState> = _uiState.asStateFlow()
 
-    private val _uiState = MutableStateFlow(SpaceUiState())
-    val uiState: StateFlow<SpaceUiState> = _uiState.asStateFlow()
+        init {
+            loadThreads()
+        }
 
-    init {
-        loadThreads()
-    }
-
-    private fun loadThreads() {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            try {
-                val threads = repository.getAllThreads()
-                _uiState.value = _uiState.value.copy(
-                    threads = threads,
-                    isLoading = false
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false)
+        private fun loadThreads() {
+            viewModelScope.launch {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+                try {
+                    val threads = repository.getAllThreads()
+                    _uiState.value =
+                        _uiState.value.copy(
+                            threads = threads,
+                            isLoading = false
+                        )
+                } catch (e: Exception) {
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                }
             }
         }
     }
-}
