@@ -2,6 +2,7 @@ import com.android.build.api.dsl.ApplicationExtension
 import com.cybozu.sample.buildLogic.convention.android
 import com.cybozu.sample.buildLogic.convention.configureAndroidCommon
 import com.cybozu.sample.buildLogic.convention.configureKotlinCommon
+import com.cybozu.sample.buildLogic.convention.configureLint
 import com.cybozu.sample.buildLogic.convention.getPluginId
 import com.cybozu.sample.buildLogic.convention.kotlinAndroid
 import com.cybozu.sample.buildLogic.convention.libs
@@ -26,6 +27,8 @@ class AndroidApplicationPlugin : Plugin<Project> {
                     targetSdk = 36
                 }
             }
+
+            configureLint()
         }
     }
 }

@@ -2,6 +2,7 @@ import com.android.build.api.dsl.LibraryExtension
 import com.cybozu.sample.buildLogic.convention.android
 import com.cybozu.sample.buildLogic.convention.configureAndroidCommon
 import com.cybozu.sample.buildLogic.convention.configureKotlinCommon
+import com.cybozu.sample.buildLogic.convention.configureLint
 import com.cybozu.sample.buildLogic.convention.getPluginId
 import com.cybozu.sample.buildLogic.convention.kotlinAndroid
 import com.cybozu.sample.buildLogic.convention.libs
@@ -23,6 +24,8 @@ class AndroidLibraryPlugin : Plugin<Project> {
             android<LibraryExtension> {
                 configureAndroidCommon()
             }
+
+            configureLint()
         }
     }
 }
