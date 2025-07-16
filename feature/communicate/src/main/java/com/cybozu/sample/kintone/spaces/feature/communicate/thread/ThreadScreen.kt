@@ -32,7 +32,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cybozu.sample.kintone.spaces.data.space.KintoneMessage
-import com.cybozu.sample.kintone.spaces.feature.communicate.ThreadViewModel
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButton
 

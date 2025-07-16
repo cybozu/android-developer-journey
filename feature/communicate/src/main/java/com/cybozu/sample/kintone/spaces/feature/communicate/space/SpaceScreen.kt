@@ -23,7 +23,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cybozu.sample.kintone.spaces.data.space.KintoneThread
-import com.cybozu.sample.kintone.spaces.feature.communicate.SpaceViewModel
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 
 @OptIn(ExperimentalMaterial3Api::class)

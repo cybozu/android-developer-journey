@@ -1,9 +1,10 @@
-package com.cybozu.sample.kintone.spaces.feature.communicate
+package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
 import com.cybozu.sample.kintone.spaces.data.space.KintoneMessage
+import com.cybozu.sample.kintone.spaces.data.space.KintoneThread
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -50,7 +51,7 @@ class ThreadViewModelTest {
     }
 
     private class FakeSpaceRepositoryForThread : SpaceRepository {
-        override fun getAllThreads(): List<com.cybozu.sample.kintone.spaces.data.space.KintoneThread> {
+        override fun getAllThreads(): List<KintoneThread> {
             return emptyList()
         }
 

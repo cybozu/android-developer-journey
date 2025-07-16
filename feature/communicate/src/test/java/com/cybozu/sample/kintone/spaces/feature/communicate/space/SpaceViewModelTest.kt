@@ -1,5 +1,6 @@
-package com.cybozu.sample.kintone.spaces.feature.communicate
+package com.cybozu.sample.kintone.spaces.feature.communicate.space
 
+import com.cybozu.sample.kintone.spaces.data.space.KintoneMessage
 import com.cybozu.sample.kintone.spaces.data.space.KintoneThread
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
 import io.kotest.matchers.shouldBe
@@ -57,7 +58,7 @@ private class FakeSpaceRepository : SpaceRepository {
         )
     }
 
-    override fun getMessagesForThread(threadId: String): List<com.cybozu.sample.kintone.spaces.data.space.KintoneMessage> {
+    override fun getMessagesForThread(threadId: String): List<KintoneMessage> {
         return emptyList()
     }
 }
