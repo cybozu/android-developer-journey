@@ -24,7 +24,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,13 +38,13 @@ import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButto
 @Composable
 fun ThreadScreen(
     threadId: String,
-    viewModel: ThreadViewModel = hiltViewModel()
+    viewModel: ThreadViewModel = hiltViewModel(
+        creationCallback = { factory: ThreadViewModelFactory ->
+            factory.create(threadId)
+        }
+    )
 ) {
     val messages by viewModel.messages.collectAsState()
-
-    LaunchedEffect(threadId) {
-        viewModel.loadMessages(threadId)
-    }
 
     ThreadContent(
         threadId = threadId,
@@ -56,14 +55,14 @@ fun ThreadScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThreadContent(
-    threadId: String?,
+    threadId: String,
     messages: List<KintoneMessage>
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(if (threadId != null) "Thread: $threadId" else "Thread not found")
+                    Text("Thread: $threadId")
                 },
                 navigationIcon = {
                     SystemBackNavButton()
@@ -76,10 +75,6 @@ fun ThreadContent(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            if (threadId == null) {
-                Text("Thread not found.", modifier = Modifier.padding(16.dp))
-                return@Column
-            }
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(messages) { message ->
                     MessageListItem(message = message)

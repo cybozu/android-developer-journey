@@ -33,7 +33,7 @@ class ThreadViewModelTest {
 
     private fun createViewModel(): ThreadViewModel {
         val repository = FakeSpaceRepository()
-        return ThreadViewModel(repository)
+        return ThreadViewModel(threadId = "thread-1", repository = repository)
     }
 
     @Test
@@ -41,8 +41,6 @@ class ThreadViewModelTest {
         val viewModel = createViewModel()
 
         viewModel.messages.test {
-            viewModel.loadMessages("thread-1")
-
             val messages = expectMostRecentItem()
 
             messages.size shouldBe 2
