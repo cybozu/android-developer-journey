@@ -9,7 +9,7 @@ interface SpaceService {
     suspend fun getAllThreads(
         @Header("X-Cybozu-Authorization") encodeString: String,
         @Body body : GetAllThreadsBody
-    ): List<KintoneThread>
+    ): ThreadListResponse
 
     @POST("k/api/space/thread/post/list.json")
     suspend fun getMessagesForThread(

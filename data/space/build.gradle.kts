@@ -14,6 +14,7 @@ android {
         localProperties.load(rootProject.file("local.properties").inputStream())
         buildConfigField("String", "USER", "\"${localProperties.getProperty("user", "")}\"")
         buildConfigField("String", "PASSWORD", "\"${localProperties.getProperty("password", "")}\"")
+        buildConfigField("String", "DOMAIN", "\"${localProperties.getProperty("domain", "")}\"")
     }
 
     buildFeatures {
@@ -26,6 +27,11 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(libs.retrofit)
+    implementation(libs.retrofit.logging.interceptor)
+    implementation(libs.moshi)
+    implementation(libs.moshi.converter)
+    implementation(libs.moshi.adapters)
+    implementation(libs.moshi.kotlin)
 
     testImplementation(libs.junit)
 }

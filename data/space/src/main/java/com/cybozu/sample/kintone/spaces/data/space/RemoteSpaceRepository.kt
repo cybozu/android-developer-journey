@@ -8,8 +8,8 @@ class RemoteSpaceRepository @Inject constructor(
     private val spaceRemoteDataSource: SpaceRemoteDataSource
 ) : SpaceRepository {
 
-    override suspend fun getAllThreads(spaceId: String): List<KintoneThread> {
-        return spaceRemoteDataSource.getAllThreads(spaceId = spaceId)
+    override suspend fun getAllThreads(spaceId: String): List<Thread> {
+        return spaceRemoteDataSource.getAllThreads(spaceId = spaceId).result.items
     }
 
     override suspend fun getMessagesForThread(threadId: String): List<KintoneMessage> {
