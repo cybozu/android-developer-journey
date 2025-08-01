@@ -8,7 +8,7 @@ import kotlinx.coroutines.delay
 class LocalSpaceRepository
     @Inject
     constructor() : SpaceRepository {
-        override suspend fun getAllThreads(): List<KintoneThread> {
+        override suspend fun getAllThreads(spaceId: String): List<KintoneThread> {
             delay(1000)
             return List(10) {
                 KintoneThread(

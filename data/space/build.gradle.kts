@@ -12,5 +12,7 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
+    implementation(libs.retrofit)
+
     testImplementation(libs.junit)
 }

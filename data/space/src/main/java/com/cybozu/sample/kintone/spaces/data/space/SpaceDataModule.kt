@@ -9,5 +9,8 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 abstract class SpaceDataModule {
     @Binds
-    abstract fun bindSpaceRepository(localSpaceRepository: LocalSpaceRepository): SpaceRepository
+    abstract fun bindLocalSpaceRepository(localSpaceRepository: LocalSpaceRepository): SpaceRepository
+
+    @Binds
+    abstract fun bindRemoteSpaceRepository(remoteSpaceRepository: RemoteSpaceRepository): SpaceRepository
 }
