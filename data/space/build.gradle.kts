@@ -11,10 +11,13 @@ android {
 
     defaultConfig {
         val localProperties = Properties()
-        localProperties.load(rootProject.file("local.properties").inputStream())
-        buildConfigField("String", "USER", "\"${localProperties.getProperty("user", "")}\"")
-        buildConfigField("String", "PASSWORD", "\"${localProperties.getProperty("password", "")}\"")
-        buildConfigField("String", "DOMAIN", "\"${localProperties.getProperty("domain", "")}\"")
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localProperties.load(localPropertiesFile.inputStream())
+            buildConfigField("String", "USER", "\"${localProperties.getProperty("user", "")}\"")
+            buildConfigField("String", "PASSWORD", "\"${localProperties.getProperty("password", "")}\"")
+            buildConfigField("String", "DOMAIN", "\"${localProperties.getProperty("domain", "")}\"")
+        }
     }
 
     buildFeatures {
