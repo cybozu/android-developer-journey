@@ -30,7 +30,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SpaceScreen(
     onThreadClick: (String) -> Unit,

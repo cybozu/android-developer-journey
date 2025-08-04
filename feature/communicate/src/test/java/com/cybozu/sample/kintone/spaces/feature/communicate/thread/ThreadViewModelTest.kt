@@ -1,9 +1,10 @@
 package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
 import app.cash.turbine.test
-import com.cybozu.sample.kintone.spaces.data.space.KintoneMessage
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
+import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
+import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,12 +40,21 @@ class ThreadViewModelTest {
         runTest {
             val viewModel = createViewModel()
 
-            viewModel.messages.test {
-                val messages = expectMostRecentItem()
+            viewModel.uiState.test {
+                val initialState = awaitItem()
+                initialState.threadMessages shouldBe emptyList()
+                initialState.isLoading shouldBe false
 
-                messages.size shouldBe 2
-                messages[0].id shouldBe "msg-1"
-                messages[0].threadId shouldBe "thread-1"
+                val loadingState = awaitItem()
+                loadingState.threadMessages shouldBe emptyList()
+                loadingState.isLoading shouldBe true
+
+                val loadedState = awaitItem()
+                loadedState.threadMessages.size shouldBe 2
+                loadedState.threadMessages[0].id shouldBe "msg-1"
+                loadedState.threadMessages[0].body shouldBe "thread-1"
+                loadedState.threadMessages[0].creator shouldBe Creator(name = "name1")
+                loadedState.isLoading shouldBe false
             }
         }
 }
@@ -52,11 +62,11 @@ class ThreadViewModelTest {
 private class FakeSpaceRepository : SpaceRepository {
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
-    override suspend fun getMessagesForThread(threadId: String): List<KintoneMessage> {
+    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
         if (threadId == "thread-1") {
             return listOf(
-                KintoneMessage("msg-1", "thread-1", "User1", "", "Message 1"),
-                KintoneMessage("msg-2", "thread-1", "User2", "", "Message 2")
+                ThreadMessage("msg-1", "thread-1", Creator(name = "name1")),
+                ThreadMessage("msg-2", "thread-2", Creator(name = "name2"))
             )
         }
         return emptyList()

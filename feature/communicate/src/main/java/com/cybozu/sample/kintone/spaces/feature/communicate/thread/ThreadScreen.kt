@@ -1,5 +1,6 @@
 package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,13 +30,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButton
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 import com.cybozu.sample.kintone.spaces.data.space.KintoneMessage
+import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
+import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
+import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
+import com.cybozu.sample.kintone.spaces.feature.communicate.space.SpaceUiState
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThreadScreen(
     threadId: String,
@@ -45,11 +52,11 @@ fun ThreadScreen(
             }
         ),
 ) {
-    val messages by viewModel.messages.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     ThreadContent(
         threadId = threadId,
-        messages = messages
+        uiState = uiState
     )
 }
 
@@ -57,7 +64,7 @@ fun ThreadScreen(
 @Composable
 fun ThreadContent(
     threadId: String,
-    messages: List<KintoneMessage>,
+    uiState: ThreadUiState,
 ) {
     Scaffold(
         topBar = {
@@ -71,15 +78,22 @@ fun ThreadContent(
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-        ) {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(messages) { message ->
-                    MessageListItem(message = message)
+        if (uiState.isLoading) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(innerPadding)
+            ) {
+                items(uiState.threadMessages) { threadMessage ->
+                    MessageListItem(threadMessage = threadMessage)
                 }
             }
         }
@@ -87,7 +101,7 @@ fun ThreadContent(
 }
 
 @Composable
-private fun MessageListItem(message: KintoneMessage) {
+private fun MessageListItem(threadMessage: ThreadMessage) {
     Card(
         modifier =
             Modifier
@@ -100,7 +114,7 @@ private fun MessageListItem(message: KintoneMessage) {
         ) {
             Icon(
                 imageVector = Icons.Filled.Person,
-                contentDescription = "${message.userName}'s icon",
+                contentDescription = "${threadMessage.creator.name}'s icon",
                 modifier =
                     Modifier
                         .size(40.dp)
@@ -108,9 +122,9 @@ private fun MessageListItem(message: KintoneMessage) {
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column {
-                Text(text = message.userName, style = MaterialTheme.typography.titleSmall)
+                Text(text = threadMessage.creator.name, style = MaterialTheme.typography.titleSmall)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = message.content, style = MaterialTheme.typography.bodyMedium)
+                Text(text = threadMessage.body, style = MaterialTheme.typography.bodyMedium)
             }
         }
     }
@@ -123,13 +137,46 @@ private val previewMessages =
         KintoneMessage("msg-3", "thread-1", "Preview User 3", "", "This is a preview message 3")
     )
 
+class ThreadContentPreviewParameter :
+    CollectionPreviewParameterProvider<ThreadUiState>(
+        listOf(
+            ThreadUiState(
+                threadMessages =
+                    listOf(
+                        ThreadMessage(
+                            id = "1",
+                            body = "This is a preview message snippet 1...",
+                            creator = Creator(name = "name1")
+                        ),
+                        ThreadMessage(
+                            id = "2",
+                            body = "This is a preview message snippet 2...",
+                            creator = Creator(name = "name2")
+                        ),
+                        ThreadMessage(
+                            id = "3",
+                            body = "This is a preview message snippet 3...",
+                            creator = Creator(name = "name3")
+                        )
+                    ),
+                isLoading = false
+            ),
+            ThreadUiState(
+                threadMessages = emptyList(),
+                isLoading = true
+            )
+        )
+    )
+
 @Preview(showBackground = true)
 @Composable
-fun ThreadContentPreview() {
+fun ThreadContentPreview(
+    @PreviewParameter(ThreadContentPreviewParameter::class) uiState: ThreadUiState,
+) {
     KintoneSpacesTheme {
         ThreadContent(
             threadId = "thread-1",
-            messages = previewMessages
+            uiState = uiState
         )
     }
 }
