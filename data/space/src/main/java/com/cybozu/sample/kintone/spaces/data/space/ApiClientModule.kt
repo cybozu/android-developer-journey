@@ -17,14 +17,15 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 @InstallIn(SingletonComponent::class)
 class ApiClientModule {
     @Provides
-    fun provideRetrofit(
-        okHttpClient: OkHttpClient
-    ): Retrofit {
-        val moshi = Moshi.Builder()
-            .add(KotlinJsonAdapterFactory())
-            .add(Date::class.java, Rfc3339DateJsonAdapter())
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        val moshi =
+            Moshi
+                .Builder()
+                .add(KotlinJsonAdapterFactory())
+                .add(Date::class.java, Rfc3339DateJsonAdapter())
         val moshiConverterFactory = MoshiConverterFactory.create(moshi.build())
-        return Retrofit.Builder()
+        return Retrofit
+            .Builder()
             .baseUrl("https://${BuildConfig.DOMAIN}/")
             .addConverterFactory(moshiConverterFactory)
             .client(okHttpClient)
@@ -33,14 +34,16 @@ class ApiClientModule {
 
     @Provides
     fun provideOkHttpClient(): OkHttpClient {
-        val loggingInterceptor = HttpLoggingInterceptor().also {
-            if (BuildConfig.DEBUG) {
-                it.level = HttpLoggingInterceptor.Level.BODY
-            } else {
-                it.level = HttpLoggingInterceptor.Level.NONE
+        val loggingInterceptor =
+            HttpLoggingInterceptor().also {
+                if (BuildConfig.DEBUG) {
+                    it.level = HttpLoggingInterceptor.Level.BODY
+                } else {
+                    it.level = HttpLoggingInterceptor.Level.NONE
+                }
             }
-        }
-        return OkHttpClient.Builder()
+        return OkHttpClient
+            .Builder()
             .addInterceptor(loggingInterceptor)
             .build()
     }

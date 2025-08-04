@@ -7,14 +7,10 @@ import javax.inject.Singleton
 
 @Singleton
 class RemoteSpaceRepository @Inject constructor(
-    private val spaceRemoteDataSource: SpaceRemoteDataSource
+    private val spaceRemoteDataSource: SpaceRemoteDataSource,
 ) : SpaceRepository {
+    override suspend fun getAllThreads(spaceId: String): List<Thread> = spaceRemoteDataSource.getAllThreads(spaceId = spaceId).result.items
 
-    override suspend fun getAllThreads(spaceId: String): List<Thread> {
-        return spaceRemoteDataSource.getAllThreads(spaceId = spaceId).result.items
-    }
-
-    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
-        return spaceRemoteDataSource.getMessagesForThread(threadId = threadId).result.items
-    }
+    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> =
+        spaceRemoteDataSource.getMessagesForThread(threadId = threadId).result.items
 }

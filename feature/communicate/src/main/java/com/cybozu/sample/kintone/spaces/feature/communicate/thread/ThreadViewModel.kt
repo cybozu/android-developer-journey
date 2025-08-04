@@ -2,7 +2,6 @@ package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cybozu.sample.kintone.spaces.data.space.KintoneMessage
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory

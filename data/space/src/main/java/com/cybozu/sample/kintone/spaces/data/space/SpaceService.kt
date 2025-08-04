@@ -12,12 +12,12 @@ interface SpaceService {
     @POST("k/api/space/thread/list.json")
     suspend fun getAllThreads(
         @Header("X-Cybozu-Authorization") encodeString: String,
-        @Body body : GetAllThreadsBody
+        @Body body: GetAllThreadsBody,
     ): ThreadListResponse
 
     @POST("k/api/space/thread/post/list.json")
     suspend fun getMessagesForThread(
         @Header("X-Cybozu-Authorization") encodeString: String,
-        @Body body : GetMessagesForThreadBody
+        @Body body: GetMessagesForThreadBody,
     ): ThreadMessageResponse
 }

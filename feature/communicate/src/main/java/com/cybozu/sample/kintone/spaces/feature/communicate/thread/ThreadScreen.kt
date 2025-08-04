@@ -38,9 +38,7 @@ import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButto
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 import com.cybozu.sample.kintone.spaces.data.space.KintoneMessage
 import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
-import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
-import com.cybozu.sample.kintone.spaces.feature.communicate.space.SpaceUiState
 
 @Composable
 fun ThreadScreen(

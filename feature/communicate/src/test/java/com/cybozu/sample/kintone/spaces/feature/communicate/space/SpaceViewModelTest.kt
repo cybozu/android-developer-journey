@@ -61,8 +61,8 @@ private class FakeSpaceRepository : SpaceRepository {
     override suspend fun getAllThreads(spaceId: String): List<Thread> {
         delay(100) // 通信時間を模擬
         return listOf(
-            Thread("thread-1", "space1","Test Thread 1", "Last message 1"),
-            Thread("thread-2", "space2","Test Thread 2", "Last message 2")
+            Thread("thread-1", "space1", "Test Thread 1", "Last message 1"),
+            Thread("thread-2", "space2", "Test Thread 2", "Last message 2")
         )
     }
 
