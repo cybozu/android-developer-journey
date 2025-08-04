@@ -3,7 +3,7 @@ package com.cybozu.sample.kintone.spaces.feature.communicate.space
 import app.cash.turbine.test
 import com.cybozu.sample.kintone.spaces.data.space.KintoneMessage
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
-import com.cybozu.sample.kintone.spaces.data.space.Thread
+import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

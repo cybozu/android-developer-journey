@@ -28,7 +28,7 @@ import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
-import com.cybozu.sample.kintone.spaces.data.space.Thread
+import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

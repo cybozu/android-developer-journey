@@ -1,5 +1,8 @@
 package com.cybozu.sample.kintone.spaces.data.space
 
+import com.cybozu.sample.kintone.spaces.data.space.entity.GetAllThreadsBody
+import com.cybozu.sample.kintone.spaces.data.space.entity.GetMessagesForThreadBody
+import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadListResponse
 import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.POST

@@ -1,5 +1,6 @@
 package com.cybozu.sample.kintone.spaces.data.space
 
+import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 import javax.inject.Inject
 import javax.inject.Singleton
 
