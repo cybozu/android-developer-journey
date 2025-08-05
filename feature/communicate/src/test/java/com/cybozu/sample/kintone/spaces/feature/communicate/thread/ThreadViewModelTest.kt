@@ -8,6 +8,7 @@ import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -18,10 +19,9 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ThreadViewModelTest {
-    private val testDispatcher = UnconfinedTestDispatcher()
-
     @Before
     fun setup() {
+        val testDispatcher = StandardTestDispatcher()
         Dispatchers.setMain(testDispatcher)
     }
 
@@ -54,6 +54,9 @@ class ThreadViewModelTest {
                 loadedState.threadMessages[0].id shouldBe "msg-1"
                 loadedState.threadMessages[0].body shouldBe "thread-1"
                 loadedState.threadMessages[0].creator shouldBe Creator(name = "name1")
+                loadedState.threadMessages[1].id shouldBe "msg-2"
+                loadedState.threadMessages[1].body shouldBe "thread-2"
+                loadedState.threadMessages[1].creator shouldBe Creator(name = "name2")
                 loadedState.isLoading shouldBe false
             }
         }

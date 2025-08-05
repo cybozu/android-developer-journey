@@ -52,6 +52,8 @@ class SpaceViewModelTest {
                 loadedState.threads.size shouldBe 2
                 loadedState.threads[0].id shouldBe "thread-1"
                 loadedState.threads[0].name shouldBe "Test Thread 1"
+                loadedState.threads[1].id shouldBe "thread-2"
+                loadedState.threads[1].name shouldBe "Test Thread 2"
                 loadedState.isLoading shouldBe false
             }
         }
