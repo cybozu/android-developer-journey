@@ -26,6 +26,8 @@ APIの具体的な仕様は以下のページを参照してください。
 
 [スペースのスレッドにコメントを投稿する \- cybozu developer network](https://cybozu.dev/ja/kintone/docs/rest-api/spaces/add-thread-comment/)
 
+API呼び出しの実装は `:data:space` にあるRepositoryの実装を参考にしてみてください。
+
 ## 参考情報
 
 本アプリで使用している通信ライブラリ
