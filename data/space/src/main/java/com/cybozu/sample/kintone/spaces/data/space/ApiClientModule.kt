@@ -22,7 +22,6 @@ class ApiClientModule {
             Moshi
                 .Builder()
                 .add(KotlinJsonAdapterFactory())
-                .add(Date::class.java, Rfc3339DateJsonAdapter())
         val moshiConverterFactory = MoshiConverterFactory.create(moshi.build())
         return Retrofit
             .Builder()
