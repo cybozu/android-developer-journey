@@ -28,9 +28,8 @@ import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
-import com.cybozu.sample.kintone.spaces.data.space.KintoneThread
+import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SpaceScreen(
     onThreadClick: (String) -> Unit,
@@ -84,7 +83,7 @@ fun SpaceContent(
 
 @Composable
 private fun ThreadListItem(
-    thread: KintoneThread,
+    thread: Thread,
     onClick: () -> Unit,
 ) {
     Card(
@@ -95,9 +94,9 @@ private fun ThreadListItem(
                 .clickable(onClick = onClick)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = thread.title, style = MaterialTheme.typography.titleMedium)
+            Text(text = thread.name, style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = thread.lastMessageSnippet, style = MaterialTheme.typography.bodySmall)
+            Text(text = thread.body ?: "本文未設定", style = MaterialTheme.typography.bodySmall)
         }
     }
 }
@@ -108,20 +107,23 @@ class SpaceContentPreviewParameter :
             SpaceUiState(
                 threads =
                     listOf(
-                        KintoneThread(
-                            "thread-1",
-                            "Preview Thread 1",
-                            "This is a preview message snippet 1..."
+                        Thread(
+                            id = "1",
+                            spaceId = "3",
+                            name = "thread-1",
+                            body = "This is a preview message snippet 1..."
                         ),
-                        KintoneThread(
-                            "thread-2",
-                            "Preview Thread 2",
-                            "This is a preview message snippet 2..."
+                        Thread(
+                            id = "2",
+                            spaceId = "3",
+                            name = "thread-2",
+                            body = "This is a preview message snippet 2..."
                         ),
-                        KintoneThread(
-                            "thread-3",
-                            "Preview Thread 3",
-                            "This is a preview message snippet 3..."
+                        Thread(
+                            id = "3",
+                            spaceId = "3",
+                            name = "thread-2",
+                            body = "This is a preview message snippet 3..."
                         )
                     ),
                 isLoading = false
