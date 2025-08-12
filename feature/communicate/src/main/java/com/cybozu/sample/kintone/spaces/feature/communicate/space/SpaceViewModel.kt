@@ -27,7 +27,7 @@ class SpaceViewModel
             viewModelScope.launch {
                 _uiState.value = _uiState.value.copy(isLoading = true)
                 try {
-                    val threads = repository.getAllThreads()
+                    val threads = repository.getAllThreads(spaceId = "3")
                     _uiState.value =
                         _uiState.value.copy(
                             threads = threads,

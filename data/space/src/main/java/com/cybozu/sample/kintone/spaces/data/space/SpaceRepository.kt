@@ -1,7 +1,10 @@
 package com.cybozu.sample.kintone.spaces.data.space
 
-interface SpaceRepository {
-    suspend fun getAllThreads(): List<KintoneThread>
+import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
+import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 
-    suspend fun getMessagesForThread(threadId: String): List<KintoneMessage>
+interface SpaceRepository {
+    suspend fun getAllThreads(spaceId: String): List<Thread>
+
+    suspend fun getMessagesForThread(threadId: String): List<ThreadMessage>
 }

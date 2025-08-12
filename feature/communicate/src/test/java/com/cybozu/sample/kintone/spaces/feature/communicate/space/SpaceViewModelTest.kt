@@ -1,9 +1,9 @@
 package com.cybozu.sample.kintone.spaces.feature.communicate.space
 
 import app.cash.turbine.test
-import com.cybozu.sample.kintone.spaces.data.space.KintoneMessage
-import com.cybozu.sample.kintone.spaces.data.space.KintoneThread
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
+import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
+import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -51,20 +51,22 @@ class SpaceViewModelTest {
                 val loadedState = awaitItem()
                 loadedState.threads.size shouldBe 2
                 loadedState.threads[0].id shouldBe "thread-1"
-                loadedState.threads[0].title shouldBe "Test Thread 1"
+                loadedState.threads[0].name shouldBe "Test Thread 1"
+                loadedState.threads[1].id shouldBe "thread-2"
+                loadedState.threads[1].name shouldBe "Test Thread 2"
                 loadedState.isLoading shouldBe false
             }
         }
 }
 
 private class FakeSpaceRepository : SpaceRepository {
-    override suspend fun getAllThreads(): List<KintoneThread> {
+    override suspend fun getAllThreads(spaceId: String): List<Thread> {
         delay(100) // 通信時間を模擬
         return listOf(
-            KintoneThread("thread-1", "Test Thread 1", "Last message 1"),
-            KintoneThread("thread-2", "Test Thread 2", "Last message 2")
+            Thread("thread-1", "space1", "Test Thread 1", "Last message 1"),
+            Thread("thread-2", "space2", "Test Thread 2", "Last message 2")
         )
     }
 
-    override suspend fun getMessagesForThread(threadId: String): List<KintoneMessage> = emptyList()
+    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = emptyList()
 }

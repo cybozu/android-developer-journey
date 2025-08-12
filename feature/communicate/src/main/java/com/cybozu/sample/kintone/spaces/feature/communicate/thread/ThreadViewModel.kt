@@ -2,7 +2,6 @@ package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cybozu.sample.kintone.spaces.data.space.KintoneMessage
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -23,8 +22,8 @@ class ThreadViewModel @AssistedInject constructor(
     @Assisted private val threadId: String,
     private val repository: SpaceRepository,
 ) : ViewModel() {
-    private val _messages = MutableStateFlow<List<KintoneMessage>>(emptyList())
-    val messages: StateFlow<List<KintoneMessage>> = _messages.asStateFlow()
+    private val _uiState = MutableStateFlow(ThreadUiState())
+    val uiState: StateFlow<ThreadUiState> = _uiState.asStateFlow()
 
     init {
         loadMessages()
@@ -32,7 +31,13 @@ class ThreadViewModel @AssistedInject constructor(
 
     private fun loadMessages() {
         viewModelScope.launch {
-            _messages.value = repository.getMessagesForThread(threadId)
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            val threadMessages = repository.getMessagesForThread(threadId = threadId)
+            _uiState.value =
+                _uiState.value.copy(
+                    threadMessages = threadMessages,
+                    isLoading = false
+                )
         }
     }
 }
