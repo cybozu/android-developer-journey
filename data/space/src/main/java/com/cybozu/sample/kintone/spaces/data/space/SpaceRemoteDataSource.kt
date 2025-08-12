@@ -8,7 +8,7 @@ import javax.inject.Inject
 import okio.ByteString.Companion.encode
 import retrofit2.Retrofit
 
-class SpaceRemoteDataSource @Inject constructor(
+internal class SpaceRemoteDataSource @Inject constructor(
     retrofit: Retrofit,
 ) {
     private val spaceService: SpaceService = retrofit.create(SpaceService::class.java)

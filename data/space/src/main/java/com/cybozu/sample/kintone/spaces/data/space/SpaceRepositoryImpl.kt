@@ -4,7 +4,7 @@ import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 import javax.inject.Inject
 
-class SpaceRepositoryImpl @Inject constructor(
+internal class SpaceRepositoryImpl @Inject constructor(
     private val spaceRemoteDataSource: SpaceRemoteDataSource,
 ) : SpaceRepository {
     override suspend fun getAllThreads(spaceId: String): List<Thread> = spaceRemoteDataSource.getAllThreads(spaceId = spaceId).result.items

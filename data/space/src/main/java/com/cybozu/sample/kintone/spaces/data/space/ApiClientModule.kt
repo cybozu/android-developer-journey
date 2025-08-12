@@ -13,9 +13,9 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 
 @Module
 @InstallIn(SingletonComponent::class)
-class ApiClientModule {
+internal class ApiClientModule {
     @Provides
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    internal fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         val moshi =
             Moshi
                 .Builder()
@@ -30,7 +30,7 @@ class ApiClientModule {
     }
 
     @Provides
-    fun provideOkHttpClient(): OkHttpClient {
+    internal fun provideOkHttpClient(): OkHttpClient {
         val loggingInterceptor =
             HttpLoggingInterceptor().also {
                 if (BuildConfig.DEBUG) {

@@ -1,11 +1,11 @@
 package com.cybozu.sample.kintone.spaces.data.space.entity
 
-data class ThreadMessageResponse(
+internal data class ThreadMessageResponse(
     val result: ThreadMessageResult,
     val success: Boolean,
 )
 
-data class ThreadMessageResult(
+internal data class ThreadMessageResult(
     val items: List<ThreadMessage>,
 )
 
