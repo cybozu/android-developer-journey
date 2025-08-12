@@ -107,3 +107,7 @@ gitGraph
 - メンターのコードレビューを受ける
 - 指摘された点を修正
 - Approveされたら自分のmainブランチにマージする
+
+## お題アプリ「Kintone Spaces」
+- [Kintone Spaces アプリ概要](docs/app_overview.md)にアプリの仕様と機能を記載しています
+- [Kintone Spaces コード概要](docs/code_overview.md)にアプリの技術解説を記載しています
