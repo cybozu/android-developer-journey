@@ -10,8 +10,8 @@ import com.cybozu.sample.kintone.spaces.feature.communicate.thread.ThreadScreen
 fun NavGraphBuilder.communicateNavigation(navController: NavController) {
     composable<SpaceRoute> {
         SpaceScreen(
-            onThreadClick = { threadId ->
-                navController.navigate(ThreadRoute(threadId = threadId))
+            onThreadClick = { thread ->
+                navController.navigate(ThreadRoute(threadId = thread.id, threadName = thread.name))
             }
         )
     }
@@ -19,7 +19,8 @@ fun NavGraphBuilder.communicateNavigation(navController: NavController) {
     composable<ThreadRoute> { backStackEntry ->
         val threadRoute = backStackEntry.toRoute<ThreadRoute>()
         ThreadScreen(
-            threadId = threadRoute.threadId
+            threadId = threadRoute.threadId,
+            threadName = threadRoute.threadName
         )
     }
 }

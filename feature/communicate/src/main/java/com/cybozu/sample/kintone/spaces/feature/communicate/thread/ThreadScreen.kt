@@ -36,13 +36,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButton
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
-import com.cybozu.sample.kintone.spaces.data.space.KintoneMessage
 import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 
 @Composable
 fun ThreadScreen(
     threadId: String,
+    threadName: String,
     viewModel: ThreadViewModel =
         hiltViewModel(
             creationCallback = { factory: ThreadViewModelFactory ->
@@ -53,7 +53,7 @@ fun ThreadScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     ThreadContent(
-        threadId = threadId,
+        threadName = threadName,
         uiState = uiState
     )
 }
@@ -61,14 +61,14 @@ fun ThreadScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThreadContent(
-    threadId: String,
+    threadName: String,
     uiState: ThreadUiState,
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Thread: $threadId")
+                    Text(threadName)
                 },
                 navigationIcon = {
                     SystemBackNavButton()
@@ -128,13 +128,6 @@ private fun MessageListItem(threadMessage: ThreadMessage) {
     }
 }
 
-private val previewMessages =
-    listOf(
-        KintoneMessage("msg-1", "thread-1", "Preview User 1", "", "This is a preview message 1"),
-        KintoneMessage("msg-2", "thread-1", "Preview User 2", "", "This is a preview message 2"),
-        KintoneMessage("msg-3", "thread-1", "Preview User 3", "", "This is a preview message 3")
-    )
-
 class ThreadContentPreviewParameter :
     CollectionPreviewParameterProvider<ThreadUiState>(
         listOf(
@@ -173,7 +166,7 @@ fun ThreadContentPreview(
 ) {
     KintoneSpacesTheme {
         ThreadContent(
-            threadId = "thread-1",
+            threadName = "Sample Thread",
             uiState = uiState
         )
     }

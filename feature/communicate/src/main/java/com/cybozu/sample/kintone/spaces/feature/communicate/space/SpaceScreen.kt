@@ -32,7 +32,7 @@ import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 
 @Composable
 fun SpaceScreen(
-    onThreadClick: (String) -> Unit,
+    onThreadClick: (Thread) -> Unit,
     viewModel: SpaceViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -47,7 +47,7 @@ fun SpaceScreen(
 @Composable
 fun SpaceContent(
     uiState: SpaceUiState,
-    onThreadClick: (String) -> Unit,
+    onThreadClick: (Thread) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -73,7 +73,7 @@ fun SpaceContent(
             ) {
                 items(uiState.threads) { thread ->
                     ThreadListItem(thread = thread) {
-                        onThreadClick(thread.id)
+                        onThreadClick(thread)
                     }
                 }
             }
@@ -143,7 +143,7 @@ fun SpaceContentPreview(
     KintoneSpacesTheme {
         SpaceContent(
             uiState = uiState,
-            onThreadClick = {}
+            onThreadClick = { }
         )
     }
 }
