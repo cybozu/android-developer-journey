@@ -1,7 +1,9 @@
 package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
@@ -37,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cybozu.sample.kintone.spaces.core.design.component.Html
 import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButton
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
+import com.cybozu.sample.kintone.spaces.data.space.entity.Comment
 import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 
@@ -89,7 +93,12 @@ fun ThreadContent(
             }
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(innerPadding)
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                contentPadding = PaddingValues(all = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(uiState.threadMessages) { threadMessage ->
                     MessageListItem(threadMessage = threadMessage)
@@ -101,11 +110,34 @@ fun ThreadContent(
 
 @Composable
 private fun MessageListItem(threadMessage: ThreadMessage) {
+    Column {
+        MessageCard(
+            creatorName = threadMessage.creator.name,
+            body = threadMessage.body
+        )
+
+        threadMessage.comments.forEach { comment ->
+            MessageCard(
+                creatorName = comment.creator.name,
+                body = comment.body,
+                modifier = Modifier.padding(start = 40.dp, top = 8.dp),
+                nameStyle = MaterialTheme.typography.labelMedium,
+                bodyStyle = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
+
+@Composable
+private fun MessageCard(
+    creatorName: String,
+    body: String,
+    modifier: Modifier = Modifier,
+    nameStyle: TextStyle = MaterialTheme.typography.titleSmall,
+    bodyStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+) {
     Card(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+        modifier = modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -113,7 +145,7 @@ private fun MessageListItem(threadMessage: ThreadMessage) {
         ) {
             Icon(
                 imageVector = Icons.Filled.Person,
-                contentDescription = "${threadMessage.creator.name}'s icon",
+                contentDescription = "$creatorName's icon",
                 modifier =
                     Modifier
                         .size(40.dp)
@@ -121,11 +153,14 @@ private fun MessageListItem(threadMessage: ThreadMessage) {
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column {
-                Text(text = threadMessage.creator.name, style = MaterialTheme.typography.titleSmall)
+                Text(
+                    text = creatorName,
+                    style = nameStyle
+                )
                 Spacer(modifier = Modifier.height(4.dp))
                 Html(
-                    htmlString = threadMessage.body,
-                    style = MaterialTheme.typography.bodyMedium
+                    htmlString = body,
+                    style = bodyStyle
                 )
             }
         }
@@ -141,10 +176,29 @@ class ThreadContentPreviewParameter :
                         ThreadMessage(
                             id = "1",
                             body = "plain text",
-                            creator = Creator(name = "name1")
+                            creator = Creator(name = "name1"),
+                            comments = emptyList()
                         ),
                         ThreadMessage(
                             id = "2",
+                            body = "plain text with comments",
+                            creator = Creator(name = "name3"),
+                            comments =
+                                listOf(
+                                    Comment(
+                                        id = "1",
+                                        body = "comment 1",
+                                        creator = Creator(name = "commenter1")
+                                    ),
+                                    Comment(
+                                        id = "2",
+                                        body = "comment 2",
+                                        creator = Creator(name = "commenter2")
+                                    )
+                                )
+                        ),
+                        ThreadMessage(
+                            id = "3",
                             body =
                                 """
                                 <h1>Jetpack Compose</h1>
@@ -152,7 +206,8 @@ class ThreadContentPreviewParameter :
                                     Build <b>better apps</b> faster with <a href="https://www.android.com">Jetpack Compose</a>
                                 </p> 
                                 """.trimIndent(),
-                            creator = Creator(name = "name2")
+                            creator = Creator(name = "name2"),
+                            comments = emptyList()
                         )
                     ),
                 isLoading = false
