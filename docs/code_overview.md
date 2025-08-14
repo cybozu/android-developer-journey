@@ -65,6 +65,8 @@ graph TD
   - ネットワーク通信など非同期で処理したい場合に使用
 - [OkHttp](https://square.github.io/okhttp/), [Retrofit](https://square.github.io/retrofit/)
   - HTTP通信を行うためのライブラリ
+- [Dagger Hilt](https://dagger.dev/hilt/)
+  - 依存性注入を簡素化するためのライブラリ
 
 ## Linter
 
