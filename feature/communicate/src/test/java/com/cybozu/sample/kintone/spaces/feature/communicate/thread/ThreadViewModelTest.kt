@@ -67,8 +67,18 @@ private class FakeSpaceRepository : SpaceRepository {
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
         if (threadId == "thread-1") {
             return listOf(
-                ThreadMessage("msg-1", "thread-1", Creator(name = "name1")),
-                ThreadMessage("msg-2", "thread-2", Creator(name = "name2"))
+                ThreadMessage(
+                    id = "msg-1",
+                    body = "thread-1",
+                    creator = Creator(name = "name1"),
+                    comments = emptyList()
+                ),
+                ThreadMessage(
+                    id = "msg-2",
+                    body = "thread-2",
+                    creator = Creator(name = "name2"),
+                    comments = emptyList()
+                )
             )
         }
         return emptyList()

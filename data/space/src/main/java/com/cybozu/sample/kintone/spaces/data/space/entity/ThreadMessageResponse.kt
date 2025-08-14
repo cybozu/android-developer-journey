@@ -13,8 +13,15 @@ data class ThreadMessage(
     val id: String,
     val body: String,
     val creator: Creator,
+    val comments: List<Comment>,
 )
 
 data class Creator(
     val name: String,
+)
+
+data class Comment(
+    val id: String,
+    val body: String,
+    val creator: Creator,
 )

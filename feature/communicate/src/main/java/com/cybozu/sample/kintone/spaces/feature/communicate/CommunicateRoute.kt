@@ -8,4 +8,5 @@ object SpaceRoute
 @Serializable
 data class ThreadRoute(
     val threadId: String,
+    val threadName: String,
 )

@@ -13,5 +13,5 @@ data class Thread(
     val id: String,
     val spaceId: String,
     val name: String,
-    val body: String?,
+    val body: String,
 )
