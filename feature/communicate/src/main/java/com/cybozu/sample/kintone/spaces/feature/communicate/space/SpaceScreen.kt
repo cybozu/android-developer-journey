@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cybozu.sample.kintone.spaces.core.design.component.Html
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 
@@ -94,9 +95,16 @@ private fun ThreadListItem(
                 .clickable(onClick = onClick)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = thread.name, style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = thread.name,
+                style = MaterialTheme.typography.titleMedium
+            )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = thread.body ?: "本文未設定", style = MaterialTheme.typography.bodySmall)
+
+            Html(
+                htmlString = thread.body,
+                style = MaterialTheme.typography.bodySmall
+            )
         }
     }
 }
@@ -111,19 +119,13 @@ class SpaceContentPreviewParameter :
                             id = "1",
                             spaceId = "3",
                             name = "thread-1",
-                            body = "This is a preview message snippet 1..."
+                            body = "plain text body"
                         ),
                         Thread(
                             id = "2",
                             spaceId = "3",
                             name = "thread-2",
-                            body = "This is a preview message snippet 2..."
-                        ),
-                        Thread(
-                            id = "3",
-                            spaceId = "3",
-                            name = "thread-2",
-                            body = "This is a preview message snippet 3..."
+                            body = "Html body with <strong>bold</strong> text"
                         )
                     ),
                 isLoading = false

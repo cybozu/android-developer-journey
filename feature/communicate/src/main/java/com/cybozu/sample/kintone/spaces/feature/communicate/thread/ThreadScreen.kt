@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cybozu.sample.kintone.spaces.core.design.component.Html
 import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButton
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
@@ -122,7 +123,10 @@ private fun MessageListItem(threadMessage: ThreadMessage) {
             Column {
                 Text(text = threadMessage.creator.name, style = MaterialTheme.typography.titleSmall)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = threadMessage.body, style = MaterialTheme.typography.bodyMedium)
+                Html(
+                    htmlString = threadMessage.body,
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
         }
     }
@@ -136,18 +140,19 @@ class ThreadContentPreviewParameter :
                     listOf(
                         ThreadMessage(
                             id = "1",
-                            body = "This is a preview message snippet 1...",
+                            body = "plain text",
                             creator = Creator(name = "name1")
                         ),
                         ThreadMessage(
                             id = "2",
-                            body = "This is a preview message snippet 2...",
+                            body =
+                                """
+                                <h1>Jetpack Compose</h1>
+                                <p>
+                                    Build <b>better apps</b> faster with <a href="https://www.android.com">Jetpack Compose</a>
+                                </p> 
+                                """.trimIndent(),
                             creator = Creator(name = "name2")
-                        ),
-                        ThreadMessage(
-                            id = "3",
-                            body = "This is a preview message snippet 3...",
-                            creator = Creator(name = "name3")
                         )
                     ),
                 isLoading = false
