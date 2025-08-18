@@ -31,13 +31,22 @@ class ThreadViewModel @AssistedInject constructor(
 
     private fun loadMessages() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            val threadMessages = repository.getMessagesForThread(threadId = threadId)
-            _uiState.value =
-                _uiState.value.copy(
-                    threadMessages = threadMessages,
-                    isLoading = false
-                )
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            try {
+                val threadMessages = repository.getMessagesForThread(threadId = threadId)
+                _uiState.value =
+                    _uiState.value.copy(
+                        threadMessages = threadMessages,
+                        isLoading = false,
+                        errorMessage = null
+                    )
+            } catch (e: Exception) {
+                _uiState.value =
+                    _uiState.value.copy(
+                        errorMessage = "メッセージを取得できませんでした",
+                        isLoading = false
+                    )
+            }
         }
     }
 }
