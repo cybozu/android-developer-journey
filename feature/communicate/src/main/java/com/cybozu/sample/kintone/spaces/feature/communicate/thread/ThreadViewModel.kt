@@ -26,7 +26,16 @@ class ThreadViewModel @AssistedInject constructor(
     val uiState: StateFlow<ThreadUiState> = _uiState.asStateFlow()
 
     init {
-        loadMessages()
+        try {
+            loadMessages() // メッセージのロード
+        } catch (_: Exception) {
+            _uiState.value =
+                _uiState.value.copy(
+                    threadMessages = emptyList(),
+                    isLoading = false,
+                    isLoaded = false // 失敗した場合、Load Flag をfalseに設定
+                )
+        }
     }
 
     private fun loadMessages() {
@@ -36,7 +45,8 @@ class ThreadViewModel @AssistedInject constructor(
             _uiState.value =
                 _uiState.value.copy(
                     threadMessages = threadMessages,
-                    isLoading = false
+                    isLoading = false,
+                    isLoaded = true // LoadFlag をtrueに設定
                 )
         }
     }

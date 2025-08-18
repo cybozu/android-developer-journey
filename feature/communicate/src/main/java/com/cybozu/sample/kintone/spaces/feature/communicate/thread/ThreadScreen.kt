@@ -1,5 +1,6 @@
 package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -92,17 +94,22 @@ fun ThreadContent(
                 CircularProgressIndicator()
             }
         } else {
-            LazyColumn(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                contentPadding = PaddingValues(all = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(uiState.threadMessages) { threadMessage ->
-                    MessageListItem(threadMessage = threadMessage)
+            if (uiState.isLoaded) { // 正常に読み込まれていればリスト表示
+                LazyColumn(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                    contentPadding = PaddingValues(all = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(uiState.threadMessages) { threadMessage ->
+                        MessageListItem(threadMessage = threadMessage)
+                    }
                 }
+            } else {
+                Toast.makeText(LocalContext.current, "メッセージを取得できませんでした", Toast.LENGTH_SHORT).show()
+                // Toastでメッセージ表示
             }
         }
     }
@@ -210,11 +217,13 @@ class ThreadContentPreviewParameter :
                             comments = emptyList()
                         )
                     ),
-                isLoading = false
+                isLoading = false,
+                isLoaded = true
             ),
             ThreadUiState(
                 threadMessages = emptyList(),
-                isLoading = true
+                isLoading = true,
+                isLoaded = false
             )
         )
     )
