@@ -15,7 +15,7 @@ internal interface SpaceService {
         @Body body: GetAllThreadsBody,
     ): ThreadListResponse
 
-    @POST("k/api/space/thread/post/lst.json")
+    @POST("k/api/space/thread/post/list.json")
     suspend fun getMessagesForThread(
         @Header("X-Cybozu-Authorization") encodeString: String,
         @Body body: GetMessagesForThreadBody,
