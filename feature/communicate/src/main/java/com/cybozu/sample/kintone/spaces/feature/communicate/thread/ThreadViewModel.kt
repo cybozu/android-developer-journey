@@ -38,14 +38,14 @@ class ThreadViewModel @AssistedInject constructor(
                     _uiState.value.copy(
                         threadMessages = threadMessages,
                         isLoading = false,
-                        isLoaded = true // LoadFlag をtrueに設定
+                        isError = false // isError: falseに設定
                     )
             } catch (_: Exception) {
                 _uiState.value =
                     _uiState.value.copy(
                         threadMessages = emptyList(),
                         isLoading = false,
-                        isLoaded = false // 失敗した場合、Load Flag をfalseに設定
+                        isError = true // 失敗した場合、isError: trueに設定
                     )
             }
         }

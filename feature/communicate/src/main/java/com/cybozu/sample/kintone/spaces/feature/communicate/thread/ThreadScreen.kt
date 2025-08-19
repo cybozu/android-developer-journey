@@ -94,7 +94,7 @@ fun ThreadContent(
                 CircularProgressIndicator()
             }
         } else {
-            if (uiState.isLoaded) { // 正常に読み込まれていればリスト表示
+            if (!uiState.isError) { // 正常に読み込まれていればリスト表示
                 println("debug point")
                 LazyColumn(
                     modifier =
@@ -218,12 +218,12 @@ class ThreadContentPreviewParameter :
                         )
                     ),
                 isLoading = false,
-                isLoaded = true
+                isError= false
             ),
             ThreadUiState(
                 threadMessages = emptyList(),
                 isLoading = true,
-                isLoaded = false
+                isError = true
             )
         )
     )

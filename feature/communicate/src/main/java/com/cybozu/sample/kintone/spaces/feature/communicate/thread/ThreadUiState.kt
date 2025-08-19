@@ -5,5 +5,5 @@ import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 data class ThreadUiState(
     val threadMessages: List<ThreadMessage> = emptyList(),
     val isLoading: Boolean = false,
-    val isLoaded: Boolean = false, // Load Flag
+    val isError: Boolean = false, // Flag of Thread Message
 )
