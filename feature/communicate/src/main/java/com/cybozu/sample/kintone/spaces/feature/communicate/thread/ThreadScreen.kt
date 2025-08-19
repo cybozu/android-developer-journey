@@ -82,6 +82,17 @@ fun ThreadContent(
         }
     ) { innerPadding ->
         when (uiState) {
+            is ThreadUiState.Initial -> {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
             is ThreadUiState.Loading -> {
                 Box(
                     modifier =
