@@ -7,7 +7,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.io.IOException
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,7 +31,7 @@ class ThreadViewModel @AssistedInject constructor(
     }
 
     private fun loadMessages() {
-        viewModelScope.launch {
+        viewModelScope.launch { // launchの中がコルーチン: 非同期処理　Exceptionの形式には注意
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
                 val threadMessages = repository.getMessagesForThread(threadId = threadId)
@@ -41,7 +41,10 @@ class ThreadViewModel @AssistedInject constructor(
                         isLoading = false,
                         isError = false // isError: falseに設定
                     )
-            } catch (_: IOException) {
+            } catch (e: CancellationException){
+                throw e // Catch & Release CancellationException
+
+            } catch (_: Exception) {
                 _uiState.value =
                     _uiState.value.copy(
                         threadMessages = emptyList(),
