@@ -1,5 +1,6 @@
 package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,11 +27,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -92,16 +95,24 @@ fun ThreadContent(
                 CircularProgressIndicator()
             }
         } else {
-            LazyColumn(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                contentPadding = PaddingValues(all = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(uiState.threadMessages) { threadMessage ->
-                    MessageListItem(threadMessage = threadMessage)
+            if (!uiState.isError) { // 正常に読み込まれていればリスト表示
+                println("debug point")
+                LazyColumn(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                    contentPadding = PaddingValues(all = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(uiState.threadMessages) { threadMessage ->
+                        MessageListItem(threadMessage = threadMessage)
+                    }
+                }
+            } else { // 読み込めなければエラー表示
+                val context = LocalContext.current
+                LaunchedEffect(uiState.isError) {
+                    Toast.makeText(context, "メッセージを取得できませんでした", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -210,11 +221,13 @@ class ThreadContentPreviewParameter :
                             comments = emptyList()
                         )
                     ),
-                isLoading = false
+                isLoading = false,
+                isError = false
             ),
             ThreadUiState(
                 threadMessages = emptyList(),
-                isLoading = true
+                isLoading = true,
+                isError = true
             )
         )
     )

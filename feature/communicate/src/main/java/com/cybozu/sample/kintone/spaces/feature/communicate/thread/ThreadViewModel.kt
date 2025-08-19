@@ -7,6 +7,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,18 +27,31 @@ class ThreadViewModel @AssistedInject constructor(
     val uiState: StateFlow<ThreadUiState> = _uiState.asStateFlow()
 
     init {
-        loadMessages()
+        loadMessages() // メッセージのロード
     }
 
     private fun loadMessages() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            val threadMessages = repository.getMessagesForThread(threadId = threadId)
-            _uiState.value =
-                _uiState.value.copy(
-                    threadMessages = threadMessages,
-                    isLoading = false
-                )
+            // launchの中がコルーチン: 非同期処理　Exceptionの形式には注意
+            try {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+                val threadMessages = repository.getMessagesForThread(threadId = threadId)
+                _uiState.value =
+                    _uiState.value.copy(
+                        threadMessages = threadMessages,
+                        isLoading = false,
+                        isError = false // isError: falseに設定
+                    )
+            } catch (e: CancellationException) {
+                throw e // Catch & Release CancellationException
+            } catch (_: Exception) {
+                _uiState.value =
+                    _uiState.value.copy(
+                        threadMessages = emptyList(),
+                        isLoading = false,
+                        isError = true // 失敗した場合、isError: trueに設定
+                    )
+            }
         }
     }
 }
