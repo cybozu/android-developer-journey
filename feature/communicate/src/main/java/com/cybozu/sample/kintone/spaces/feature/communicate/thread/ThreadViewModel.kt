@@ -31,7 +31,8 @@ class ThreadViewModel @AssistedInject constructor(
     }
 
     private fun loadMessages() {
-        viewModelScope.launch { // launchの中がコルーチン: 非同期処理　Exceptionの形式には注意
+        viewModelScope.launch {
+            // launchの中がコルーチン: 非同期処理　Exceptionの形式には注意
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
                 val threadMessages = repository.getMessagesForThread(threadId = threadId)
@@ -41,9 +42,8 @@ class ThreadViewModel @AssistedInject constructor(
                         isLoading = false,
                         isError = false // isError: falseに設定
                     )
-            } catch (e: CancellationException){
+            } catch (e: CancellationException) {
                 throw e // Catch & Release CancellationException
-
             } catch (_: Exception) {
                 _uiState.value =
                     _uiState.value.copy(

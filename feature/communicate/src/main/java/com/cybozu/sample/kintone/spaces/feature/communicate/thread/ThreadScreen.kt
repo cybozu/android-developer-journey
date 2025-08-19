@@ -222,7 +222,7 @@ class ThreadContentPreviewParameter :
                         )
                     ),
                 isLoading = false,
-                isError= false
+                isError = false
             ),
             ThreadUiState(
                 threadMessages = emptyList(),
