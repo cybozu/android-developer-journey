@@ -10,7 +10,7 @@ internal class SpaceRepositoryImpl @Inject constructor(
     override suspend fun getAllThreads(spaceId: String): List<Thread> = spaceRemoteDataSource.getAllThreads(spaceId = spaceId).result.items
 
     override suspend fun getMessagesForThread(threadId: String): Result<List<ThreadMessage>> =
-        runCatching {
+        suspendRunCatching {
             spaceRemoteDataSource.getMessagesForThread(threadId = threadId).result.items
         }
 }
