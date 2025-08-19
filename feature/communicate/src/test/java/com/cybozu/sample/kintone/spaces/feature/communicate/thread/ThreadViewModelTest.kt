@@ -5,9 +5,11 @@ import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
 import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
+import com.cybozu.sample.kintone.spaces.feature.communicate.R
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.instanceOf
 import io.kotest.matchers.types.shouldBeInstanceOf
+import java.io.IOException
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
 import kotlinx.coroutines.Dispatchers
@@ -38,6 +40,11 @@ class ThreadViewModelTest {
         return ThreadViewModel(threadId = "thread-1", repository = repository)
     }
 
+    private fun failureCreateViewModel(): ThreadViewModel {
+        val repository = FakeSpaceRepository()
+        return ThreadViewModel(threadId = "failure-1", repository = repository)
+    }
+
     @Test
     fun `メッセージ一覧が取得できる`() =
         runTest {
@@ -59,6 +66,25 @@ class ThreadViewModelTest {
                     it.threadMessages[1].id shouldBe "msg-2"
                     it.threadMessages[1].body shouldBe "thread-2"
                     it.threadMessages[1].creator shouldBe Creator(name = "name2")
+                }
+            }
+        }
+
+    @Test
+    fun `メッセージ一覧の取得に失敗`() =
+        runTest {
+            val viewModel = failureCreateViewModel()
+
+            viewModel.uiState.test {
+                val initialState = awaitItem()
+                initialState shouldBe instanceOf<ThreadUiState.Idle>()
+
+                val loadingState = awaitItem()
+                loadingState shouldBe instanceOf<ThreadUiState.Loading>()
+
+                val loadedState = awaitItem()
+                loadedState.shouldBeInstanceOf<ThreadUiState.Error> {
+                    it.messageId shouldBe R.string.thread_error
                 }
             }
         }
@@ -86,6 +112,6 @@ private class FakeSpaceRepository : SpaceRepository {
                 )
             )
         }
-        return failure(RuntimeException())
+        return failure(IOException())
     }
 }
