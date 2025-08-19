@@ -27,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -108,11 +109,8 @@ fun ThreadContent(
                         MessageListItem(threadMessage = threadMessage)
                     }
                 }
-                Toast.makeText(LocalContext.current, "メッセージを取得", Toast.LENGTH_SHORT).show()
-            } else {
-                println("debug point 1")
+            } else { // 読み込めなければエラー表示
                 Toast.makeText(LocalContext.current, "メッセージを取得できませんでした", Toast.LENGTH_SHORT).show()
-                // Toastでメッセージ表示
             }
         }
     }

@@ -26,28 +26,28 @@ class ThreadViewModel @AssistedInject constructor(
     val uiState: StateFlow<ThreadUiState> = _uiState.asStateFlow()
 
     init {
-        try {
-            loadMessages() // メッセージのロード
-        } catch (_: Exception) {
-            _uiState.value =
-                _uiState.value.copy(
-                    threadMessages = emptyList(),
-                    isLoading = false,
-                    isLoaded = false // 失敗した場合、Load Flag をfalseに設定
-                )
-        }
+        loadMessages() // メッセージのロード
     }
 
     private fun loadMessages() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            val threadMessages = repository.getMessagesForThread(threadId = threadId)
-            _uiState.value =
-                _uiState.value.copy(
-                    threadMessages = threadMessages,
-                    isLoading = false,
-                    isLoaded = true // LoadFlag をtrueに設定
-                )
+            try {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+                val threadMessages = repository.getMessagesForThread(threadId = threadId)
+                _uiState.value =
+                    _uiState.value.copy(
+                        threadMessages = threadMessages,
+                        isLoading = false,
+                        isLoaded = true // LoadFlag をtrueに設定
+                    )
+            } catch (_: Exception) {
+                _uiState.value =
+                    _uiState.value.copy(
+                        threadMessages = emptyList(),
+                        isLoading = false,
+                        isLoaded = false // 失敗した場合、Load Flag をfalseに設定
+                    )
+            }
         }
     }
 }
