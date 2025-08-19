@@ -224,7 +224,6 @@ class ThreadContentPreviewParameter :
                             comments = emptyList()
                         )
                     )
-                // isLoading = false
             ),
             ThreadUiStateSealed.Loading,
             ThreadUiStateSealed.Error("メッセージが取得できませんでした")

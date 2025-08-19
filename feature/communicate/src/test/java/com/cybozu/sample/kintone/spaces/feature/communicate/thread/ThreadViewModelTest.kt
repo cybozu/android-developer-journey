@@ -41,13 +41,7 @@ class ThreadViewModelTest {
 
             viewModel.uiState.test {
                 val initialState = awaitItem()
-                // initialState.threadMessages shouldBe emptyList()
-                // initialState.isLoading shouldBe false
                 (initialState is ThreadUiStateSealed.Loading) shouldBe true
-
-                // val loadingState = awaitItem()
-                // loadingState.threadMessages shouldBe emptyList()
-                // loadingState.isLoading shouldBe true
 
                 val loadedState = awaitItem()
                 if (loadedState is ThreadUiStateSealed.Success) {
@@ -58,7 +52,6 @@ class ThreadViewModelTest {
                     loadedState.threadMessage[1].id shouldBe "msg-2"
                     loadedState.threadMessage[1].body shouldBe "thread-2"
                     loadedState.threadMessage[1].creator shouldBe Creator(name = "name2")
-                    // loadedState.isLoading shouldBe false
                 } else {
                     error("not success")
                 }
