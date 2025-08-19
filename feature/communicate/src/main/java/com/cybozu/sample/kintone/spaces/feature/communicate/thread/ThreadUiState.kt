@@ -1,8 +1,18 @@
 package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
+import androidx.annotation.StringRes
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 
-data class ThreadUiState(
-    val threadMessages: List<ThreadMessage> = emptyList(),
-    val isLoading: Boolean = false,
-)
+sealed class ThreadUiState {
+    object Idle : ThreadUiState()
+
+    object Loading : ThreadUiState()
+
+    data class Error(
+        @param:StringRes val messageId: Int,
+    ) : ThreadUiState()
+
+    data class Success(
+        val threadMessages: List<ThreadMessage>,
+    ) : ThreadUiState()
+}
