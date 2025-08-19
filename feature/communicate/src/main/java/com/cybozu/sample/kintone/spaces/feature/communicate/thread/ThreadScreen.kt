@@ -95,6 +95,7 @@ fun ThreadContent(
             }
         } else {
             if (uiState.isLoaded) { // 正常に読み込まれていればリスト表示
+                println("debug point")
                 LazyColumn(
                     modifier =
                         Modifier
@@ -107,7 +108,9 @@ fun ThreadContent(
                         MessageListItem(threadMessage = threadMessage)
                     }
                 }
+                Toast.makeText(LocalContext.current, "メッセージを取得", Toast.LENGTH_SHORT).show()
             } else {
+                println("debug point 1")
                 Toast.makeText(LocalContext.current, "メッセージを取得できませんでした", Toast.LENGTH_SHORT).show()
                 // Toastでメッセージ表示
             }
