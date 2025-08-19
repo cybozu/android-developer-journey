@@ -6,6 +6,7 @@ import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 import io.kotest.matchers.shouldBe
+import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -35,7 +36,7 @@ class ThreadViewModelTest {
     }
 
     @Test
-    fun `メッセージ一覧が取得できる`() =
+    fun testGetMessagesSuccess() =
         runTest {
             val viewModel = createViewModel()
 
@@ -64,6 +65,23 @@ class ThreadViewModelTest {
                 }
             }
         }
+    @Test
+    fun testGetMessagesError() =
+        runTest {
+            val viewModel = ThreadViewModel(threadId = "thread-1", repository = ErrorFakeSpaceRepository())
+
+            viewModel.uiState.test {
+                val initialState = awaitItem()
+                (initialState is ThreadUiStateSealed.Loading) shouldBe true
+
+                val errorState = awaitItem()
+                if (errorState is ThreadUiStateSealed.Error) {
+                    errorState.errorMessage shouldBe "error"
+                } else {
+                    error("not error")
+                }
+            }
+        }
 }
 
 private class FakeSpaceRepository : SpaceRepository {
@@ -87,5 +105,12 @@ private class FakeSpaceRepository : SpaceRepository {
             )
         }
         return emptyList()
+    }
+}
+
+private class ErrorFakeSpaceRepository: SpaceRepository {
+    override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
+    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
+        throw IOException("network error")
     }
 }
