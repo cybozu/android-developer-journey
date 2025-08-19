@@ -1,5 +1,6 @@
 package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,7 +27,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -96,25 +99,54 @@ fun ThreadContent(
             }
         } else {
             if (!uiState.isError) { // 正常に読み込まれていればリスト表示
-                LazyColumn(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                    contentPadding = PaddingValues(all = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(uiState.threadMessages) { threadMessage ->
-                        MessageListItem(threadMessage = threadMessage)
-                    }
-                }
-            } else { // 読み込めなければエラー表示
-                val context = LocalContext.current
-                LaunchedEffect(uiState.isError) {
-                    Toast.makeText(context, "メッセージを取得できませんでした", Toast.LENGTH_SHORT).show()
-                }
+
+                RefreshBox(
+                    items = uiState.threadMessages,
+                    isRefreshing = false,
+                    onRefresh = { /*TODO*/ },
+                    paddingValues = innerPadding,
+                    modifier = Modifier
+                )
+
+            }else{
+                ErrorMessage(context = LocalContext.current, isError = uiState.isError)
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RefreshBox(
+    items: List<ThreadMessage>,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
+    paddingValues: PaddingValues,
+    modifier: Modifier = Modifier
+) {
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        modifier = modifier
+    ) {
+        LazyColumn(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+            contentPadding = PaddingValues(all = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(items) { threadMessage ->
+                MessageListItem(threadMessage = threadMessage)
+            }
+        }
+    }
+}
+@Composable
+private fun ErrorMessage(context: Context, isError: Boolean) {
+    LaunchedEffect(isError) {
+        Toast.makeText(context, "メッセージを取得できませんでした", Toast.LENGTH_SHORT).show()
     }
 }
 
