@@ -29,9 +29,8 @@ class ThreadViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(repository: SpaceRepository): ThreadViewModel {
-        return ThreadViewModel(threadId = "thread-1", repository = repository)
-    }
+    private fun createViewModel(repository: SpaceRepository): ThreadViewModel =
+        ThreadViewModel(threadId = "thread-1", repository = repository)
 
     @Test
     fun `メッセージ一覧が取得できる`() =
@@ -112,6 +111,7 @@ private class FakeSpaceRepository : SpaceRepository {
 
 private class FakeSpaceRepositoryNoThreadMsg : SpaceRepository {
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
+
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = throw Exception()
     // 厳密な挙動を再現する。ViewModel側のExceptionにcatchされるために、単なるEmptyListではなくExceptionをthrowする
 }
