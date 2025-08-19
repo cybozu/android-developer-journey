@@ -64,23 +64,25 @@ class ThreadViewModelTest {
 private class FakeSpaceRepository : SpaceRepository {
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
-    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
+    override suspend fun getMessagesForThread(threadId: String): Result<List<ThreadMessage>> =
         if (threadId == "thread-1") {
-            return listOf(
-                ThreadMessage(
-                    id = "msg-1",
-                    body = "thread-1",
-                    creator = Creator(name = "name1"),
-                    comments = emptyList()
-                ),
-                ThreadMessage(
-                    id = "msg-2",
-                    body = "thread-2",
-                    creator = Creator(name = "name2"),
-                    comments = emptyList()
+            Result.success(
+                listOf(
+                    ThreadMessage(
+                        id = "msg-1",
+                        body = "thread-1",
+                        creator = Creator(name = "name1"),
+                        comments = emptyList()
+                    ),
+                    ThreadMessage(
+                        id = "msg-2",
+                        body = "thread-2",
+                        creator = Creator(name = "name2"),
+                        comments = emptyList()
+                    )
                 )
             )
+        } else {
+            Result.success(emptyList())
         }
-        return emptyList()
-    }
 }
