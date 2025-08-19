@@ -5,6 +5,7 @@ import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
 import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 import io.kotest.matchers.shouldBe
+import kotlin.Result.Companion.success
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -68,5 +69,5 @@ private class FakeSpaceRepository : SpaceRepository {
         )
     }
 
-    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = emptyList()
+    override suspend fun getMessagesForThread(threadId: String): Result<List<ThreadMessage>> = success(emptyList())
 }

@@ -3,6 +3,7 @@ package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
+import com.cybozu.sample.kintone.spaces.feature.communicate.R
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -22,7 +23,7 @@ class ThreadViewModel @AssistedInject constructor(
     @Assisted private val threadId: String,
     private val repository: SpaceRepository,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(ThreadUiState())
+    private val _uiState = MutableStateFlow<ThreadUiState>(ThreadUiState.Idle)
     val uiState: StateFlow<ThreadUiState> = _uiState.asStateFlow()
 
     init {
@@ -31,13 +32,21 @@ class ThreadViewModel @AssistedInject constructor(
 
     private fun loadMessages() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            val threadMessages = repository.getMessagesForThread(threadId = threadId)
-            _uiState.value =
-                _uiState.value.copy(
-                    threadMessages = threadMessages,
-                    isLoading = false
-                )
+            _uiState.value = ThreadUiState.Loading
+            val result = repository.getMessagesForThread(threadId = threadId)
+
+            result
+                .onSuccess {
+                    _uiState.value =
+                        ThreadUiState.Success(
+                            threadMessages = it
+                        )
+                }.onFailure {
+                    _uiState.value =
+                        ThreadUiState.Error(
+                            messageId = R.string.thread_error
+                        )
+                }
         }
     }
 }

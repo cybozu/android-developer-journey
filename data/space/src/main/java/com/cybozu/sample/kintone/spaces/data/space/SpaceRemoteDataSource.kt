@@ -5,7 +5,10 @@ import com.cybozu.sample.kintone.spaces.data.space.entity.GetMessagesForThreadBo
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadListResponse
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessageResponse
 import javax.inject.Inject
+import kotlin.Result.Companion.failure
+import kotlin.Result.Companion.success
 import okio.ByteString.Companion.encode
+import okio.IOException
 import retrofit2.Retrofit
 
 internal class SpaceRemoteDataSource @Inject constructor(
@@ -20,9 +23,15 @@ internal class SpaceRemoteDataSource @Inject constructor(
             body = GetAllThreadsBody(spaceId = spaceId)
         )
 
-    suspend fun getMessagesForThread(threadId: String): ThreadMessageResponse =
-        spaceService.getMessagesForThread(
-            encodeString = usernamePassword.encode().base64(),
-            body = GetMessagesForThreadBody(threadId = threadId)
-        )
+    suspend fun getMessagesForThread(threadId: String): Result<ThreadMessageResponse> =
+        try {
+            success(
+                spaceService.getMessagesForThread(
+                    encodeString = usernamePassword.encode().base64(),
+                    body = GetMessagesForThreadBody(threadId = threadId)
+                )
+            )
+        } catch (e: IOException) {
+            failure(e)
+        }
 }

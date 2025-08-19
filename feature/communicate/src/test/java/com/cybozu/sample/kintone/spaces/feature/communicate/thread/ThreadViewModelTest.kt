@@ -6,6 +6,10 @@ import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.instanceOf
+import io.kotest.matchers.types.shouldBeInstanceOf
+import kotlin.Result.Companion.failure
+import kotlin.Result.Companion.success
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -41,22 +45,21 @@ class ThreadViewModelTest {
 
             viewModel.uiState.test {
                 val initialState = awaitItem()
-                initialState.threadMessages shouldBe emptyList()
-                initialState.isLoading shouldBe false
+                initialState shouldBe instanceOf<ThreadUiState.Idle>()
 
                 val loadingState = awaitItem()
-                loadingState.threadMessages shouldBe emptyList()
-                loadingState.isLoading shouldBe true
+                loadingState shouldBe instanceOf<ThreadUiState.Loading>()
 
                 val loadedState = awaitItem()
-                loadedState.threadMessages.size shouldBe 2
-                loadedState.threadMessages[0].id shouldBe "msg-1"
-                loadedState.threadMessages[0].body shouldBe "thread-1"
-                loadedState.threadMessages[0].creator shouldBe Creator(name = "name1")
-                loadedState.threadMessages[1].id shouldBe "msg-2"
-                loadedState.threadMessages[1].body shouldBe "thread-2"
-                loadedState.threadMessages[1].creator shouldBe Creator(name = "name2")
-                loadedState.isLoading shouldBe false
+                loadedState.shouldBeInstanceOf<ThreadUiState.Success> {
+                    it.threadMessages.size shouldBe 2
+                    it.threadMessages[0].id shouldBe "msg-1"
+                    it.threadMessages[0].body shouldBe "thread-1"
+                    it.threadMessages[0].creator shouldBe Creator(name = "name1")
+                    it.threadMessages[1].id shouldBe "msg-2"
+                    it.threadMessages[1].body shouldBe "thread-2"
+                    it.threadMessages[1].creator shouldBe Creator(name = "name2")
+                }
             }
         }
 }
@@ -64,23 +67,25 @@ class ThreadViewModelTest {
 private class FakeSpaceRepository : SpaceRepository {
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
-    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
+    override suspend fun getMessagesForThread(threadId: String): Result<List<ThreadMessage>> {
         if (threadId == "thread-1") {
-            return listOf(
-                ThreadMessage(
-                    id = "msg-1",
-                    body = "thread-1",
-                    creator = Creator(name = "name1"),
-                    comments = emptyList()
-                ),
-                ThreadMessage(
-                    id = "msg-2",
-                    body = "thread-2",
-                    creator = Creator(name = "name2"),
-                    comments = emptyList()
+            return success(
+                listOf(
+                    ThreadMessage(
+                        id = "msg-1",
+                        body = "thread-1",
+                        creator = Creator(name = "name1"),
+                        comments = emptyList()
+                    ),
+                    ThreadMessage(
+                        id = "msg-2",
+                        body = "thread-2",
+                        creator = Creator(name = "name2"),
+                        comments = emptyList()
+                    )
                 )
             )
         }
-        return emptyList()
+        return failure(RuntimeException())
     }
 }
