@@ -96,7 +96,6 @@ fun ThreadContent(
             }
         } else {
             if (!uiState.isError) { // 正常に読み込まれていればリスト表示
-                println("debug point")
                 LazyColumn(
                     modifier =
                         Modifier
