@@ -7,8 +7,11 @@ import javax.inject.Inject
 internal class SpaceRepositoryImpl @Inject constructor(
     private val spaceRemoteDataSource: SpaceRemoteDataSource,
 ) : SpaceRepository {
-    override suspend fun getAllThreads(spaceId: String): List<Thread> = spaceRemoteDataSource.getAllThreads(spaceId = spaceId).result.items
+    override suspend fun getAllThreads(spaceId: String): List<Thread> =
+        spaceRemoteDataSource.getAllThreads(spaceId = spaceId).result.items
 
-    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> =
-        spaceRemoteDataSource.getMessagesForThread(threadId = threadId).result.items
+        override suspend fun getMessagesForThread(threadId: String): Result<List<ThreadMessage>> =
+        runCatching {
+            spaceRemoteDataSource.getMessagesForThread(threadId = threadId).result.items
+        }
 }
