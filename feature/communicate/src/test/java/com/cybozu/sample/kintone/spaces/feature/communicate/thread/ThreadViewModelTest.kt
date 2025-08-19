@@ -43,18 +43,15 @@ class ThreadViewModelTest {
                 val initialState = awaitItem()
                 (initialState is ThreadUiState.Loading) shouldBe true
 
-                val loadedState = awaitItem()
-                if (loadedState is ThreadUiState.Success) {
-                    loadedState.threadMessage.size shouldBe 2
-                    loadedState.threadMessage[0].id shouldBe "msg-1"
-                    loadedState.threadMessage[0].body shouldBe "thread-1"
-                    loadedState.threadMessage[0].creator shouldBe Creator(name = "name1")
-                    loadedState.threadMessage[1].id shouldBe "msg-2"
-                    loadedState.threadMessage[1].body shouldBe "thread-2"
-                    loadedState.threadMessage[1].creator shouldBe Creator(name = "name2")
-                } else {
-                    error("not success")
-                }
+                val successState = awaitItem()
+                (successState is ThreadUiState.Success) shouldBe true
+                (successState as ThreadUiState.Success).threadMessage.size shouldBe 2
+                successState.threadMessage[0].id shouldBe "msg-1"
+                successState.threadMessage[0].body shouldBe "thread-1"
+                successState.threadMessage[0].creator shouldBe Creator(name = "name1")
+                successState.threadMessage[1].id shouldBe "msg-2"
+                successState.threadMessage[1].body shouldBe "thread-2"
+                successState.threadMessage[1].creator shouldBe Creator(name = "name2")
             }
         }
 }
