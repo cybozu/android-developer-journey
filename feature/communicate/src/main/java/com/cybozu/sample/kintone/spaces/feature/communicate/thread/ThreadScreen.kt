@@ -69,6 +69,11 @@ fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
 ) {
+    if (uiState.errorMessage != null) {
+        Text(
+            text = uiState.errorMessage
+        )
+    }
     Scaffold(
         topBar = {
             TopAppBar(
