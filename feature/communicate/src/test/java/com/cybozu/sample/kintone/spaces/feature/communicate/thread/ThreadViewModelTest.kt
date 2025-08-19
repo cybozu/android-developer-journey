@@ -41,22 +41,27 @@ class ThreadViewModelTest {
 
             viewModel.uiState.test {
                 val initialState = awaitItem()
-                initialState.threadMessages shouldBe emptyList()
-                initialState.isLoading shouldBe false
+                // initialState.threadMessages shouldBe emptyList()
+                // initialState.isLoading shouldBe false
+                (initialState is ThreadUiStateSealed.Loading) shouldBe true
 
-                val loadingState = awaitItem()
-                loadingState.threadMessages shouldBe emptyList()
-                loadingState.isLoading shouldBe true
+                // val loadingState = awaitItem()
+                // loadingState.threadMessages shouldBe emptyList()
+                // loadingState.isLoading shouldBe true
 
                 val loadedState = awaitItem()
-                loadedState.threadMessages.size shouldBe 2
-                loadedState.threadMessages[0].id shouldBe "msg-1"
-                loadedState.threadMessages[0].body shouldBe "thread-1"
-                loadedState.threadMessages[0].creator shouldBe Creator(name = "name1")
-                loadedState.threadMessages[1].id shouldBe "msg-2"
-                loadedState.threadMessages[1].body shouldBe "thread-2"
-                loadedState.threadMessages[1].creator shouldBe Creator(name = "name2")
-                loadedState.isLoading shouldBe false
+                if (loadedState is ThreadUiStateSealed.Success) {
+                    loadedState.threadMessage.size shouldBe 2
+                    loadedState.threadMessage[0].id shouldBe "msg-1"
+                    loadedState.threadMessage[0].body shouldBe "thread-1"
+                    loadedState.threadMessage[0].creator shouldBe Creator(name = "name1")
+                    loadedState.threadMessage[1].id shouldBe "msg-2"
+                    loadedState.threadMessage[1].body shouldBe "thread-2"
+                    loadedState.threadMessage[1].creator shouldBe Creator(name = "name2")
+                    // loadedState.isLoading shouldBe false
+                } else {
+                    error("not success")
+                }
             }
         }
 }

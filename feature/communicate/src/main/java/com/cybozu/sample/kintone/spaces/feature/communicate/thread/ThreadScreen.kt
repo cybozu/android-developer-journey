@@ -67,13 +67,8 @@ fun ThreadScreen(
 @Composable
 fun ThreadContent(
     threadName: String,
-    uiState: ThreadUiState,
+    uiState: ThreadUiStateSealed,
 ) {
-    if (uiState.errorMessage != null) {
-        Text(
-            text = uiState.errorMessage
-        )
-    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -86,27 +81,41 @@ fun ThreadContent(
             )
         }
     ) { innerPadding ->
-        if (uiState.isLoading) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+        when (uiState) {
+            is ThreadUiStateSealed.Loading -> {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
-        } else {
-            LazyColumn(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                contentPadding = PaddingValues(all = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(uiState.threadMessages) { threadMessage ->
-                    MessageListItem(threadMessage = threadMessage)
+            is ThreadUiStateSealed.Success -> {
+                LazyColumn(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                    contentPadding = PaddingValues(all = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(uiState.threadMessage) { threadMessages ->
+                        MessageListItem(threadMessage = threadMessages)
+                    }
+                }
+            }
+            is ThreadUiStateSealed.Error -> {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "メッセージを取得できませんでした")
                 }
             }
         }
@@ -173,10 +182,10 @@ private fun MessageCard(
 }
 
 class ThreadContentPreviewParameter :
-    CollectionPreviewParameterProvider<ThreadUiState>(
+    CollectionPreviewParameterProvider<ThreadUiStateSealed>(
         listOf(
-            ThreadUiState(
-                threadMessages =
+            ThreadUiStateSealed.Success(
+                threadMessage =
                     listOf(
                         ThreadMessage(
                             id = "1",
@@ -214,20 +223,18 @@ class ThreadContentPreviewParameter :
                             creator = Creator(name = "name2"),
                             comments = emptyList()
                         )
-                    ),
-                isLoading = false
+                    )
+                // isLoading = false
             ),
-            ThreadUiState(
-                threadMessages = emptyList(),
-                isLoading = true
-            )
+            ThreadUiStateSealed.Loading,
+            ThreadUiStateSealed.Error("メッセージが取得できませんでした")
         )
     )
 
 @Preview(showBackground = true)
 @Composable
 fun ThreadContentPreview(
-    @PreviewParameter(ThreadContentPreviewParameter::class) uiState: ThreadUiState,
+    @PreviewParameter(ThreadContentPreviewParameter::class) uiState: ThreadUiStateSealed,
 ) {
     KintoneSpacesTheme {
         ThreadContent(
