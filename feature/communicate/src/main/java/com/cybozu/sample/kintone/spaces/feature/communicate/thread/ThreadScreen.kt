@@ -111,7 +111,10 @@ fun ThreadContent(
                     modifier = Modifier
                 )
             } else {
-                ErrorMessage(context = LocalContext.current, isError = uiState.isError)
+                ErrorMessage(
+                    context = LocalContext.current,
+                    isError = uiState.isError
+                )
             }
         }
     }
