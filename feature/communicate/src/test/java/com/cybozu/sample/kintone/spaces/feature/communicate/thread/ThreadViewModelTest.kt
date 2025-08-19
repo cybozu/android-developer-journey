@@ -1,3 +1,4 @@
+@file:Suppress("NonAsciiCharacters", "RemoveRedundantBackticks")
 package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
 import app.cash.turbine.test
