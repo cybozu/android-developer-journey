@@ -4,9 +4,7 @@ import app.cash.turbine.test
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
 import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
-import com.cybozu.sample.kintone.spaces.feature.communicate.thread.ThreadUiState
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.instanceOf
 import kotlin.Result.Companion.success
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -44,18 +42,14 @@ class SpaceViewModelTest {
 
             viewModel.uiState.test {
                 val initialState = awaitItem()
-                initialState shouldBe instanceOf<ThreadUiState.Idle>()
-//                initialState.threads shouldBe emptyList()
-//                initialState.isLoading shouldBe false
+                initialState.threads shouldBe emptyList()
+                initialState.isLoading shouldBe false
 
                 val loadingState = awaitItem()
-                loadingState shouldBe instanceOf<ThreadUiState.Loading>()
-//                loadingState.threads shouldBe emptyList()
-//                loadingState.isLoading shouldBe true
+                loadingState.threads shouldBe emptyList()
+                loadingState.isLoading shouldBe true
 
                 val loadedState = awaitItem()
-                loadedState shouldBe instanceOf<ThreadUiState.Success>()
-
                 loadedState.threads.size shouldBe 2
                 loadedState.threads[0].id shouldBe "thread-1"
                 loadedState.threads[0].name shouldBe "Test Thread 1"
