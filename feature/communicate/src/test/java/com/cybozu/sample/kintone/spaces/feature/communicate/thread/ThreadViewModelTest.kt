@@ -29,24 +29,24 @@ class ThreadViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(): ThreadViewModel {
-        val repository = FakeSpaceRepository()
-        return ThreadViewModel(threadId = "thread-1", repository = repository)
-    }
+    private fun createViewModel(repository: SpaceRepository): ThreadViewModel =
+        ThreadViewModel(threadId = "thread-1", repository = repository)
 
     @Test
     fun `メッセージ一覧が取得できる`() =
         runTest {
-            val viewModel = createViewModel()
+            val viewModel = createViewModel(FakeSpaceRepository())
 
             viewModel.uiState.test {
                 val initialState = awaitItem()
                 initialState.threadMessages shouldBe emptyList()
                 initialState.isLoading shouldBe false
+                initialState.isError shouldBe false
 
                 val loadingState = awaitItem()
                 loadingState.threadMessages shouldBe emptyList()
                 loadingState.isLoading shouldBe true
+                loadingState.isError shouldBe false
 
                 val loadedState = awaitItem()
                 loadedState.threadMessages.size shouldBe 2
@@ -57,6 +57,30 @@ class ThreadViewModelTest {
                 loadedState.threadMessages[1].body shouldBe "thread-2"
                 loadedState.threadMessages[1].creator shouldBe Creator(name = "name2")
                 loadedState.isLoading shouldBe false
+                loadedState.isError shouldBe false
+            }
+        }
+
+    @Test
+    fun `メッセージ一覧が取得できない`() =
+        runTest {
+            val viewModel = createViewModel(FakeSpaceRepositoryNoThreadMsg())
+
+            viewModel.uiState.test {
+                val initialState = awaitItem()
+                initialState.threadMessages shouldBe emptyList()
+                initialState.isLoading shouldBe false
+                initialState.isError shouldBe false
+
+                val loadingState = awaitItem()
+                loadingState.threadMessages shouldBe emptyList()
+                loadingState.isLoading shouldBe true
+                loadingState.isError shouldBe false
+
+                val loadedState = awaitItem()
+                loadedState.threadMessages shouldBe emptyList()
+                loadedState.isLoading shouldBe false
+                loadedState.isError shouldBe true
             }
         }
 }
@@ -83,4 +107,11 @@ private class FakeSpaceRepository : SpaceRepository {
         }
         return emptyList()
     }
+}
+
+private class FakeSpaceRepositoryNoThreadMsg : SpaceRepository {
+    override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
+
+    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = throw Exception()
+    // 厳密な挙動を再現する。ViewModel側のExceptionにcatchされるために、単なるEmptyListではなくExceptionをthrowする
 }
