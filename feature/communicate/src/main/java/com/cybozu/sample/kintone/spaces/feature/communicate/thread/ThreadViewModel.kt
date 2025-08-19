@@ -7,6 +7,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.io.IOException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,7 +41,7 @@ class ThreadViewModel @AssistedInject constructor(
                         isLoading = false,
                         isError = false // isError: falseに設定
                     )
-            } catch (_: Exception) {
+            } catch (_: IOException) {
                 _uiState.value =
                     _uiState.value.copy(
                         threadMessages = emptyList(),
