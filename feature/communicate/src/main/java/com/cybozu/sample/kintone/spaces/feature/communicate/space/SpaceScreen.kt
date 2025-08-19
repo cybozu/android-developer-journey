@@ -3,7 +3,6 @@ package com.cybozu.sample.kintone.spaces.feature.communicate.space
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,7 +17,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -68,43 +66,21 @@ fun SpaceContent(
                 CircularProgressIndicator()
             }
         } else {
-            val padding = innerPadding
-            val threadList = uiState.threads
-            RefreshBox(threadList, false, {}, padding, onThreadClick, Modifier)
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class) // 使用する際に重要なメソッドなどを明示的に示すためのもの　OptInがないと実行できない
-@Composable
-private fun RefreshBox(
-    items: List<Thread>,
-    isRefreshing: Boolean,
-    onRefresh: () -> Unit,
-    padding: PaddingValues,
-    onThreadClick: (Thread) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    PullToRefreshBox(
-        isRefreshing = isRefreshing,
-        onRefresh = onRefresh,
-        modifier = modifier
-    ) {
-        LazyColumn(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-        ) {
-            items(items) { thread ->
-                ThreadListItem(thread = thread) {
-                    onThreadClick(thread)
+            LazyColumn(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+            ) {
+                items(uiState.threads) { thread ->
+                    ThreadListItem(thread = thread) {
+                        onThreadClick(thread)
+                    }
                 }
             }
         }
     }
 }
-
 
 @Composable
 private fun ThreadListItem(
