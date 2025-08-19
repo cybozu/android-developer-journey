@@ -115,7 +115,7 @@ fun ThreadContent(
                             .padding(innerPadding),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "メッセージを取得できませんでした")
+                    Text(text = uiState.errorMessage)
                 }
             }
         }
