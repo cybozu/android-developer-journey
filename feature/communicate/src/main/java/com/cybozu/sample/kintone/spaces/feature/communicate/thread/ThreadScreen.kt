@@ -67,7 +67,7 @@ fun ThreadScreen(
 @Composable
 fun ThreadContent(
     threadName: String,
-    uiState: ThreadUiStateSealed,
+    uiState: ThreadUiState,
 ) {
     Scaffold(
         topBar = {
@@ -82,7 +82,7 @@ fun ThreadContent(
         }
     ) { innerPadding ->
         when (uiState) {
-            is ThreadUiStateSealed.Loading -> {
+            is ThreadUiState.Loading -> {
                 Box(
                     modifier =
                         Modifier
@@ -93,7 +93,7 @@ fun ThreadContent(
                     CircularProgressIndicator()
                 }
             }
-            is ThreadUiStateSealed.Success -> {
+            is ThreadUiState.Success -> {
                 LazyColumn(
                     modifier =
                         Modifier
@@ -107,7 +107,7 @@ fun ThreadContent(
                     }
                 }
             }
-            is ThreadUiStateSealed.Error -> {
+            is ThreadUiState.Error -> {
                 Box(
                     modifier =
                         Modifier
@@ -182,9 +182,9 @@ private fun MessageCard(
 }
 
 class ThreadContentPreviewParameter :
-    CollectionPreviewParameterProvider<ThreadUiStateSealed>(
+    CollectionPreviewParameterProvider<ThreadUiState>(
         listOf(
-            ThreadUiStateSealed.Success(
+            ThreadUiState.Success(
                 threadMessage =
                     listOf(
                         ThreadMessage(
@@ -225,15 +225,15 @@ class ThreadContentPreviewParameter :
                         )
                     )
             ),
-            ThreadUiStateSealed.Loading,
-            ThreadUiStateSealed.Error("メッセージが取得できませんでした")
+            ThreadUiState.Loading,
+            ThreadUiState.Error("メッセージが取得できませんでした")
         )
     )
 
 @Preview(showBackground = true)
 @Composable
 fun ThreadContentPreview(
-    @PreviewParameter(ThreadContentPreviewParameter::class) uiState: ThreadUiStateSealed,
+    @PreviewParameter(ThreadContentPreviewParameter::class) uiState: ThreadUiState,
 ) {
     KintoneSpacesTheme {
         ThreadContent(

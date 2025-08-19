@@ -41,10 +41,10 @@ class ThreadViewModelTest {
 
             viewModel.uiState.test {
                 val initialState = awaitItem()
-                (initialState is ThreadUiStateSealed.Loading) shouldBe true
+                (initialState is ThreadUiState.Loading) shouldBe true
 
                 val loadedState = awaitItem()
-                if (loadedState is ThreadUiStateSealed.Success) {
+                if (loadedState is ThreadUiState.Success) {
                     loadedState.threadMessage.size shouldBe 2
                     loadedState.threadMessage[0].id shouldBe "msg-1"
                     loadedState.threadMessage[0].body shouldBe "thread-1"
