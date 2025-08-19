@@ -7,6 +7,9 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.io.IOException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -57,9 +60,9 @@ class ThreadViewModel @AssistedInject constructor(
 
     private fun getLocalizedErrorMessage(throwable: Throwable): String =
         when (throwable) {
-            is java.net.UnknownHostException -> "サーバーが見つかりません"
-            is java.net.SocketTimeoutException -> "通信がタイムアウトしました"
-            is java.io.IOException -> "ネットワークエラーが発生しました"
+            is UnknownHostException -> "サーバーが見つかりません"
+            is SocketTimeoutException -> "通信がタイムアウトしました"
+            is IOException -> "ネットワークエラーが発生しました"
             else -> "不明なエラー"
         }
 }
