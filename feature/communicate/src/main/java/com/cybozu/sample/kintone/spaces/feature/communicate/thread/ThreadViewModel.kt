@@ -36,15 +36,16 @@ class ThreadViewModel @AssistedInject constructor(
     private fun loadMessages() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            repository.getMessagesForThread(threadId = threadId)
+            repository
+                .getMessagesForThread(threadId = threadId)
                 .onSuccess { threadMessages ->
                     _uiState.value =
                         _uiState.value.copy(
                             threadMessages = threadMessages,
                             isLoading = false
                         )
-                }
-                .onFailure { // 'it' is the Throwable (error) here
+                }.onFailure {
+                    // 'it' is the Throwable (error) here
                     _uiState.value =
                         _uiState.value.copy(
                             isLoading = false,
@@ -54,12 +55,11 @@ class ThreadViewModel @AssistedInject constructor(
         }
     }
 
-    private fun getLocalizedErrorMessage(throwable: Throwable): String {
-        return when (throwable) {
+    private fun getLocalizedErrorMessage(throwable: Throwable): String =
+        when (throwable) {
             is java.net.UnknownHostException -> "サーバーが見つかりません"
             is java.net.SocketTimeoutException -> "通信がタイムアウトしました"
             is java.io.IOException -> "ネットワークエラーが発生しました"
             else -> "不明なエラー"
         }
-    }
 }
