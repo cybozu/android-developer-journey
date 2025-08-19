@@ -35,17 +35,18 @@ class ThreadViewModel @AssistedInject constructor(
             _uiState.value = ThreadUiState.Loading
             val result = repository.getMessagesForThread(threadId = threadId)
 
-            result.getOrNull()?.let {
-                _uiState.value =
-                    ThreadUiState.Success(
-                        threadMessages = it
-                    )
-            } ?: run {
-                _uiState.value =
-                    ThreadUiState.Error(
-                        messageId = R.string.thread_error
-                    )
-            }
+            result
+                .onSuccess {
+                    _uiState.value =
+                        ThreadUiState.Success(
+                            threadMessages = it
+                        )
+                }.onFailure {
+                    _uiState.value =
+                        ThreadUiState.Error(
+                            messageId = R.string.thread_error
+                        )
+                }
         }
     }
 }
