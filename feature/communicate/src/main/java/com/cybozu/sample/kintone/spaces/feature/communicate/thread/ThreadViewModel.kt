@@ -7,6 +7,9 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.io.IOException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,15 +32,37 @@ class ThreadViewModel @AssistedInject constructor(
         loadMessages()
     }
 
+    fun errorMessageShown() {
+        _uiState.value = _uiState.value.copy(errorMessage = null)
+    }
+
     private fun loadMessages() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            val threadMessages = repository.getMessagesForThread(threadId = threadId)
-            _uiState.value =
-                _uiState.value.copy(
-                    threadMessages = threadMessages,
-                    isLoading = false
-                )
+            repository
+                .getMessagesForThread(threadId = threadId)
+                .onSuccess { threadMessages ->
+                    _uiState.value =
+                        _uiState.value.copy(
+                            threadMessages = threadMessages,
+                            isLoading = false
+                        )
+                }.onFailure {
+                    // 'it' is the Throwable (error) here
+                    _uiState.value =
+                        _uiState.value.copy(
+                            isLoading = false,
+                            errorMessage = "メッセージを取得できませんでした\n原因: ${getLocalizedErrorMessage(it)}"
+                        )
+                }
         }
     }
+
+    private fun getLocalizedErrorMessage(throwable: Throwable): String =
+        when (throwable) {
+            is UnknownHostException -> "サーバーが見つかりません"
+            is SocketTimeoutException -> "通信がタイムアウトしました"
+            is IOException -> "ネットワークエラーが発生しました"
+            else -> "不明なエラー"
+        }
 }
