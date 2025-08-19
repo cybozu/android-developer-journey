@@ -29,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -65,7 +64,9 @@ fun ThreadScreen(
 
     ThreadContent(
         threadName = threadName,
-        uiState = uiState
+        uiState = uiState,
+        onRefresh = { viewModel.refreshMessages() }
+        // Threadを最初に形成する際に、onRefreshで使用する関数を指定する
     )
 }
 
@@ -74,6 +75,8 @@ fun ThreadScreen(
 fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
+    onRefresh: () -> Unit,
+    // 関数を引数に当てている
 ) {
     Scaffold(
         topBar = {
@@ -103,12 +106,11 @@ fun ThreadContent(
                 RefreshBox(
                     items = uiState.threadMessages,
                     isRefreshing = false,
-                    onRefresh = { /*TODO*/ },
+                    onRefresh = onRefresh,
                     paddingValues = innerPadding,
                     modifier = Modifier
                 )
-
-            }else{
+            } else {
                 ErrorMessage(context = LocalContext.current, isError = uiState.isError)
             }
         }
@@ -122,7 +124,7 @@ private fun RefreshBox(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     paddingValues: PaddingValues,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     PullToRefreshBox(
         isRefreshing = isRefreshing,
@@ -143,8 +145,12 @@ private fun RefreshBox(
         }
     }
 }
+
 @Composable
-private fun ErrorMessage(context: Context, isError: Boolean) {
+private fun ErrorMessage(
+    context: Context,
+    isError: Boolean,
+) {
     LaunchedEffect(isError) {
         Toast.makeText(context, "メッセージを取得できませんでした", Toast.LENGTH_SHORT).show()
     }
@@ -271,7 +277,8 @@ fun ThreadContentPreview(
     KintoneSpacesTheme {
         ThreadContent(
             threadName = "Sample Thread",
-            uiState = uiState
+            uiState = uiState,
+            onRefresh = {}
         )
     }
 }

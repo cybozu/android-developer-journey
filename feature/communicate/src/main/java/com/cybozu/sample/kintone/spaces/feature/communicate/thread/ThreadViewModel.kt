@@ -30,6 +30,10 @@ class ThreadViewModel @AssistedInject constructor(
         loadMessages() // メッセージのロード
     }
 
+    fun refreshMessages() {
+        loadMessages()
+    }
+
     private fun loadMessages() {
         viewModelScope.launch {
             // launchの中がコルーチン: 非同期処理　Exceptionの形式には注意
