@@ -4,6 +4,7 @@ import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 
 sealed interface ThreadUiState {
     object Loading : ThreadUiState
+    object Initial : ThreadUiState
 
     data class Success(
         val threadMessage: List<ThreadMessage>,

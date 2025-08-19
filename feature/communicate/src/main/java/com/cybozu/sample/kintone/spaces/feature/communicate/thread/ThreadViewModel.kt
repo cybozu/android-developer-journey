@@ -23,7 +23,7 @@ class ThreadViewModel @AssistedInject constructor(
     @Assisted private val threadId: String,
     private val repository: SpaceRepository,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow<ThreadUiState>(ThreadUiState.Loading)
+    private val _uiState = MutableStateFlow<ThreadUiState>(ThreadUiState.Initial)
     val uiState: StateFlow<ThreadUiState> = _uiState.asStateFlow()
 
     init {
