@@ -23,8 +23,8 @@ class ThreadViewModel @AssistedInject constructor(
     @Assisted private val threadId: String,
     private val repository: SpaceRepository,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow<ThreadUiStateSealed>(ThreadUiStateSealed.Loading)
-    val uiState: StateFlow<ThreadUiStateSealed> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<ThreadUiState>(ThreadUiState.Initial)
+    val uiState: StateFlow<ThreadUiState> = _uiState.asStateFlow()
 
     init {
         loadMessages()
@@ -32,12 +32,12 @@ class ThreadViewModel @AssistedInject constructor(
 
     private fun loadMessages() {
         viewModelScope.launch {
-            _uiState.value = ThreadUiStateSealed.Loading
+            _uiState.value = ThreadUiState.Loading
             try {
                 val threadMessages = repository.getMessagesForThread(threadId = threadId)
-                _uiState.value = ThreadUiStateSealed.Success(threadMessages)
+                _uiState.value = ThreadUiState.Success(threadMessages)
             } catch (e: IOException) {
-                _uiState.value = ThreadUiStateSealed.Error("メッセージが取得できませんでした")
+                _uiState.value = ThreadUiState.Error("メッセージが取得できませんでした")
             }
         }
     }
