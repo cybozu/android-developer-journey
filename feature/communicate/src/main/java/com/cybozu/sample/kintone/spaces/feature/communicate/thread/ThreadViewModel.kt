@@ -31,13 +31,7 @@ class ThreadViewModel @AssistedInject constructor(
     }
 
     fun refreshMessages() {
-        viewModelScope.launch {
-            try {
-                _uiState.value = _uiState.value.copy(isRefreshing = true)
-            } catch (e: Exception) {
-                throw e
-            }
-        }
+        _uiState.value = _uiState.value.copy(isRefreshing = true)
         loadMessages()
     }
 
