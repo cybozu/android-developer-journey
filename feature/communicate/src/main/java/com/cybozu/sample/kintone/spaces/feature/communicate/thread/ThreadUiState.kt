@@ -15,4 +15,8 @@ sealed class ThreadUiState {
     data class Success(
         val threadMessages: List<ThreadMessage>,
     ) : ThreadUiState()
+
+    data class Refreshing(
+        val threadMessages: List<ThreadMessage> = emptyList(),
+    ) : ThreadUiState()
 }

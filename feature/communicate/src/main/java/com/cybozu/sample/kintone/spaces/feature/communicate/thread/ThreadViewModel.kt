@@ -27,26 +27,40 @@ class ThreadViewModel @AssistedInject constructor(
     val uiState: StateFlow<ThreadUiState> = _uiState.asStateFlow()
 
     init {
-        loadMessages()
+        initialMessages()
     }
 
-    private fun loadMessages() {
+    fun initialMessages() {
         viewModelScope.launch {
             _uiState.value = ThreadUiState.Loading
-            val result = repository.getMessagesForThread(threadId = threadId)
-
-            result
-                .onSuccess {
-                    _uiState.value =
-                        ThreadUiState.Success(
-                            threadMessages = it
-                        )
-                }.onFailure {
-                    _uiState.value =
-                        ThreadUiState.Error(
-                            messageId = R.string.thread_error
-                        )
-                }
+            loadMessages()
         }
+    }
+
+    fun refreshMessages() {
+        viewModelScope.launch {
+            val threadMessages = (_uiState.value as? ThreadUiState.Success)?.threadMessages ?: emptyList()
+            _uiState.value =
+                ThreadUiState.Refreshing(
+                    threadMessages = threadMessages
+                )
+            loadMessages()
+        }
+    }
+
+    private suspend fun loadMessages() {
+        val result = repository.getMessagesForThread(threadId = threadId)
+        result
+            .onSuccess {
+                _uiState.value =
+                    ThreadUiState.Success(
+                        threadMessages = it
+                    )
+            }.onFailure {
+                _uiState.value =
+                    ThreadUiState.Error(
+                        messageId = R.string.thread_error
+                    )
+            }
     }
 }

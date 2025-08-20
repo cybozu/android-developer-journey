@@ -89,29 +89,104 @@ class ThreadViewModelTest {
                 }
             }
         }
+
+    @Test
+    fun `メッセージを一覧を更新できる`() =
+        runTest {
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                skipItems(3)
+                viewModel.refreshMessages()
+
+                val loadingState = awaitItem()
+                loadingState shouldBe instanceOf<ThreadUiState.Refreshing>()
+
+                val loadedState = awaitItem()
+                loadedState.shouldBeInstanceOf<ThreadUiState.Success> {
+                    it.threadMessages.size shouldBe 3
+                    it.threadMessages[0].id shouldBe "msg-1"
+                    it.threadMessages[0].body shouldBe "thread-1"
+                    it.threadMessages[0].creator shouldBe Creator(name = "name1")
+                    it.threadMessages[1].id shouldBe "msg-2"
+                    it.threadMessages[1].body shouldBe "thread-2"
+                    it.threadMessages[1].creator shouldBe Creator(name = "name2")
+                    it.threadMessages[2].id shouldBe "msg-3"
+                    it.threadMessages[2].body shouldBe "thread-3"
+                    it.threadMessages[2].creator shouldBe Creator(name = "name3")
+                }
+            }
+        }
+
+    @Test
+    fun `メッセージ一覧の更新に失敗`() =
+        runTest {
+            val viewModel = failureCreateViewModel()
+
+            viewModel.uiState.test {
+                skipItems(3)
+                viewModel.refreshMessages()
+
+                val loadingState = awaitItem()
+                loadingState shouldBe instanceOf<ThreadUiState.Refreshing>()
+
+                val loadedState = awaitItem()
+                loadedState.shouldBeInstanceOf<ThreadUiState.Error> {
+                    it.messageId shouldBe R.string.thread_error
+                }
+            }
+        }
 }
 
 private class FakeSpaceRepository : SpaceRepository {
+    var callCount = 0
+
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
     override suspend fun getMessagesForThread(threadId: String): Result<List<ThreadMessage>> {
         if (threadId == "thread-1") {
-            return success(
-                listOf(
-                    ThreadMessage(
-                        id = "msg-1",
-                        body = "thread-1",
-                        creator = Creator(name = "name1"),
-                        comments = emptyList()
-                    ),
-                    ThreadMessage(
-                        id = "msg-2",
-                        body = "thread-2",
-                        creator = Creator(name = "name2"),
-                        comments = emptyList()
+            callCount++
+            if (callCount == 1) { // 2回目以降の呼び出しは1回目より件数を増やす
+                return success(
+                    listOf(
+                        ThreadMessage(
+                            id = "msg-1",
+                            body = "thread-1",
+                            creator = Creator(name = "name1"),
+                            comments = emptyList()
+                        ),
+                        ThreadMessage(
+                            id = "msg-2",
+                            body = "thread-2",
+                            creator = Creator(name = "name2"),
+                            comments = emptyList()
+                        )
                     )
                 )
-            )
+            } else {
+                return success(
+                    listOf(
+                        ThreadMessage(
+                            id = "msg-1",
+                            body = "thread-1",
+                            creator = Creator(name = "name1"),
+                            comments = emptyList()
+                        ),
+                        ThreadMessage(
+                            id = "msg-2",
+                            body = "thread-2",
+                            creator = Creator(name = "name2"),
+                            comments = emptyList()
+                        ),
+                        ThreadMessage(
+                            id = "msg-3",
+                            body = "thread-3",
+                            creator = Creator(name = "name3"),
+                            comments = emptyList()
+                        )
+                    )
+                )
+            }
         }
         return failure(IOException())
     }
