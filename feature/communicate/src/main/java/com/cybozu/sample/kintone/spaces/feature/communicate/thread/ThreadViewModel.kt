@@ -30,6 +30,10 @@ class ThreadViewModel @AssistedInject constructor(
         loadMessages()
     }
 
+    fun refreshMessages() {
+        loadMessages()
+    }
+
     private fun loadMessages() {
         viewModelScope.launch {
             _uiState.value = ThreadUiState.Loading
@@ -40,9 +44,5 @@ class ThreadViewModel @AssistedInject constructor(
                 _uiState.value = ThreadUiState.Error("メッセージが取得できませんでした")
             }
         }
-    }
-
-    fun refreshMessages() {
-        loadMessages()
     }
 }

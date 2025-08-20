@@ -17,6 +17,7 @@ android {
 dependencies {
     implementation(project(":core:design"))
     implementation(project(":data:space"))
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.32.0")
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

@@ -77,6 +77,41 @@ class ThreadViewModelTest {
                 errorState.errorMessage shouldBe "メッセージが取得できませんでした"
             }
         }
+
+    @Test
+    fun refreshMessageSuccess() =
+        runTest {
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                val initialState = awaitItem()
+                (initialState is ThreadUiState.Initial) shouldBe true
+
+                val loadingState = awaitItem()
+                (loadingState is ThreadUiState.Loading) shouldBe true
+
+                val loadedState = awaitItem()
+                (loadedState is ThreadUiState.Success)
+
+                viewModel.refreshMessages()
+
+                val refreshLoadingState = awaitItem()
+                (refreshLoadingState is ThreadUiState.Loading) shouldBe true
+
+                val refreshLoadedState = awaitItem()
+                (refreshLoadedState is ThreadUiState.Success) shouldBe true
+                val successState = refreshLoadedState as ThreadUiState.Success
+                successState.threadMessage.size shouldBe 2
+                successState.threadMessage[0].id shouldBe "msg-1"
+                successState.threadMessage[0].body shouldBe "thread-1"
+                successState.threadMessage[0].creator shouldBe Creator(name = "name1")
+                successState.threadMessage[1].id shouldBe "msg-2"
+                successState.threadMessage[1].body shouldBe "thread-2"
+                successState.threadMessage[1].creator shouldBe Creator(name = "name2")
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
 }
 
 private class FakeSpaceRepository : SpaceRepository {

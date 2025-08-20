@@ -23,11 +23,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,7 +47,10 @@ import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 import com.cybozu.sample.kintone.spaces.data.space.entity.Comment
 import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThreadScreen(
     threadId: String,
@@ -56,11 +63,72 @@ fun ThreadScreen(
         ),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val isRefreshing = uiState is ThreadUiState.Loading
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
 
-    ThreadContent(
-        threadName = threadName,
-        uiState = uiState
-    )
+    LaunchedEffect(uiState) {
+        if (uiState is ThreadUiState.Error) {
+            snackbarHostState.showSnackbar((uiState as ThreadUiState.Error).errorMessage)
+        }
+    }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(threadName)
+                },
+                navigationIcon = {
+                    SystemBackNavButton()
+                }
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { innerPadding ->
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+            contentAlignment = Alignment.Center
+        ) {
+            when (uiState) {
+                is ThreadUiState.Initial -> {
+                    Text("Initial State")
+                }
+                is ThreadUiState.Loading -> {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator()
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("Loarding...")
+                    }
+                }
+                is ThreadUiState.Success -> {
+                    val messages = (uiState as ThreadUiState.Success).threadMessage
+                    SwipeRefresh(
+                        state = swipeRefreshState,
+                        onRefresh = { viewModel.refreshMessages() },
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(all = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(messages) { threadMessage ->
+                                MessageListItem(threadMessage = threadMessage)
+                            }
+                        }
+                    }
+                }
+                is ThreadUiState.Error -> {
+                    Text(
+                        text = (uiState as ThreadUiState.Error).errorMessage
+                    )
+                }
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

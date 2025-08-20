@@ -31,6 +31,7 @@ android {
 dependencies {
     implementation(project(":core:design"))
     implementation(project(":feature:communicate"))
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.32.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
