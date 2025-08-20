@@ -126,7 +126,7 @@ fun ThreadContent(
                     .padding(16.dp),
             contentAlignment = Alignment.BottomEnd // Box内のコンテンツを右下に配置
         ) {
-            newMessageButton(modifier = Modifier, context = LocalContext.current)
+            NewMessageButton(modifier = Modifier, context = LocalContext.current)
         }
     }
 }
@@ -151,7 +151,7 @@ private fun newMessageDialog(
 }
 
 @Composable
-private fun newMessageButton(
+private fun NewMessageButton(
     modifier: Modifier = Modifier,
     context: Context,
 ) {
