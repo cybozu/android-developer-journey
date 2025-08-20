@@ -2,7 +2,6 @@ package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
 import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.compose.foundation.layout.Arrangement
@@ -120,18 +119,22 @@ fun ThreadContent(
         )
         // NewMessageButtonをBoxでラップし、画面の右下に配置
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding) // Scaffoldのpaddingを適用
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding) // Scaffoldのpaddingを適用
+                    .padding(16.dp),
             contentAlignment = Alignment.BottomEnd // Box内のコンテンツを右下に配置
         ) {
-            NewMessageButton(modifier = Modifier, context = LocalContext.current)
+            newMessageButton(modifier = Modifier, context = LocalContext.current)
         }
     }
 }
 
-private fun NewMessageDialog(modifier: Modifier = Modifier, context: Context){
+private fun newMessageDialog(
+    modifier: Modifier = Modifier,
+    context: Context,
+) {
     val editText = AppCompatEditText(context)
     val builder: AlertDialog.Builder = AlertDialog.Builder(context)
     builder
@@ -140,20 +143,20 @@ private fun NewMessageDialog(modifier: Modifier = Modifier, context: Context){
         .setPositiveButton("送信") { _, _ ->
             // debug
             Toast.makeText(context, "投稿しました", Toast.LENGTH_SHORT).show()
-        }
-        .setNegativeButton("キャンセル") { _, _ ->
+        }.setNegativeButton("キャンセル") { _, _ ->
             // debug
             Toast.makeText(context, "キャンセルしました", Toast.LENGTH_SHORT).show()
-        }
-        .create()
+        }.create()
         .show()
-
 }
 
 @Composable
-private fun NewMessageButton(modifier: Modifier = Modifier, context: Context) {
+private fun newMessageButton(
+    modifier: Modifier = Modifier,
+    context: Context,
+) {
     ExtendedFloatingActionButton(
-        onClick = { NewMessageDialog(modifier = Modifier, context = context) },
+        onClick = { newMessageDialog(modifier = Modifier, context = context) },
         modifier = modifier,
         icon = {
             Icon(
@@ -163,8 +166,8 @@ private fun NewMessageButton(modifier: Modifier = Modifier, context: Context) {
         },
         text = {
             Text("投稿")
-        },
-        )
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
