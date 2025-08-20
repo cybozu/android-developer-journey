@@ -46,6 +46,8 @@ class ThreadViewModel @AssistedInject constructor(
                         isLoading = false,
                         isError = false // isError: falseに設定
                     )
+                print("debug")
+
             } catch (e: CancellationException) {
                 throw e // Catch & Release CancellationException
             } catch (_: Exception) {
