@@ -44,11 +44,13 @@ class ThreadViewModelTest {
                 initialState.threadMessages shouldBe emptyList()
                 initialState.isLoading shouldBe false
                 initialState.isError shouldBe false
+                initialState.isRefreshing shouldBe false
 
                 val loadingState = awaitItem()
                 loadingState.threadMessages shouldBe emptyList()
                 loadingState.isLoading shouldBe true
                 loadingState.isError shouldBe false
+                loadingState.isRefreshing shouldBe false
 
                 val loadedState = awaitItem()
                 loadedState.threadMessages.size shouldBe 2
@@ -60,12 +62,19 @@ class ThreadViewModelTest {
                 loadedState.threadMessages[1].creator shouldBe Creator(name = "name2")
                 loadedState.isLoading shouldBe false
                 loadedState.isError shouldBe false
+                loadedState.isRefreshing shouldBe false
 
                 viewModel.refreshMessages()
+
+                val refreshingState = awaitItem()
+                refreshingState.isLoading shouldBe false
+                refreshingState.isError shouldBe false
+                refreshingState.isRefreshing shouldBe true
 
                 val secondLoadingState = awaitItem()
                 secondLoadingState.isLoading shouldBe true
                 secondLoadingState.isError shouldBe false
+                secondLoadingState.isRefreshing shouldBe true
 
                 val refreshState = awaitItem()
                 refreshState.threadMessages.size shouldBe 2
@@ -77,6 +86,7 @@ class ThreadViewModelTest {
                 refreshState.threadMessages[1].creator shouldBe Creator(name = "name2")
                 refreshState.isLoading shouldBe false
                 refreshState.isError shouldBe false
+                refreshState.isRefreshing shouldBe false
             }
         }
 
@@ -90,11 +100,13 @@ class ThreadViewModelTest {
                 initialState.threadMessages shouldBe emptyList()
                 initialState.isLoading shouldBe false
                 initialState.isError shouldBe false
+                initialState.isRefreshing shouldBe false
 
                 val loadingState = awaitItem()
                 loadingState.threadMessages shouldBe emptyList()
                 loadingState.isLoading shouldBe true
                 loadingState.isError shouldBe false
+                loadingState.isRefreshing shouldBe false
 
                 val loadedState = awaitItem()
                 loadedState.threadMessages.size shouldBe 2
@@ -106,17 +118,25 @@ class ThreadViewModelTest {
                 loadedState.threadMessages[1].creator shouldBe Creator(name = "name2")
                 loadedState.isLoading shouldBe false
                 loadedState.isError shouldBe false
+                loadedState.isRefreshing shouldBe false
 
                 viewModel.refreshMessages()
+
+                val refreshingState = awaitItem()
+                refreshingState.isLoading shouldBe false
+                refreshingState.isError shouldBe false
+                refreshingState.isRefreshing shouldBe true
 
                 val secondLoadingState = awaitItem()
                 secondLoadingState.isLoading shouldBe true
                 secondLoadingState.isError shouldBe false
+                secondLoadingState.isRefreshing shouldBe true
 
                 val refreshState = awaitItem()
                 refreshState.threadMessages shouldBe emptyList()
                 refreshState.isLoading shouldBe false
                 refreshState.isError shouldBe true
+                refreshState.isRefreshing shouldBe false
             }
         }
 
@@ -130,16 +150,19 @@ class ThreadViewModelTest {
                 initialState.threadMessages shouldBe emptyList()
                 initialState.isLoading shouldBe false
                 initialState.isError shouldBe false
+                initialState.isRefreshing shouldBe false
 
                 val loadingState = awaitItem()
                 loadingState.threadMessages shouldBe emptyList()
                 loadingState.isLoading shouldBe true
                 loadingState.isError shouldBe false
+                loadingState.isRefreshing shouldBe false
 
                 val loadedState = awaitItem()
                 loadedState.threadMessages shouldBe emptyList()
                 loadedState.isLoading shouldBe false
                 loadedState.isError shouldBe true
+                loadedState.isRefreshing shouldBe false
             }
         }
 }

@@ -106,9 +106,10 @@ fun ThreadContent(
                 )
             }
         }
+
         RefreshBox(
             items = uiState.threadMessages,
-            isRefreshing = uiState.isLoading,
+            isRefreshing = uiState.isRefreshing,
             onRefresh = onRefresh,
             paddingValues = innerPadding,
             modifier = Modifier
