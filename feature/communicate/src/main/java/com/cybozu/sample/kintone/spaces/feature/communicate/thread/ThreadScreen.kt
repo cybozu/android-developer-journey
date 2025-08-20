@@ -94,13 +94,13 @@ fun ThreadScreen(
         ) {
             when (uiState) {
                 is ThreadUiState.Initial -> {
-                    Text("Initial State")
+
                 }
                 is ThreadUiState.Loading -> {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         CircularProgressIndicator()
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text("Loarding...")
+                        Text("Loading...")
                     }
                 }
                 is ThreadUiState.Success -> {
