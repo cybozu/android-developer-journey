@@ -59,6 +59,7 @@ class ThreadViewModelTest {
                 successState.threadMessage[1].creator shouldBe Creator(name = "name2")
             }
         }
+
     @Test
     fun testGetMessagesError() =
         runTest {
@@ -66,13 +67,16 @@ class ThreadViewModelTest {
 
             viewModel.uiState.test {
                 val initialState = awaitItem()
-                (initialState is ThreadUiStateSealed.Loading) shouldBe true
+                (initialState is ThreadUiState.Initial) shouldBe true
+
+                val loadingState = awaitItem()
+                (loadingState is ThreadUiState.Loading) shouldBe true
 
                 val errorState = awaitItem()
-                if (errorState is ThreadUiStateSealed.Error) {
-                    errorState.errorMessage shouldBe "error"
+                if (errorState is ThreadUiState.Error) {
+                    errorState.errorMessage shouldBe "メッセージが取得できませんでした"
                 } else {
-                    error("not error")
+                    error("Error状態ではありません")
                 }
             }
         }
@@ -102,9 +106,8 @@ private class FakeSpaceRepository : SpaceRepository {
     }
 }
 
-private class ErrorFakeSpaceRepository: SpaceRepository {
+private class ErrorFakeSpaceRepository : SpaceRepository {
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
-    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
-        throw IOException("network error")
-    }
+
+    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = throw IOException("ネットワークエラー")
 }
