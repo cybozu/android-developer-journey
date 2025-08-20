@@ -47,16 +47,17 @@ class ThreadViewModel @AssistedInject constructor(
 
     private fun fetchMessages(isRefresh: Boolean) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(
-                isLoading = !isRefresh,
-                isRefreshing = isRefresh
-            )
-            
+            _uiState.value =
+                _uiState.value.copy(
+                    isLoading = !isRefresh,
+                    isRefreshing = isRefresh
+                )
+
             // Pull to Refreshの挙動確認用の遅延（開発用）
             if (isRefresh) {
                 delay(1500)
             }
-            
+
             repository
                 .getMessagesForThread(threadId = threadId)
                 .onSuccess { threadMessages ->
