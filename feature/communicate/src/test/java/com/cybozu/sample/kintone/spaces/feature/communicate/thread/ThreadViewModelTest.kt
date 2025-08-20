@@ -146,32 +146,22 @@ class ThreadViewModelTest {
 
 // 初回正常系のRepository
 private class FakeSpaceRepository : SpaceRepository {
-    var cnt = 0
+    var loadCount = 0
 
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
-        cnt++ // 読み込み回数用のカウンタ
+        loadCount++ // 読み込み回数用のカウンタ
 
-        if (cnt == 2 && threadId == "thread-error") {
-            throw Exception()
-        } else if (cnt == 1 || threadId == "thread-1") {
-            return listOf(
-                ThreadMessage(
-                    id = "msg-1",
-                    body = "thread-1",
-                    creator = Creator(name = "name1"),
-                    comments = emptyList()
-                ),
-                ThreadMessage(
-                    id = "msg-2",
-                    body = "thread-2",
-                    creator = Creator(name = "name2"),
-                    comments = emptyList()
+        return when {
+            loadCount == 2 && threadId == "thread-error" -> throw Exception()
+            loadCount == 1 || threadId == "thread-1" ->
+                listOf(
+                    ThreadMessage("msg-1", "thread-1", Creator("name1"), emptyList()),
+                    ThreadMessage("msg-2", "thread-2", Creator("name2"), emptyList())
                 )
-            )
+            else -> emptyList()
         }
-        return emptyList()
     }
 }
 

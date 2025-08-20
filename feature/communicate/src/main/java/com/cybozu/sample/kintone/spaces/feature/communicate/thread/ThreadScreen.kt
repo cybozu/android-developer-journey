@@ -29,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -42,6 +41,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cybozu.sample.kintone.spaces.core.design.component.Html
 import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButton
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
@@ -102,8 +102,8 @@ fun ThreadContent(
         } else {
             if (uiState.isError) { // 異常系
                 ErrorMessage(
-                    context = LocalContext.current,
-                    )
+                    context = LocalContext.current
+                )
             }
         }
         RefreshBox(
@@ -128,13 +128,12 @@ private fun RefreshBox(
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
-        modifier = modifier
+        modifier = modifier.padding(paddingValues)
     ) {
         LazyColumn(
             modifier =
                 Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
+                    .fillMaxSize(),
             contentPadding = PaddingValues(all = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -146,10 +145,8 @@ private fun RefreshBox(
 }
 
 @Composable
-private fun ErrorMessage(
-    context: Context,
-) {
-    //Launched Effectは削除(トリガーされるのはエラーと判定された場合のみであり、他の場合で呼び出されることは現状ないため)
+private fun ErrorMessage(context: Context) {
+    // Launched Effectは削除(トリガーされるのはエラーと判定された場合のみであり、他の場合で呼び出されることは現状ないため)
     Toast.makeText(context, "メッセージを取得できませんでした", Toast.LENGTH_SHORT).show()
 }
 
