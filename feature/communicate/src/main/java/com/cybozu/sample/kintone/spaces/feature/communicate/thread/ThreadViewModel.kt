@@ -7,6 +7,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.io.IOException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,7 +23,7 @@ class ThreadViewModel @AssistedInject constructor(
     @Assisted private val threadId: String,
     private val repository: SpaceRepository,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(ThreadUiState())
+    private val _uiState = MutableStateFlow<ThreadUiState>(ThreadUiState.Initial)
     val uiState: StateFlow<ThreadUiState> = _uiState.asStateFlow()
 
     init {
@@ -31,13 +32,13 @@ class ThreadViewModel @AssistedInject constructor(
 
     private fun loadMessages() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            val threadMessages = repository.getMessagesForThread(threadId = threadId)
-            _uiState.value =
-                _uiState.value.copy(
-                    threadMessages = threadMessages,
-                    isLoading = false
-                )
+            _uiState.value = ThreadUiState.Loading
+            try {
+                val threadMessages = repository.getMessagesForThread(threadId = threadId)
+                _uiState.value = ThreadUiState.Success(threadMessages)
+            } catch (e: IOException) {
+                _uiState.value = ThreadUiState.Error("メッセージが取得できませんでした")
+            }
         }
     }
 }

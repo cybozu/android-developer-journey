@@ -81,27 +81,43 @@ fun ThreadContent(
             )
         }
     ) { innerPadding ->
-        if (uiState.isLoading) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+        when (uiState) {
+            is ThreadUiState.Initial -> {
             }
-        } else {
-            LazyColumn(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                contentPadding = PaddingValues(all = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(uiState.threadMessages) { threadMessage ->
-                    MessageListItem(threadMessage = threadMessage)
+            is ThreadUiState.Loading -> {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+            is ThreadUiState.Success -> {
+                LazyColumn(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                    contentPadding = PaddingValues(all = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(uiState.threadMessage) { threadMessages ->
+                        MessageListItem(threadMessage = threadMessages)
+                    }
+                }
+            }
+            is ThreadUiState.Error -> {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = uiState.errorMessage)
                 }
             }
         }
@@ -170,8 +186,8 @@ private fun MessageCard(
 class ThreadContentPreviewParameter :
     CollectionPreviewParameterProvider<ThreadUiState>(
         listOf(
-            ThreadUiState(
-                threadMessages =
+            ThreadUiState.Success(
+                threadMessage =
                     listOf(
                         ThreadMessage(
                             id = "1",
@@ -209,13 +225,10 @@ class ThreadContentPreviewParameter :
                             creator = Creator(name = "name2"),
                             comments = emptyList()
                         )
-                    ),
-                isLoading = false
+                    )
             ),
-            ThreadUiState(
-                threadMessages = emptyList(),
-                isLoading = true
-            )
+            ThreadUiState.Loading,
+            ThreadUiState.Error("メッセージが取得できませんでした")
         )
     )
 
