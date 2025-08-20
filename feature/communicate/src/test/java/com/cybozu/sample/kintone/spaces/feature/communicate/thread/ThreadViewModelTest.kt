@@ -29,8 +29,8 @@ class ThreadViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(): ThreadViewModel {
-        val repository = FakeSpaceRepository()
+    private fun createViewModel(shouldFail: Boolean = false): ThreadViewModel {
+        val repository = FakeSpaceRepository(shouldFail = shouldFail)
         return ThreadViewModel(threadId = "thread-1", repository = repository)
     }
 
@@ -59,13 +59,43 @@ class ThreadViewModelTest {
                 loadedState.isLoading shouldBe false
             }
         }
+
+    @Test
+    fun `データ取得に失敗したときエラー状態になる`() =
+        runTest {
+            val viewModel = createViewModel(shouldFail = true)
+
+            viewModel.uiState.test {
+                // 初期:何もデータがない状態を確認
+                val initialState = awaitItem()
+                initialState.threadMessages shouldBe emptyList()
+                initialState.isLoading shouldBe false
+                initialState.errorMessage shouldBe null
+
+                // loading:データ取得開始でローディング表示される状態を確認
+                val loadingState = awaitItem()
+                loadingState.threadMessages shouldBe emptyList()
+                loadingState.isLoading shouldBe true
+                loadingState.errorMessage shouldBe null
+
+                // error:データ取得失敗でエラーメッセージが表示される状態を確認
+                val errorState = awaitItem()
+                errorState.threadMessages shouldBe emptyList()
+                errorState.isLoading shouldBe false
+                errorState.errorMessage shouldBe "メッセージを取得できませんでした\n原因: 不明なエラー"
+            }
+        }
 }
 
-private class FakeSpaceRepository : SpaceRepository {
+private class FakeSpaceRepository(
+    private val shouldFail: Boolean = false,
+) : SpaceRepository {
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
     override suspend fun getMessagesForThread(threadId: String): Result<List<ThreadMessage>> =
-        if (threadId == "thread-1") {
+        if (shouldFail) {
+            Result.failure(RuntimeException("データ取得に失敗しました"))
+        } else if (threadId == "thread-1") {
             Result.success(
                 listOf(
                     ThreadMessage(
