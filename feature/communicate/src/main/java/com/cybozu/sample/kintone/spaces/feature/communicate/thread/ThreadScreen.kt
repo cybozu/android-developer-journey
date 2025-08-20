@@ -27,6 +27,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -47,8 +49,6 @@ import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 import com.cybozu.sample.kintone.spaces.data.space.entity.Comment
 import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,8 +64,8 @@ fun ThreadScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    val isRefreshing = uiState is ThreadUiState.Loading
-    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
+    var isRefreshing = uiState is ThreadUiState.Loading
+    val pullToRefreshState = rememberPullToRefreshState()
 
     LaunchedEffect(uiState) {
         if (uiState is ThreadUiState.Error) {
@@ -94,7 +94,6 @@ fun ThreadScreen(
         ) {
             when (uiState) {
                 is ThreadUiState.Initial -> {
-
                 }
                 is ThreadUiState.Loading -> {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -105,8 +104,9 @@ fun ThreadScreen(
                 }
                 is ThreadUiState.Success -> {
                     val messages = (uiState as ThreadUiState.Success).threadMessage
-                    SwipeRefresh(
-                        state = swipeRefreshState,
+                    PullToRefreshBox(
+                        isRefreshing = isRefreshing,
+                        state = pullToRefreshState,
                         onRefresh = { viewModel.refreshMessages() },
                         modifier = Modifier.fillMaxSize()
                     ) {
