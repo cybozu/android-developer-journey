@@ -6,6 +6,7 @@ import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -72,12 +73,8 @@ class ThreadViewModelTest {
                 val loadingState = awaitItem()
                 (loadingState is ThreadUiState.Loading) shouldBe true
 
-                val errorState = awaitItem()
-                if (errorState is ThreadUiState.Error) {
-                    errorState.errorMessage shouldBe "メッセージが取得できませんでした"
-                } else {
-                    error("Error状態ではありません")
-                }
+                val errorState = awaitItem().shouldBeInstanceOf<ThreadUiState.Error>()
+                errorState.errorMessage shouldBe "メッセージが取得できませんでした"
             }
         }
 }
