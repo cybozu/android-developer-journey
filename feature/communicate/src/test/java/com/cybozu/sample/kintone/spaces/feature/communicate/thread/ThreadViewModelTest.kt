@@ -108,8 +108,6 @@ class ThreadViewModelTest {
                 successState.threadMessage[1].id shouldBe "msg-2"
                 successState.threadMessage[1].body shouldBe "thread-2"
                 successState.threadMessage[1].creator shouldBe Creator(name = "name2")
-
-                cancelAndIgnoreRemainingEvents()
             }
         }
 }
