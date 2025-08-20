@@ -1,7 +1,10 @@
 package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.widget.Toast
+import androidx.appcompat.widget.AppCompatEditText
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,10 +21,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -41,7 +46,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cybozu.sample.kintone.spaces.core.design.component.Html
 import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButton
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
@@ -114,7 +118,53 @@ fun ThreadContent(
             paddingValues = innerPadding,
             modifier = Modifier
         )
+        // NewMessageButtonをBoxでラップし、画面の右下に配置
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding) // Scaffoldのpaddingを適用
+                .padding(16.dp),
+            contentAlignment = Alignment.BottomEnd // Box内のコンテンツを右下に配置
+        ) {
+            NewMessageButton(modifier = Modifier, context = LocalContext.current)
+        }
     }
+}
+
+private fun NewMessageDialog(modifier: Modifier = Modifier, context: Context){
+    val editText = AppCompatEditText(context)
+    val builder: AlertDialog.Builder = AlertDialog.Builder(context)
+    builder
+        .setTitle("投稿")
+        .setView(editText)
+        .setPositiveButton("送信") { _, _ ->
+            // debug
+            Toast.makeText(context, "投稿しました", Toast.LENGTH_SHORT).show()
+        }
+        .setNegativeButton("キャンセル") { _, _ ->
+            // debug
+            Toast.makeText(context, "キャンセルしました", Toast.LENGTH_SHORT).show()
+        }
+        .create()
+        .show()
+
+}
+
+@Composable
+private fun NewMessageButton(modifier: Modifier = Modifier, context: Context) {
+    ExtendedFloatingActionButton(
+        onClick = { NewMessageDialog(modifier = Modifier, context = context) },
+        modifier = modifier,
+        icon = {
+            Icon(
+                imageVector = Icons.Filled.Edit,
+                contentDescription = "New Message"
+            )
+        },
+        text = {
+            Text("投稿")
+        },
+        )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
