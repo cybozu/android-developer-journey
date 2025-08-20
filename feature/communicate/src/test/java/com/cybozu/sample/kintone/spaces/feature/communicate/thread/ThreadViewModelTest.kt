@@ -151,8 +151,7 @@ private class FakeSpaceRepository : SpaceRepository {
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
-        cnt++
-        // 読み込み回数用のカウンタ
+        cnt++ // 読み込み回数用のカウンタ
 
         if (cnt == 2 && threadId == "thread-error") {
             throw Exception()

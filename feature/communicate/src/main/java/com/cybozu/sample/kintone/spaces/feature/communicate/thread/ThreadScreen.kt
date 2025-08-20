@@ -65,8 +65,8 @@ fun ThreadScreen(
     ThreadContent(
         threadName = threadName,
         uiState = uiState,
-        onRefresh = { viewModel.refreshMessages() }
         // Threadを最初に形成する際に、onRefreshで使用する関数を指定する
+        onRefresh = { viewModel.refreshMessages() }
     )
 }
 
@@ -75,8 +75,7 @@ fun ThreadScreen(
 fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
-    onRefresh: () -> Unit,
-    // 関数を引数に当てている
+    onRefresh: () -> Unit, // 関数を引数に当てている
 ) {
     Scaffold(
         topBar = {
@@ -101,22 +100,19 @@ fun ThreadContent(
                 CircularProgressIndicator()
             }
         } else {
-            if (!uiState.isError) { // 正常に読み込まれていればリスト表示
-
-                RefreshBox(
-                    items = uiState.threadMessages,
-                    isRefreshing = false,
-                    onRefresh = onRefresh,
-                    paddingValues = innerPadding,
-                    modifier = Modifier
-                )
-            } else {
+            if (uiState.isError) { // 異常系
                 ErrorMessage(
                     context = LocalContext.current,
-                    isError = uiState.isError
-                )
+                    )
             }
         }
+        RefreshBox(
+            items = uiState.threadMessages,
+            isRefreshing = uiState.isLoading,
+            onRefresh = onRefresh,
+            paddingValues = innerPadding,
+            modifier = Modifier
+        )
     }
 }
 
@@ -152,11 +148,9 @@ private fun RefreshBox(
 @Composable
 private fun ErrorMessage(
     context: Context,
-    isError: Boolean,
 ) {
-    LaunchedEffect(isError) {
-        Toast.makeText(context, "メッセージを取得できませんでした", Toast.LENGTH_SHORT).show()
-    }
+    //Launched Effectは削除(トリガーされるのはエラーと判定された場合のみであり、他の場合で呼び出されることは現状ないため)
+    Toast.makeText(context, "メッセージを取得できませんでした", Toast.LENGTH_SHORT).show()
 }
 
 @Composable
