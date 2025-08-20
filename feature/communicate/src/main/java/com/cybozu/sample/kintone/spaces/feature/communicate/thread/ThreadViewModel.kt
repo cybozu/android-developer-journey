@@ -30,7 +30,7 @@ class ThreadViewModel @AssistedInject constructor(
         initialMessages()
     }
 
-    fun initialMessages() {
+    private fun initialMessages() {
         viewModelScope.launch {
             _uiState.value = ThreadUiState.Loading
             loadMessages()
