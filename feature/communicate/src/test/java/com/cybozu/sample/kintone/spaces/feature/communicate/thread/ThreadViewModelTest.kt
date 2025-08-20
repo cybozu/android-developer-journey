@@ -29,8 +29,10 @@ class ThreadViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(threadId: String, repository: SpaceRepository): ThreadViewModel =
-        ThreadViewModel(threadId = threadId, repository = repository)
+    private fun createViewModel(
+        threadId: String,
+        repository: SpaceRepository,
+    ): ThreadViewModel = ThreadViewModel(threadId = threadId, repository = repository)
 
     @Test
     fun `メッセージ一覧が取得でき、再読み込みもできる`() =
@@ -81,7 +83,7 @@ class ThreadViewModelTest {
     @Test
     fun `メッセージ一覧が取得できるが、再読み込みができない`() =
         runTest {
-            val viewModel = createViewModel("thread-error" ,FakeSpaceRepository())
+            val viewModel = createViewModel("thread-error", FakeSpaceRepository())
 
             viewModel.uiState.test {
                 val initialState = awaitItem()
@@ -121,7 +123,7 @@ class ThreadViewModelTest {
     @Test
     fun `メッセージ一覧が取得できない`() =
         runTest {
-            val viewModel = createViewModel("",FakeSpaceRepositoryNoThreadMsg())
+            val viewModel = createViewModel("", FakeSpaceRepositoryNoThreadMsg())
 
             viewModel.uiState.test {
                 val initialState = awaitItem()
@@ -142,7 +144,6 @@ class ThreadViewModelTest {
         }
 }
 
-
 // 初回正常系のRepository
 private class FakeSpaceRepository : SpaceRepository {
     var cnt = 0
@@ -153,9 +154,9 @@ private class FakeSpaceRepository : SpaceRepository {
         cnt++
         // 読み込み回数用のカウンタ
 
-        if (cnt==2 && threadId == "thread-error") {
+        if (cnt == 2 && threadId == "thread-error") {
             throw Exception()
-        }else if (cnt==1 || threadId == "thread-1") {
+        } else if (cnt == 1 || threadId == "thread-1") {
             return listOf(
                 ThreadMessage(
                     id = "msg-1",
