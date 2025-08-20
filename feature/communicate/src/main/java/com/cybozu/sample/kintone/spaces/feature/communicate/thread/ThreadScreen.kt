@@ -2,6 +2,8 @@ package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
 import android.app.AlertDialog
 import android.content.Context
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.compose.foundation.layout.Arrangement
@@ -48,6 +50,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cybozu.sample.kintone.spaces.core.design.component.Html
 import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButton
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
+import com.cybozu.sample.kintone.spaces.data.space.KintoneMessage
 import com.cybozu.sample.kintone.spaces.data.space.entity.Comment
 import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
@@ -136,16 +139,26 @@ private fun newMessageDialog(
     context: Context,
 ) {
     val editText = AppCompatEditText(context)
+    editText.addTextChangedListener( object: TextWatcher{
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            //TODO: POST
+        }
+
+        override fun afterTextChanged(s: Editable?) {}
+    })
     val builder: AlertDialog.Builder = AlertDialog.Builder(context)
     builder
         .setTitle("投稿")
         .setView(editText)
         .setPositiveButton("送信") { _, _ ->
-            // debug
-            Toast.makeText(context, "投稿しました", Toast.LENGTH_SHORT).show()
+            // POST
+
+            // trigger loadMessages
+
         }.setNegativeButton("キャンセル") { _, _ ->
-            // debug
-            Toast.makeText(context, "キャンセルしました", Toast.LENGTH_SHORT).show()
+            // do nothing
         }.create()
         .show()
 }
