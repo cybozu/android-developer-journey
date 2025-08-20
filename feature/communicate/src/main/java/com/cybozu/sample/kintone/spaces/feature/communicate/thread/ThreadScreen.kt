@@ -26,6 +26,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -63,7 +65,8 @@ fun ThreadScreen(
 
     ThreadContent(
         threadName = threadName,
-        uiState = uiState
+        uiState = uiState,
+        onRefresh = viewModel::refreshMessages
     )
 }
 
@@ -72,8 +75,11 @@ fun ThreadScreen(
 fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
+    onRefresh: () -> Unit,
 ) {
     val context = LocalContext.current
+    val pullToRefreshState = rememberPullToRefreshState()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -86,36 +92,61 @@ fun ThreadContent(
             )
         }
     ) { innerPadding ->
-        when (uiState) {
-            is ThreadUiState.Idle -> {}
-            is ThreadUiState.Error -> {
-                Toast.makeText(context, stringResource(uiState.messageId), Toast.LENGTH_SHORT).show()
-            }
-            is ThreadUiState.Loading -> {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+        val isRefreshing = uiState is ThreadUiState.Refreshing
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
+            state = pullToRefreshState,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            when (uiState) {
+                is ThreadUiState.Idle -> {}
+                is ThreadUiState.Error -> {
+                    Toast.makeText(context, stringResource(uiState.messageId), Toast.LENGTH_SHORT).show()
                 }
-            }
-            is ThreadUiState.Success -> {
-                LazyColumn(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                    contentPadding = PaddingValues(all = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(uiState.threadMessages) { threadMessage ->
-                        MessageListItem(threadMessage = threadMessage)
+                is ThreadUiState.Loading -> {
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
                     }
                 }
+                is ThreadUiState.Success -> {
+                    MessageList(
+                        threadMessages = uiState.threadMessages,
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                    )
+                }
+                is ThreadUiState.Refreshing -> {
+                    MessageList(
+                        threadMessages = uiState.threadMessages,
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                    )
+                }
             }
+        }
+    }
+}
+
+@Composable
+private fun MessageList(
+    threadMessages: List<ThreadMessage>,
+    modifier: Modifier,
+) {
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(all = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(threadMessages) { threadMessage ->
+            MessageListItem(threadMessage = threadMessage)
         }
     }
 }
@@ -238,7 +269,8 @@ fun ThreadContentPreview(
     KintoneSpacesTheme {
         ThreadContent(
             threadName = "Sample Thread",
-            uiState = uiState
+            uiState = uiState,
+            onRefresh = {}
         )
     }
 }
