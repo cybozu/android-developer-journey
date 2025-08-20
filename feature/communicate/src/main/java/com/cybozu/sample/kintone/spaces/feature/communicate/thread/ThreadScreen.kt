@@ -27,6 +27,9 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -64,7 +67,8 @@ fun ThreadScreen(
     ThreadContent(
         threadName = threadName,
         uiState = uiState,
-        onErrorMessageShown = viewModel::errorMessageShown
+        onErrorMessageShown = viewModel::errorMessageShown,
+        onRefresh = viewModel::refresh
     )
 }
 
@@ -74,6 +78,7 @@ fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
     onErrorMessageShown: () -> Unit,
+    onRefresh: () -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
@@ -102,16 +107,21 @@ fun ThreadContent(
                 CircularProgressIndicator()
             }
         } else {
-            LazyColumn(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                contentPadding = PaddingValues(all = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = onRefresh,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
             ) {
-                items(uiState.threadMessages) { threadMessage ->
-                    MessageListItem(threadMessage = threadMessage)
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(all = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(uiState.threadMessages) { threadMessage ->
+                        MessageListItem(threadMessage = threadMessage)
+                    }
                 }
             }
         }
@@ -245,7 +255,8 @@ fun ThreadContentPreview(
         ThreadContent(
             threadName = "Sample Thread",
             uiState = uiState,
-            onErrorMessageShown = {}
+            onErrorMessageShown = {},
+            onRefresh = {}
         )
     }
 }
