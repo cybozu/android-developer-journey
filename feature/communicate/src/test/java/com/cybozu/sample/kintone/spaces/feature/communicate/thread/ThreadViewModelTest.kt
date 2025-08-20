@@ -6,6 +6,8 @@ import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
+import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -35,7 +37,7 @@ class ThreadViewModelTest {
     }
 
     @Test
-    fun `メッセージ一覧が取得できる`() =
+    fun testGetMessagesSuccess() =
         runTest {
             val viewModel = createViewModel()
 
@@ -47,14 +49,32 @@ class ThreadViewModelTest {
                 (loadingState is ThreadUiState.Loading) shouldBe true
 
                 val loadedState = awaitItem()
-                (loadedState as ThreadUiState.Success)
-                loadedState.threadMessage.size shouldBe 2
-                loadedState.threadMessage[0].id shouldBe "msg-1"
-                loadedState.threadMessage[0].body shouldBe "thread-1"
-                loadedState.threadMessage[0].creator shouldBe Creator(name = "name1")
-                loadedState.threadMessage[1].id shouldBe "msg-2"
-                loadedState.threadMessage[1].body shouldBe "thread-2"
-                loadedState.threadMessage[1].creator shouldBe Creator(name = "name2")
+                (loadedState is ThreadUiState.Success) shouldBe true
+                val successState = loadedState as ThreadUiState.Success
+                successState.threadMessage.size shouldBe 2
+                successState.threadMessage[0].id shouldBe "msg-1"
+                successState.threadMessage[0].body shouldBe "thread-1"
+                successState.threadMessage[0].creator shouldBe Creator(name = "name1")
+                successState.threadMessage[1].id shouldBe "msg-2"
+                successState.threadMessage[1].body shouldBe "thread-2"
+                successState.threadMessage[1].creator shouldBe Creator(name = "name2")
+            }
+        }
+
+    @Test
+    fun testGetMessagesError() =
+        runTest {
+            val viewModel = ThreadViewModel(threadId = "thread-1", repository = ErrorFakeSpaceRepository())
+
+            viewModel.uiState.test {
+                val initialState = awaitItem()
+                (initialState is ThreadUiState.Initial) shouldBe true
+
+                val loadingState = awaitItem()
+                (loadingState is ThreadUiState.Loading) shouldBe true
+
+                val errorState = awaitItem().shouldBeInstanceOf<ThreadUiState.Error>()
+                errorState.errorMessage shouldBe "メッセージが取得できませんでした"
             }
         }
 }
@@ -81,4 +101,10 @@ private class FakeSpaceRepository : SpaceRepository {
         }
         return emptyList()
     }
+}
+
+private class ErrorFakeSpaceRepository : SpaceRepository {
+    override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
+
+    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = throw IOException("ネットワークエラー")
 }

@@ -228,7 +228,7 @@ class ThreadContentPreviewParameter :
                     )
             ),
             ThreadUiState.Loading,
-            ThreadUiState.Error("メッセージが取得できませんでした")
+            ThreadUiState.Error("メッセージを取得できませんでした")
         )
     )
 
