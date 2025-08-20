@@ -41,4 +41,8 @@ class ThreadViewModel @AssistedInject constructor(
             }
         }
     }
+
+    fun refreshMessages() {
+        loadMessages()
+    }
 }
