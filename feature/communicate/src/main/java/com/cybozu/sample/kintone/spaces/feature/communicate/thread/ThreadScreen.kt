@@ -1,5 +1,6 @@
 package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,8 +27,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -40,6 +41,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cybozu.sample.kintone.spaces.core.design.component.Html
 import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButton
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
@@ -62,7 +64,9 @@ fun ThreadScreen(
 
     ThreadContent(
         threadName = threadName,
-        uiState = uiState
+        uiState = uiState,
+        // Threadを最初に形成する際に、onRefreshで使用する関数を指定する
+        onRefresh = { viewModel.refreshMessages() }
     )
 }
 
@@ -71,6 +75,7 @@ fun ThreadScreen(
 fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
+    onRefresh: () -> Unit, // 関数を引数に当てている
 ) {
     Scaffold(
         topBar = {
@@ -95,28 +100,55 @@ fun ThreadContent(
                 CircularProgressIndicator()
             }
         } else {
-            if (!uiState.isError) { // 正常に読み込まれていればリスト表示
-                println("debug point")
-                LazyColumn(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                    contentPadding = PaddingValues(all = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(uiState.threadMessages) { threadMessage ->
-                        MessageListItem(threadMessage = threadMessage)
-                    }
-                }
-            } else { // 読み込めなければエラー表示
-                val context = LocalContext.current
-                LaunchedEffect(uiState.isError) {
-                    Toast.makeText(context, "メッセージを取得できませんでした", Toast.LENGTH_SHORT).show()
-                }
+            if (uiState.isError) { // 異常系
+                ErrorMessage(
+                    context = LocalContext.current
+                )
+            }
+        }
+
+        RefreshBox(
+            items = uiState.threadMessages,
+            isRefreshing = uiState.isRefreshing,
+            onRefresh = onRefresh,
+            paddingValues = innerPadding,
+            modifier = Modifier
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RefreshBox(
+    items: List<ThreadMessage>,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
+    paddingValues: PaddingValues,
+    modifier: Modifier = Modifier,
+) {
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        modifier = modifier.padding(paddingValues)
+    ) {
+        LazyColumn(
+            modifier =
+                Modifier
+                    .fillMaxSize(),
+            contentPadding = PaddingValues(all = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(items) { threadMessage ->
+                MessageListItem(threadMessage = threadMessage)
             }
         }
     }
+}
+
+@Composable
+private fun ErrorMessage(context: Context) {
+    // Launched Effectは削除(トリガーされるのはエラーと判定された場合のみであり、他の場合で呼び出されることは現状ないため)
+    Toast.makeText(context, "メッセージを取得できませんでした", Toast.LENGTH_SHORT).show()
 }
 
 @Composable
@@ -240,7 +272,8 @@ fun ThreadContentPreview(
     KintoneSpacesTheme {
         ThreadContent(
             threadName = "Sample Thread",
-            uiState = uiState
+            uiState = uiState,
+            onRefresh = {}
         )
     }
 }
