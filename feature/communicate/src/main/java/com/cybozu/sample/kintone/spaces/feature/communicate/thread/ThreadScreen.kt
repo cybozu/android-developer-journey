@@ -1,6 +1,5 @@
 package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
-import android.app.AlertDialog
 import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
@@ -24,6 +23,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,20 +33,29 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.paneTitle
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cybozu.sample.kintone.spaces.core.design.component.Html
 import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButton
@@ -82,7 +92,7 @@ fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
     onRefresh: () -> Unit, // 関数を引数に当てている,
-    onPostMessage: (String) -> String
+    onPostMessage: (String) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -134,60 +144,75 @@ fun ThreadContent(
         ) {
             NewMessageButton(
                 modifier = Modifier,
-                context = LocalContext.current,
                 onPostMessage = onPostMessage
             )
         }
     }
 }
 
-private fun newMessageDialog(
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun newMessageAlertDialog(
     modifier: Modifier = Modifier,
-    context: Context,
-    onPostMessage: (String) -> String
+    onPostMessage: (String) -> Unit,
+    onDismissRequest: () -> Unit,
 ) {
-    var postText = "test"
-    val editText = AppCompatEditText(context)
-    editText.addTextChangedListener( object: TextWatcher{
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+    val properties = DialogProperties()
+    var postText by remember { mutableStateOf("") }
+    BasicAlertDialog(
+        onDismissRequest = onDismissRequest,
+        modifier = modifier,
+        properties = properties,
+    ) {
+        Dialog(
+            onDismissRequest = onDismissRequest,
+            properties = properties,
+        ) {
+            val dialogPaneDescription = "投稿"
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f) // 画面幅の90%
+                    .then(Modifier.semantics { paneTitle = dialogPaneDescription }),
+                propagateMinConstraints = true
 
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            postText = s.toString()
-        }
-
-        override fun afterTextChanged(s: Editable?) {}
-    })
-    val builder: AlertDialog.Builder = AlertDialog.Builder(context)
-    builder
-        .setTitle("投稿")
-        .setView(editText)
-        .setPositiveButton("送信") { _, _ ->
-            // POST
-            val newMessageId = onPostMessage(postText).toInt()
-
-            if(newMessageId > -1){
-                Toast.makeText(context, "投稿しました", Toast.LENGTH_SHORT).show()
-            }else{
-                Toast.makeText(context, "投稿に失敗しました　$newMessageId", Toast.LENGTH_SHORT).show()
+            ) {
+                TextField(
+                    value = postText,
+                    onValueChange = { postText = it }
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = { onDismissRequest() }) {
+                        Text(text = "キャンセル")
+                    }
+                    TextButton(
+                        onClick = {
+                            onPostMessage(postText)
+                            onDismissRequest()
+                        },
+                        enabled = postText.isNotEmpty()
+                    ) {
+                        Text(text = "OK")
+                    }
+                }
             }
+        }
+    }
 
-        }.setNegativeButton("キャンセル") { _, _ ->
-            // do nothing
-        }.create()
-        .show()
 }
 
 @Composable
 private fun NewMessageButton(
     modifier: Modifier = Modifier,
-    context: Context,
-    onPostMessage: (String) -> String
+    onPostMessage: (String) -> Unit
 ) {
+    var showDialog by remember { mutableStateOf(false) }
+
     ExtendedFloatingActionButton(
         onClick = {
-            newMessageDialog(
-                modifier = Modifier, context = context, onPostMessage = onPostMessage
-            )
+            showDialog = true
         },        modifier = modifier,
         icon = {
             Icon(
@@ -199,6 +224,13 @@ private fun NewMessageButton(
             Text("投稿")
         }
     )
+
+    if (showDialog) {
+        newMessageAlertDialog(
+            onPostMessage = onPostMessage,
+            onDismissRequest = { showDialog = false }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
