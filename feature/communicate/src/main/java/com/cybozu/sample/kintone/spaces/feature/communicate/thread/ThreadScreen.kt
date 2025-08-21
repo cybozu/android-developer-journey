@@ -95,14 +95,16 @@ fun ThreadContent(
         }
     ) { innerPadding ->
         if (uiState.isLoading) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+            if(!uiState.isRefreshing){
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
         } else {
             if (uiState.isError) { // 異常系
