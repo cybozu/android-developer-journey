@@ -35,11 +35,12 @@ class ThreadViewModel @AssistedInject constructor(
         loadMessages()
     }
 
-    fun postMessage(message: String){
+    fun postMessage(message: String): String {
+        var newMessageId = "-1"
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isPosting = true)
-                val newMessageId = repository.commentMessageForThread(threadId = threadId, message = message)
+                newMessageId = repository.commentMessageForThread(threadId = threadId, message = message)
             }catch (e: CancellationException){
                 throw e
             }catch (_ : Exception){
@@ -47,6 +48,7 @@ class ThreadViewModel @AssistedInject constructor(
                 _uiState.value = _uiState.value.copy(isPostError = true)
             }
         }
+        return newMessageId
     }
 
     private fun loadMessages() {

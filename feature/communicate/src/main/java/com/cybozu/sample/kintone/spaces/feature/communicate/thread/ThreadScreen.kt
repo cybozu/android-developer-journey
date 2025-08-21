@@ -72,7 +72,7 @@ fun ThreadScreen(
         uiState = uiState,
         // Threadを最初に形成する際に、onRefreshで使用する関数を指定する
         onRefresh = { viewModel.refreshMessages() },
-        postMessage = { message -> viewModel.postMessage(message) }
+        onPostMessage = { message -> viewModel.postMessage(message) }
     )
 }
 
@@ -82,7 +82,7 @@ fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
     onRefresh: () -> Unit, // 関数を引数に当てている,
-    postMessage: (String) -> Unit
+    onPostMessage: (String) -> String
 ) {
     Scaffold(
         topBar = {
@@ -135,7 +135,7 @@ fun ThreadContent(
             NewMessageButton(
                 modifier = Modifier,
                 context = LocalContext.current,
-                onPostMessage = postMessage
+                onPostMessage = onPostMessage
             )
         }
     }
@@ -144,7 +144,7 @@ fun ThreadContent(
 private fun newMessageDialog(
     modifier: Modifier = Modifier,
     context: Context,
-    onPostMessage: (String) -> Unit
+    onPostMessage: (String) -> String
 ) {
     var postText = "test"
     val editText = AppCompatEditText(context)
@@ -163,8 +163,13 @@ private fun newMessageDialog(
         .setView(editText)
         .setPositiveButton("送信") { _, _ ->
             // POST
-            onPostMessage(postText)
-            // trigger loadMessages
+            val newMessageId = onPostMessage(postText).toInt()
+
+            if(newMessageId > -1){
+                Toast.makeText(context, "投稿しました", Toast.LENGTH_SHORT).show()
+            }else{
+                Toast.makeText(context, "投稿に失敗しました　$newMessageId", Toast.LENGTH_SHORT).show()
+            }
 
         }.setNegativeButton("キャンセル") { _, _ ->
             // do nothing
@@ -176,7 +181,7 @@ private fun newMessageDialog(
 private fun NewMessageButton(
     modifier: Modifier = Modifier,
     context: Context,
-    onPostMessage: (String) -> Unit
+    onPostMessage: (String) -> String
 ) {
     ExtendedFloatingActionButton(
         onClick = {
@@ -353,7 +358,7 @@ fun ThreadContentPreview(
             threadName = "Sample Thread",
             uiState = uiState,
             onRefresh = {},
-            postMessage = {}
+            onPostMessage = { "-1" }
         )
     }
 }

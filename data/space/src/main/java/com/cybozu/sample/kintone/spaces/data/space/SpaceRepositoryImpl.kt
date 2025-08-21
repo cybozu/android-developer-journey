@@ -12,6 +12,6 @@ internal class SpaceRepositoryImpl @Inject constructor(
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> =
         spaceRemoteDataSource.getMessagesForThread(threadId = threadId).result.items
 
-    override suspend fun commentMessageForThread(threadId: String, message: String): Int =
-        spaceRemoteDataSource.commentMessageForThread(threadId = threadId, message = message).result
+    override suspend fun commentMessageForThread(threadId: String, message: String): String =
+        spaceRemoteDataSource.commentMessageForThread(threadId = threadId, message = message).id
 }
