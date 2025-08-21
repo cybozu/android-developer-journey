@@ -17,14 +17,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -41,6 +45,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cybozu.sample.kintone.spaces.core.design.component.Html
 import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButton
@@ -66,7 +72,11 @@ fun ThreadScreen(
     ThreadContent(
         threadName = threadName,
         uiState = uiState,
-        onRefresh = viewModel::refreshMessages
+        onRefresh = viewModel::refreshMessages,
+        onChanged = viewModel::onTextChanged,
+        onTapActionButton = viewModel::openDialog,
+        onSubmit = viewModel::sendComment,
+        onDismissRequest = viewModel::closeDialog
     )
 }
 
@@ -76,6 +86,10 @@ fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
     onRefresh: () -> Unit,
+    onChanged: (String) -> Unit,
+    onTapActionButton: () -> Unit,
+    onSubmit: () -> Unit,
+    onDismissRequest: () -> Unit,
 ) {
     val context = LocalContext.current
     val pullToRefreshState = rememberPullToRefreshState()
@@ -90,6 +104,15 @@ fun ThreadContent(
                     SystemBackNavButton()
                 }
             )
+        },
+        floatingActionButton = {
+            if (uiState is ThreadUiState.Success) {
+                FloatingActionButton(
+                    onClick = onTapActionButton
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "a")
+                }
+            }
         }
     ) { innerPadding ->
         val isRefreshing = uiState is ThreadUiState.Refreshing
@@ -121,6 +144,14 @@ fun ThreadContent(
                             Modifier
                                 .fillMaxSize()
                     )
+                    if (uiState.isInputVisible) {
+                        InputDialog(
+                            inputText = uiState.inputText,
+                            onChanged = onChanged,
+                            onSubmit = onSubmit,
+                            onDismissRequest = onDismissRequest
+                        )
+                    }
                 }
                 is ThreadUiState.Refreshing -> {
                     MessageList(
@@ -129,6 +160,53 @@ fun ThreadContent(
                             Modifier
                                 .fillMaxSize()
                     )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InputDialog(
+    inputText: String,
+    onChanged: (String) -> Unit,
+    onSubmit: () -> Unit,
+    onDismissRequest: () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties =
+            DialogProperties()
+    ) {
+        Card(
+            modifier =
+                Modifier
+                    .padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.Top
+            ) {
+                TextField(
+                    value = inputText,
+                    minLines = 5,
+                    onValueChange = onChanged
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    Button(
+                        onClick = onSubmit,
+                        modifier =
+                            Modifier
+                                .padding(end = 16.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.submit_comment)
+                        )
+                    }
                 }
             }
         }
@@ -146,7 +224,9 @@ private fun MessageList(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(threadMessages) { threadMessage ->
-            MessageListItem(threadMessage = threadMessage)
+            MessageListItem(
+                threadMessage = threadMessage
+            )
         }
     }
 }
@@ -180,7 +260,9 @@ private fun MessageCard(
     bodyStyle: TextStyle = MaterialTheme.typography.bodyMedium,
 ) {
     Card(
-        modifier = modifier.fillMaxWidth()
+        modifier =
+            modifier
+                .fillMaxWidth()
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -270,7 +352,24 @@ fun ThreadContentPreview(
         ThreadContent(
             threadName = "Sample Thread",
             uiState = uiState,
-            onRefresh = {}
+            onRefresh = {},
+            onChanged = {},
+            onTapActionButton = {},
+            onSubmit = {},
+            onDismissRequest = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun DialogPreview() {
+    KintoneSpacesTheme {
+        InputDialog(
+            inputText = "text",
+            onChanged = {},
+            onSubmit = {},
+            onDismissRequest = {}
         )
     }
 }

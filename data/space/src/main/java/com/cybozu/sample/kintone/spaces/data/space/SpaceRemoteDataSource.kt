@@ -2,6 +2,7 @@ package com.cybozu.sample.kintone.spaces.data.space
 
 import com.cybozu.sample.kintone.spaces.data.space.entity.GetAllThreadsBody
 import com.cybozu.sample.kintone.spaces.data.space.entity.GetMessagesForThreadBody
+import com.cybozu.sample.kintone.spaces.data.space.entity.PostMessageForThread
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadListResponse
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessageResponse
 import javax.inject.Inject
@@ -31,6 +32,17 @@ internal class SpaceRemoteDataSource @Inject constructor(
                     body = GetMessagesForThreadBody(threadId = threadId)
                 )
             )
+        } catch (e: IOException) {
+            failure(e)
+        }
+
+    suspend fun postMessageForThread(postMessageForThread: PostMessageForThread): Result<Unit> =
+        try {
+            spaceService.postMessageForThread(
+                encodeString = usernamePassword.encode().base64(),
+                body = postMessageForThread
+            )
+            success(Unit)
         } catch (e: IOException) {
             failure(e)
         }

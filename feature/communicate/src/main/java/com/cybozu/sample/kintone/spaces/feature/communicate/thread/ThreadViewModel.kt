@@ -1,8 +1,11 @@
 package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
+import com.cybozu.sample.kintone.spaces.data.space.entity.PostComment
+import com.cybozu.sample.kintone.spaces.data.space.entity.PostMessageForThread
 import com.cybozu.sample.kintone.spaces.feature.communicate.R
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -48,6 +51,21 @@ class ThreadViewModel @AssistedInject constructor(
         }
     }
 
+    fun openDialog() {
+        (_uiState.value as? ThreadUiState.Success)?.let {
+            _uiState.value = it.copy(
+                isInputVisible = true
+            )
+        }
+    }
+    fun closeDialog() {
+        (_uiState.value as? ThreadUiState.Success)?.let {
+            _uiState.value = it.copy(
+                isInputVisible = false
+            )
+        }
+    }
+
     private suspend fun loadMessages() {
         val result = repository.getMessagesForThread(threadId = threadId)
         result
@@ -62,5 +80,37 @@ class ThreadViewModel @AssistedInject constructor(
                         messageId = R.string.thread_error
                     )
             }
+    }
+
+    fun onTextChanged(newText: String) {
+        (_uiState.value as? ThreadUiState.Success)?.let {
+            _uiState.value =
+                it.copy(
+                    inputText = newText
+                )
+        }
+    }
+
+    fun sendComment() {
+        viewModelScope.launch {
+            (_uiState.value as? ThreadUiState.Success)?.let {
+                val result = repository.postMessageForeThread(
+                    postMessageForThread =
+                        PostMessageForThread(
+                            space = "3",
+                            thread = threadId,
+                            comment =
+                                PostComment(
+                                    text = it.inputText,
+                                ),
+                            mentions = emptyList()
+                        )
+                )
+                result.onSuccess {
+                    loadMessages()
+                }.onFailure {
+                }
+            }
+        }
     }
 }
