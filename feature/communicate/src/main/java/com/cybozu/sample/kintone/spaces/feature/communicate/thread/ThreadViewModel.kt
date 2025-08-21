@@ -10,7 +10,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -52,11 +51,6 @@ class ThreadViewModel @AssistedInject constructor(
                     isLoading = !isRefresh,
                     isRefreshing = isRefresh
                 )
-
-            // Pull to Refreshの挙動確認用の遅延（開発用）
-            if (isRefresh) {
-                delay(1500)
-            }
 
             repository
                 .getMessagesForThread(threadId = threadId)
