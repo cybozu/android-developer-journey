@@ -85,6 +85,65 @@ class ThreadViewModelTest {
                 errorState.errorMessage shouldBe "メッセージを取得できませんでした\n原因: 不明なエラー"
             }
         }
+
+    @Test
+    fun `リフレッシュが成功する`() =
+        runTest {
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                // まず最初のロードが完了するまで待つ
+                awaitItem() // 初期状態（まだ何もない）
+                awaitItem() // ローディング中の状態
+                val loadedState = awaitItem() // ロード完了しデータが入った状態
+                loadedState.threadMessages.size shouldBe 2
+                loadedState.isLoading shouldBe false
+                loadedState.isRefreshing shouldBe false
+
+                // ここでリフレッシュを実行
+                viewModel.refresh()
+
+                // リフレッシュ中の状態をチェック
+                val refreshingState = awaitItem()
+                refreshingState.threadMessages.size shouldBe 2 // 前のデータはそのまま表示されてるはず
+                refreshingState.isLoading shouldBe false // 初回ロードじゃないのでfalse
+                refreshingState.isRefreshing shouldBe true // リフレッシュ中フラグがtrue
+
+                // リフレッシュが完了した状態をcheck
+                val refreshedState = awaitItem()
+                refreshedState.threadMessages.size shouldBe 2
+                refreshedState.isLoading shouldBe false
+                refreshedState.isRefreshing shouldBe false // リフレッシュ完了でfalseに戻る
+                refreshedState.errorMessage shouldBe null
+            }
+        }
+
+    @Test
+    fun `リフレッシュが失敗したときもちゃんとエラーメッセージが表示される`() =
+        runTest {
+            val viewModel = createViewModel(shouldFail = true)
+
+            viewModel.uiState.test {
+                // 最初のロードが失敗するパターンで進める
+                awaitItem() // 初期状態
+                awaitItem() // ローディング状態
+                awaitItem() // エラー状態（初回ロード失敗）
+
+                // 失敗する想定だが、リフレッシュを実行してみる
+                viewModel.refresh()
+
+                // リフレッシュ中の状態を確認（エラーでもリフレッシュはできる）
+                val refreshingState = awaitItem()
+                refreshingState.isLoading shouldBe false
+                refreshingState.isRefreshing shouldBe true // リフレッシュ実行中
+
+                // リフレッシュも失敗した状態をcheckす
+                val errorState = awaitItem()
+                errorState.isLoading shouldBe false
+                errorState.isRefreshing shouldBe false // リフレッシュ終了
+                errorState.errorMessage shouldBe "メッセージを取得できませんでした\n原因: 不明なエラー"
+            }
+        }
 }
 
 private class FakeSpaceRepository(

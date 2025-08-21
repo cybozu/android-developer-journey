@@ -36,22 +36,37 @@ class ThreadViewModel @AssistedInject constructor(
         _uiState.value = _uiState.value.copy(errorMessage = null)
     }
 
+    fun refresh() {
+        fetchMessages(isRefresh = true)
+    }
+
     private fun loadMessages() {
+        fetchMessages(isRefresh = false)
+    }
+
+    private fun fetchMessages(isRefresh: Boolean) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+            _uiState.value =
+                _uiState.value.copy(
+                    isLoading = !isRefresh,
+                    isRefreshing = isRefresh
+                )
+
             repository
                 .getMessagesForThread(threadId = threadId)
                 .onSuccess { threadMessages ->
                     _uiState.value =
                         _uiState.value.copy(
                             threadMessages = threadMessages,
-                            isLoading = false
+                            isLoading = false,
+                            isRefreshing = false
                         )
                 }.onFailure {
                     // 'it' is the Throwable (error) here
                     _uiState.value =
                         _uiState.value.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             errorMessage = "メッセージを取得できませんでした\n原因: ${getLocalizedErrorMessage(it)}"
                         )
                 }
