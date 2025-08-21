@@ -3,6 +3,7 @@ package com.cybozu.sample.kintone.spaces.data.space
 import com.cybozu.sample.kintone.spaces.data.space.entity.GetAllThreadsBody
 import com.cybozu.sample.kintone.spaces.data.space.entity.GetMessagesForThreadBody
 import com.cybozu.sample.kintone.spaces.data.space.entity.CommentMessageForThreadBody
+import com.cybozu.sample.kintone.spaces.data.space.entity.PostMessageIdResponse
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadListResponse
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessageResponse
 import retrofit2.http.Body
@@ -26,5 +27,5 @@ internal interface SpaceService {
     suspend fun commentMessageForThread(
         @Header("X-Cybozu-Authorization") encodeString: String,
         @Body body: CommentMessageForThreadBody,
-    )
+    ): PostMessageIdResponse
 }

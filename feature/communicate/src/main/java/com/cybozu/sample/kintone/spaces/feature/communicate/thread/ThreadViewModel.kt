@@ -39,8 +39,7 @@ class ThreadViewModel @AssistedInject constructor(
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isPosting = true)
-                repository.commentMessageForThread(threadId = threadId, message = message)
-                loadMessages()
+                val newMessageId = repository.commentMessageForThread(threadId = threadId, message = message)
             }catch (e: CancellationException){
                 throw e
             }catch (_ : Exception){

@@ -4,6 +4,7 @@ import com.cybozu.sample.kintone.spaces.data.space.entity.BodyComment
 import com.cybozu.sample.kintone.spaces.data.space.entity.CommentMessageForThreadBody
 import com.cybozu.sample.kintone.spaces.data.space.entity.GetAllThreadsBody
 import com.cybozu.sample.kintone.spaces.data.space.entity.GetMessagesForThreadBody
+import com.cybozu.sample.kintone.spaces.data.space.entity.PostMessageIdResponse
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadListResponse
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessageResponse
 import javax.inject.Inject
@@ -28,7 +29,7 @@ internal class SpaceRemoteDataSource @Inject constructor(
             body = GetMessagesForThreadBody(threadId = threadId)
         )
 
-    suspend fun commentMessageForThread(threadId: String, message: String) {
+    suspend fun commentMessageForThread(threadId: String, message: String) : PostMessageIdResponse =
         spaceService.commentMessageForThread(
             encodeString = usernamePassword.encode().base64(),
             body = CommentMessageForThreadBody(
@@ -37,5 +38,5 @@ internal class SpaceRemoteDataSource @Inject constructor(
                 comment = BodyComment(text = message, mentions = null, files = null)
             )
         )
-    }
+
 }
