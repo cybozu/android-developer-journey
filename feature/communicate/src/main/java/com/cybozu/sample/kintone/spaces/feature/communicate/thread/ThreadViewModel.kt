@@ -35,6 +35,20 @@ class ThreadViewModel @AssistedInject constructor(
         loadMessages()
     }
 
+    fun postMessage(){
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(isPosting = true)
+
+            }catch (e: CancellationException){
+                throw e
+            }catch (_ : Exception){
+                _uiState.value = _uiState.value.copy(isPosting = false)
+                _uiState.value = _uiState.value.copy(isPostError = true)
+            }
+        }
+    }
+
     private fun loadMessages() {
         // launchの中...Coroutine: 非同期処理　Exceptionの形式には注意
         viewModelScope.launch {

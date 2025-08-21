@@ -50,7 +50,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cybozu.sample.kintone.spaces.core.design.component.Html
 import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButton
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
-import com.cybozu.sample.kintone.spaces.data.space.KintoneMessage
 import com.cybozu.sample.kintone.spaces.data.space.entity.Comment
 import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
@@ -138,12 +137,13 @@ private fun newMessageDialog(
     modifier: Modifier = Modifier,
     context: Context,
 ) {
+    var postText: String = ""
     val editText = AppCompatEditText(context)
     editText.addTextChangedListener( object: TextWatcher{
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            //TODO: POST
+            postText = s.toString()
         }
 
         override fun afterTextChanged(s: Editable?) {}

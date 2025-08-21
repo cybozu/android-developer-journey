@@ -5,6 +5,8 @@ import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 data class ThreadUiState(
     val threadMessages: List<ThreadMessage> = emptyList(),
     val isLoading: Boolean = false,
-    val isError: Boolean = false, // Flag of Thread Message
-    val isRefreshing: Boolean = false, // Flag of Thread Message
+    val isError: Boolean = false,
+    val isRefreshing: Boolean = false,
+    val isPosting: Boolean = false,
+    val isPostError: Boolean = false,
 )
