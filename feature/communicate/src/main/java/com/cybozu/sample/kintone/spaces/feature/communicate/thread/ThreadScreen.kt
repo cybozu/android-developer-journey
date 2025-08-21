@@ -71,7 +71,8 @@ fun ThreadScreen(
         threadName = threadName,
         uiState = uiState,
         // Threadを最初に形成する際に、onRefreshで使用する関数を指定する
-        onRefresh = { viewModel.refreshMessages() }
+        onRefresh = { viewModel.refreshMessages() },
+        postMessage = { message -> viewModel.postMessage(message) }
     )
 }
 
@@ -80,7 +81,8 @@ fun ThreadScreen(
 fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
-    onRefresh: () -> Unit, // 関数を引数に当てている
+    onRefresh: () -> Unit, // 関数を引数に当てている,
+    postMessage: (String) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -130,7 +132,11 @@ fun ThreadContent(
                     .padding(16.dp),
             contentAlignment = Alignment.BottomEnd // Box内のコンテンツを右下に配置
         ) {
-            NewMessageButton(modifier = Modifier, context = LocalContext.current)
+            NewMessageButton(
+                modifier = Modifier,
+                context = LocalContext.current,
+                onPostMessage = postMessage
+            )
         }
     }
 }
@@ -138,8 +144,9 @@ fun ThreadContent(
 private fun newMessageDialog(
     modifier: Modifier = Modifier,
     context: Context,
+    onPostMessage: (String) -> Unit
 ) {
-    var postText: String = ""
+    var postText = "test"
     val editText = AppCompatEditText(context)
     editText.addTextChangedListener( object: TextWatcher{
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -156,7 +163,7 @@ private fun newMessageDialog(
         .setView(editText)
         .setPositiveButton("送信") { _, _ ->
             // POST
-
+            onPostMessage(postText)
             // trigger loadMessages
 
         }.setNegativeButton("キャンセル") { _, _ ->
@@ -169,10 +176,14 @@ private fun newMessageDialog(
 private fun NewMessageButton(
     modifier: Modifier = Modifier,
     context: Context,
+    onPostMessage: (String) -> Unit
 ) {
     ExtendedFloatingActionButton(
-        onClick = { newMessageDialog(modifier = Modifier, context = context) },
-        modifier = modifier,
+        onClick = {
+            newMessageDialog(
+                modifier = Modifier, context = context, onPostMessage = onPostMessage
+            )
+        },        modifier = modifier,
         icon = {
             Icon(
                 imageVector = Icons.Filled.Edit,
@@ -341,7 +352,8 @@ fun ThreadContentPreview(
         ThreadContent(
             threadName = "Sample Thread",
             uiState = uiState,
-            onRefresh = {}
+            onRefresh = {},
+            postMessage = {}
         )
     }
 }
