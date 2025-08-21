@@ -32,9 +32,9 @@ internal class SpaceRemoteDataSource @Inject constructor(
         spaceService.commentMessageForThread(
             encodeString = usernamePassword.encode().base64(),
             body = CommentMessageForThreadBody(
+                space = "3",
                 thread = threadId,
-                comment = BodyComment(text = message, mentions = null, files = null),
-                space = TODO()
+                comment = BodyComment(text = message, mentions = null, files = null)
             )
         )
     }
