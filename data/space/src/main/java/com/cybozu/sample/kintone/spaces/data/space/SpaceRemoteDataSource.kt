@@ -29,14 +29,17 @@ internal class SpaceRemoteDataSource @Inject constructor(
             body = GetMessagesForThreadBody(threadId = threadId)
         )
 
-    suspend fun commentMessageForThread(threadId: String, message: String) : PostMessageIdResponse =
+    suspend fun commentMessageForThread(
+        threadId: String,
+        message: String,
+    ): PostMessageIdResponse =
         spaceService.commentMessageForThread(
             encodeString = usernamePassword.encode().base64(),
-            body = CommentMessageForThreadBody(
-                space = "3",
-                thread = threadId,
-                comment = BodyComment(text = message, mentions = null, files = null)
-            )
+            body =
+                CommentMessageForThreadBody(
+                    space = "3",
+                    thread = threadId,
+                    comment = BodyComment(text = message, mentions = null, files = null)
+                )
         )
-
 }

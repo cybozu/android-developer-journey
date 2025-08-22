@@ -1,10 +1,7 @@
 package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
 import android.content.Context
-import android.text.Editable
-import android.text.TextWatcher
 import android.widget.Toast
-import androidx.appcompat.widget.AppCompatEditText
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +20,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -92,7 +88,7 @@ fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
     onRefresh: () -> Unit, // 関数を引数に当てている,
-    onPostMessage: (String) -> Unit
+    onPostMessage: (String) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -107,7 +103,7 @@ fun ThreadContent(
         }
     ) { innerPadding ->
         if (uiState.isLoading) {
-            if(!uiState.isRefreshing){
+            if (!uiState.isRefreshing) {
                 Box(
                     modifier =
                         Modifier
@@ -162,19 +158,19 @@ private fun newMessageAlertDialog(
     BasicAlertDialog(
         onDismissRequest = onDismissRequest,
         modifier = modifier,
-        properties = properties,
+        properties = properties
     ) {
         Dialog(
             onDismissRequest = onDismissRequest,
-            properties = properties,
+            properties = properties
         ) {
             val dialogPaneDescription = "投稿"
             Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.9f) // 画面幅の90%
-                    .then(Modifier.semantics { paneTitle = dialogPaneDescription }),
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.9f) // 画面幅の90%
+                        .then(Modifier.semantics { paneTitle = dialogPaneDescription }),
                 propagateMinConstraints = true
-
             ) {
                 TextField(
                     value = postText,
@@ -200,20 +196,20 @@ private fun newMessageAlertDialog(
             }
         }
     }
-
 }
 
 @Composable
 private fun NewMessageButton(
     modifier: Modifier = Modifier,
-    onPostMessage: (String) -> Unit
+    onPostMessage: (String) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
     ExtendedFloatingActionButton(
         onClick = {
             showDialog = true
-        },        modifier = modifier,
+        },
+        modifier = modifier,
         icon = {
             Icon(
                 imageVector = Icons.Filled.Edit,

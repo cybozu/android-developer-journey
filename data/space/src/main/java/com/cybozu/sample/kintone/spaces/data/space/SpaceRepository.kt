@@ -8,5 +8,8 @@ interface SpaceRepository {
 
     suspend fun getMessagesForThread(threadId: String): List<ThreadMessage>
 
-    suspend fun commentMessageForThread(threadId: String, message: String): String
+    suspend fun commentMessageForThread(
+        threadId: String,
+        message: String,
+    ): String
 }

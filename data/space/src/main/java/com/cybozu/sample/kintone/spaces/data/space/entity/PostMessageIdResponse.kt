@@ -1,5 +1,5 @@
 package com.cybozu.sample.kintone.spaces.data.space.entity
 
 internal data class PostMessageIdResponse(
-    val id: String
+    val id: String,
 )

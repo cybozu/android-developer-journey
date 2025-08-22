@@ -3,8 +3,6 @@ package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
-import com.cybozu.sample.kintone.spaces.data.space.entity.BodyComment
-import com.cybozu.sample.kintone.spaces.data.space.entity.CommentMessageForThreadBody
 import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 import dagger.assisted.Assisted
@@ -40,27 +38,29 @@ class ThreadViewModel @AssistedInject constructor(
         loadMessages()
     }
 
-    fun postMessage(message: String){
+    fun postMessage(message: String) {
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isPosting = true)
                 val id = repository.commentMessageForThread(threadId = threadId, message = message)
-                val threadMessagesList = listOf(
-                    ThreadMessage(
-                        id= id,
-                        body = message,
-                        creator = Creator(name = "久米 弘汰"),
-                        comments = emptyList()
+                val threadMessagesList =
+                    listOf(
+                        ThreadMessage(
+                            id = id,
+                            body = message,
+                            creator = Creator(name = "久米 弘汰"),
+                            comments = emptyList()
+                        )
                     )
-                )
 
-                _uiState.value= _uiState.value.copy(
-                    // List型で合わせる
-                    threadMessages = threadMessagesList + _uiState.value.threadMessages,
-                )
-            }catch (e: CancellationException){
+                _uiState.value =
+                    _uiState.value.copy(
+                        // List型で合わせる
+                        threadMessages = threadMessagesList + _uiState.value.threadMessages
+                    )
+            } catch (e: CancellationException) {
                 throw e
-            }catch (_ : Exception){
+            } catch (_: Exception) {
                 _uiState.value = _uiState.value.copy(isPosting = false)
                 _uiState.value = _uiState.value.copy(isPostError = true)
             }
