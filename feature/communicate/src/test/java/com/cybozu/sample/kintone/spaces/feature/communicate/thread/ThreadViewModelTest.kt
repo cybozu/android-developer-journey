@@ -4,6 +4,7 @@ package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 import app.cash.turbine.test
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
 import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
+import com.cybozu.sample.kintone.spaces.data.space.entity.PostMessage
 import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 import com.cybozu.sample.kintone.spaces.feature.communicate.R
@@ -36,10 +37,14 @@ class ThreadViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(getMessagesForThreadMock: (String) -> Result<List<ThreadMessage>>): ThreadViewModel {
+    private fun createViewModel(
+        getMessagesForThreadMock: (String) -> Result<List<ThreadMessage>> = { success(emptyList()) },
+        postMessagesForThreadMock: (PostMessage) -> Result<Unit> = { success(Unit) },
+    ): ThreadViewModel {
         val repository =
             FakeSpaceRepository(
-                getMessagesForThreadMock = getMessagesForThreadMock
+                getMessagesForThreadMock = getMessagesForThreadMock,
+                postMessagesForThreadMock = postMessagesForThreadMock
             )
         return ThreadViewModel(threadId = "thread-1", repository = repository)
     }
@@ -199,12 +204,107 @@ class ThreadViewModelTest {
                 }
             }
         }
+
+    @Test
+    fun `メッセージの投稿に成功`() =
+        runTest {
+            val viewModel = createViewModel()
+            viewModel.uiState.test {
+                skipItems(2)
+
+                val loadedState = awaitItem()
+                (loadedState is ThreadUiState.Success) shouldBe true
+
+                viewModel.onTextChanged("test-message")
+                val inputTextState = awaitItem()
+                inputTextState.shouldBeInstanceOf<ThreadUiState.Success> {
+                    it.inputText shouldBe "test-message"
+                }
+
+                viewModel.sendComment()
+                val reloadedState = awaitItem()
+                reloadedState.shouldBeInstanceOf<ThreadUiState.Success> {
+                    it.inputText shouldBe ""
+                    it.isDialogVisible shouldBe false
+                    it.isPostError shouldBe false
+                }
+            }
+        }
+
+    @Test
+    fun `投稿メッセージの本文が空`() =
+        runTest {
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                skipItems(3)
+                viewModel.sendComment()
+                val inputTextBlankState = awaitItem()
+                inputTextBlankState.shouldBeInstanceOf<ThreadUiState.Success> {
+                    it.inputText.isBlank() shouldBe true
+                    it.isPostError shouldBe true
+                    it.postErrorMessageId shouldBe R.string.post_blank
+                }
+            }
+        }
+
+    @Test
+    fun `投稿が通信エラー`() =
+        runTest {
+            val viewModel =
+                createViewModel(
+                    postMessagesForThreadMock = {
+                        failure(IOException())
+                    }
+                )
+            viewModel.uiState.test {
+                skipItems(3)
+
+                viewModel.onTextChanged("test-message")
+                skipItems(1)
+
+                viewModel.sendComment()
+                val reloadedState = awaitItem()
+                reloadedState.shouldBeInstanceOf<ThreadUiState.Success> {
+                    it.inputText shouldBe "test-message"
+                    it.isPostError shouldBe true
+                }
+            }
+        }
+
+    @Test
+    fun `dialogが開閉できる`() =
+        runTest {
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                skipItems(2)
+
+                val loadedState = awaitItem()
+                loadedState.shouldBeInstanceOf<ThreadUiState.Success>()
+
+                viewModel.openDialog()
+                val openDialogState = awaitItem()
+                openDialogState.shouldBeInstanceOf<ThreadUiState.Success> {
+                    it.isDialogVisible shouldBe true
+                }
+
+                viewModel.closeDialog()
+                val closeDialogState = awaitItem()
+                closeDialogState.shouldBeInstanceOf<ThreadUiState.Success> {
+                    it.isDialogVisible shouldBe false
+                }
+            }
+        }
 }
 
 private class FakeSpaceRepository(
     private val getMessagesForThreadMock: (String) -> Result<List<ThreadMessage>>,
+    private val postMessagesForThreadMock: (PostMessage) -> Result<Unit>,
 ) : SpaceRepository {
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
     override suspend fun getMessagesForThread(threadId: String): Result<List<ThreadMessage>> = getMessagesForThreadMock(threadId)
+
+    override suspend fun postMessageForThread(postMessage: PostMessage): Result<Unit> = postMessagesForThreadMock(postMessage)
 }

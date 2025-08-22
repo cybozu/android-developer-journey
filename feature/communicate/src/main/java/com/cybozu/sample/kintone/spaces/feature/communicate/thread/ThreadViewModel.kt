@@ -1,11 +1,10 @@
 package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
 import com.cybozu.sample.kintone.spaces.data.space.entity.PostComment
-import com.cybozu.sample.kintone.spaces.data.space.entity.PostMessageForThread
+import com.cybozu.sample.kintone.spaces.data.space.entity.PostMessage
 import com.cybozu.sample.kintone.spaces.feature.communicate.R
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -53,16 +52,22 @@ class ThreadViewModel @AssistedInject constructor(
 
     fun openDialog() {
         (_uiState.value as? ThreadUiState.Success)?.let {
-            _uiState.value = it.copy(
-                isInputVisible = true
-            )
+            _uiState.value =
+                it.copy(
+                    isDialogVisible = true
+                )
         }
     }
+
     fun closeDialog() {
         (_uiState.value as? ThreadUiState.Success)?.let {
-            _uiState.value = it.copy(
-                isInputVisible = false
-            )
+            _uiState.value =
+                it.copy(
+                    isDialogVisible = false,
+                    inputText = "",
+                    isPostError = false,
+                    postErrorMessageId = null
+                )
         }
     }
 
@@ -92,24 +97,38 @@ class ThreadViewModel @AssistedInject constructor(
     }
 
     fun sendComment() {
-        viewModelScope.launch {
-            (_uiState.value as? ThreadUiState.Success)?.let {
-                val result = repository.postMessageForeThread(
-                    postMessageForThread =
-                        PostMessageForThread(
-                            space = "3",
-                            thread = threadId,
-                            comment =
-                                PostComment(
-                                    text = it.inputText,
-                                ),
-                            mentions = emptyList()
-                        )
-                )
-                result.onSuccess {
-                    loadMessages()
-                }.onFailure {
-                }
+        (_uiState.value as? ThreadUiState.Success)?.let { successUiState ->
+            if (successUiState.inputText.isBlank()) {
+                _uiState.value =
+                    successUiState.copy(
+                        isPostError = true,
+                        postErrorMessageId = R.string.post_blank
+                    )
+                return
+            }
+            viewModelScope.launch {
+                val result =
+                    repository.postMessageForThread(
+                        postMessage =
+                            PostMessage(
+                                space = "3",
+                                thread = threadId,
+                                comment =
+                                    PostComment(
+                                        text = successUiState.inputText
+                                    )
+                            )
+                    )
+                result
+                    .onSuccess {
+                        loadMessages()
+                    }.onFailure {
+                        _uiState.value =
+                            successUiState.copy(
+                                isPostError = true,
+                                postErrorMessageId = R.string.post_io_exception
+                            )
+                    }
             }
         }
     }

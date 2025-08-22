@@ -2,4 +2,7 @@
 <resources>
     <string name="thread_error">メッセージを取得できませんでした</string>
     <string name="submit_comment">投稿</string>
+    <string name="comment_dialog">コメントを投稿</string>
+    <string name="post_io_exception">投稿に失敗しました</string>
+    <string name="post_blank">メッセージが入力されていません</string>
 </resources>

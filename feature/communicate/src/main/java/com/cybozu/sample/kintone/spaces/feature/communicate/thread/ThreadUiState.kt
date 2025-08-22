@@ -14,8 +14,10 @@ sealed class ThreadUiState {
 
     data class Success(
         val threadMessages: List<ThreadMessage>,
-        val isInputVisible: Boolean = false,
+        val isDialogVisible: Boolean = false,
         val inputText: String = "",
+        val isPostError: Boolean = false,
+        @param:StringRes val postErrorMessageId: Int? = null
     ) : ThreadUiState()
 
     data class Refreshing(

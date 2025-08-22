@@ -1,6 +1,6 @@
 package com.cybozu.sample.kintone.spaces.data.space
 
-import com.cybozu.sample.kintone.spaces.data.space.entity.PostMessageForThread
+import com.cybozu.sample.kintone.spaces.data.space.entity.PostMessage
 import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 import javax.inject.Inject
@@ -15,6 +15,6 @@ internal class SpaceRepositoryImpl @Inject constructor(
             .getMessagesForThread(threadId = threadId)
             .map { it.result.items }
 
-    override suspend fun postMessageForeThread(postMessageForThread: PostMessageForThread): Result<Unit> =
-        spaceRemoteDataSource.postMessageForThread(postMessageForThread)
+    override suspend fun postMessageForThread(postMessage: PostMessage): Result<Unit> =
+        spaceRemoteDataSource.postMessageForThread(postMessage)
 }

@@ -26,9 +26,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -41,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
@@ -144,12 +146,14 @@ fun ThreadContent(
                             Modifier
                                 .fillMaxSize()
                     )
-                    if (uiState.isInputVisible) {
+                    if (uiState.isDialogVisible) {
                         InputDialog(
                             inputText = uiState.inputText,
                             onChanged = onChanged,
                             onSubmit = onSubmit,
-                            onDismissRequest = onDismissRequest
+                            onDismissRequest = onDismissRequest,
+                            isPostError = uiState.isPostError,
+                            postErrorMessageId = uiState.postErrorMessageId
                         )
                     }
                 }
@@ -172,6 +176,8 @@ private fun InputDialog(
     onChanged: (String) -> Unit,
     onSubmit: () -> Unit,
     onDismissRequest: () -> Unit,
+    isPostError: Boolean,
+    postErrorMessageId: Int? = null,
 ) {
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -187,11 +193,39 @@ private fun InputDialog(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.Top
             ) {
-                TextField(
+                Text(
+                    text = stringResource(R.string.comment_dialog),
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
                     value = inputText,
                     minLines = 5,
-                    onValueChange = onChanged
+                    maxLines = 5,
+                    onValueChange = onChanged,
+                    colors =
+                        OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.outline,
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest
+                        ),
+                    isError = isPostError
                 )
+                Box(
+                    modifier = Modifier.height(16.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    postErrorMessageId?.let {
+                        Text(
+                            text = stringResource(postErrorMessageId),
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.height(16.dp))
                 Box(
                     modifier = Modifier.fillMaxWidth(),
@@ -361,15 +395,26 @@ fun ThreadContentPreview(
     }
 }
 
+class DialogPreviewParameter :
+    CollectionPreviewParameterProvider<Pair<Boolean, Int?>>(
+        listOf(
+            Pair(false, null),
+            Pair(true, R.string.post_io_exception)
+        )
+    )
+
 @Preview
 @Composable
-fun DialogPreview() {
+fun DialogPreview(
+    @PreviewParameter(DialogPreviewParameter::class) isPostError: Boolean,
+) {
     KintoneSpacesTheme {
         InputDialog(
             inputText = "text",
             onChanged = {},
             onSubmit = {},
-            onDismissRequest = {}
+            onDismissRequest = {},
+            isPostError = isPostError
         )
     }
 }
