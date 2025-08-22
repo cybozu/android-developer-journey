@@ -2,7 +2,8 @@ package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
+import com.cybozu.sample.kintone.spaces.data.space.ThreadRepository
+import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -21,7 +22,7 @@ interface ThreadViewModelFactory {
 @HiltViewModel(assistedFactory = ThreadViewModelFactory::class)
 class ThreadViewModel @AssistedInject constructor(
     @Assisted private val threadId: String,
-    private val repository: SpaceRepository,
+    private val repository: ThreadRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<ThreadUiState>(ThreadUiState.Initial)
     val uiState: StateFlow<ThreadUiState> = _uiState.asStateFlow()
@@ -34,11 +35,18 @@ class ThreadViewModel @AssistedInject constructor(
         loadMessages()
     }
 
+    fun sendMessage(message: String) {
+        viewModelScope.launch {
+            repository.sendMessage(threadId, message)
+            loadMessages()
+        }
+    }
+
     private fun loadMessages() {
         viewModelScope.launch {
             _uiState.value = ThreadUiState.Loading
             try {
-                val threadMessages = repository.getMessagesForThread(threadId = threadId)
+                val threadMessages: List<ThreadMessage> = repository.getMessages(threadId)
                 _uiState.value = ThreadUiState.Success(threadMessages)
             } catch (e: IOException) {
                 _uiState.value = ThreadUiState.Error("メッセージが取得できませんでした")

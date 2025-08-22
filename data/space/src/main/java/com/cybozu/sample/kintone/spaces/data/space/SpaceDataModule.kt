@@ -10,4 +10,7 @@ import dagger.hilt.components.SingletonComponent
 internal abstract class SpaceDataModule {
     @Binds
     internal abstract fun bindSpaceRepository(spaceRepositoryImpl: SpaceRepositoryImpl): SpaceRepository
+
+    @Binds
+    internal abstract fun bindThreadRepository(threadRepositoryImpl: ThreadRepositoryImpl): ThreadRepository
 }

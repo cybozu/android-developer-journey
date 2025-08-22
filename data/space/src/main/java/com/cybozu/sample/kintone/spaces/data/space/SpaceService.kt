@@ -2,6 +2,7 @@ package com.cybozu.sample.kintone.spaces.data.space
 
 import com.cybozu.sample.kintone.spaces.data.space.entity.GetAllThreadsBody
 import com.cybozu.sample.kintone.spaces.data.space.entity.GetMessagesForThreadBody
+import com.cybozu.sample.kintone.spaces.data.space.entity.SendMessageBody
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadListResponse
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessageResponse
 import retrofit2.http.Body
@@ -19,5 +20,11 @@ internal interface SpaceService {
     suspend fun getMessagesForThread(
         @Header("X-Cybozu-Authorization") encodeString: String,
         @Body body: GetMessagesForThreadBody,
+    ): ThreadMessageResponse
+
+    @POST("k/api/space/thread/post.json")
+    suspend fun sendMessage(
+        @Header("X-Cybozu-Authorization") encodeString: String,
+        @Body body: SendMessageBody,
     ): ThreadMessageResponse
 }
