@@ -12,6 +12,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 import com.cybozu.sample.kintone.spaces.feature.communicate.SpaceRoute
+import com.cybozu.sample.kintone.spaces.feature.communicate.ThreadRoute
 import com.cybozu.sample.kintone.spaces.feature.communicate.communicateNavigation
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -43,7 +44,11 @@ fun KintoneSpacesApp() {
             ),
         entryProvider =
             entryProvider {
-                communicateNavigation(backStack)
+                communicateNavigation(
+                    onThreadClick = { threadId, threadName ->
+                        backStack.add(ThreadRoute(threadId = threadId, threadName = threadName))
+                    }
+                )
             }
     )
 }

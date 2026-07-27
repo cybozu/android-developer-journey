@@ -5,11 +5,13 @@ import androidx.navigation3.runtime.NavKey
 import com.cybozu.sample.kintone.spaces.feature.communicate.space.SpaceScreen
 import com.cybozu.sample.kintone.spaces.feature.communicate.thread.ThreadScreen
 
-fun EntryProviderScope<NavKey>.communicateNavigation(backStack: MutableList<NavKey>) {
+fun EntryProviderScope<NavKey>.communicateNavigation(
+    onThreadClick: (threadId: String, threadName: String) -> Unit,
+) {
     entry<SpaceRoute> {
         SpaceScreen(
             onThreadClick = { thread ->
-                backStack.add(ThreadRoute(threadId = thread.id, threadName = thread.name))
+                onThreadClick(thread.id, thread.name)
             }
         )
     }
