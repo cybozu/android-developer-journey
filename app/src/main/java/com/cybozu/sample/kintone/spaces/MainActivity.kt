@@ -5,8 +5,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 import com.cybozu.sample.kintone.spaces.feature.communicate.SpaceRoute
 import com.cybozu.sample.kintone.spaces.feature.communicate.communicateNavigation
@@ -27,11 +30,20 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun KintoneSpacesApp() {
-    val navController = rememberNavController()
-    NavHost(
-        navController = navController,
-        startDestination = SpaceRoute
-    ) {
-        communicateNavigation(navController)
-    }
+    val backStack = rememberNavBackStack(SpaceRoute)
+    NavDisplay(
+        backStack = backStack,
+        onBack = { backStack.removeLastOrNull() },
+        // ViewModelStoreNavEntryDecorator を追加するため、デフォルトの
+        // NavEntryDecorator も明示的に指定する必要がある
+        entryDecorators =
+            listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator()
+            ),
+        entryProvider =
+            entryProvider {
+                communicateNavigation(backStack)
+            }
+    )
 }
