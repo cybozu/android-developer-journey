@@ -1,12 +1,13 @@
 package com.cybozu.sample.kintone.spaces.feature.communicate
 
+import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-object SpaceRoute
+data object SpaceRoute : NavKey
 
 @Serializable
 data class ThreadRoute(
     val threadId: String,
     val threadName: String,
-)
+) : NavKey
