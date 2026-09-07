@@ -52,7 +52,7 @@ fun SpaceContent(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Spaces") })
+            TopAppBar(title = { Text("タイムラインです") })
         }
     ) { innerPadding ->
         if (uiState.isLoading) {
