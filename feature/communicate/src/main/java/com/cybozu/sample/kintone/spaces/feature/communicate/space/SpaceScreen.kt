@@ -60,8 +60,8 @@ fun SpaceContent(
     onThreadClick: (Thread) -> Unit,
     onErrorMessageShown: () -> Unit = {},
     onRetryClick: () -> Unit = {},
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
     val errorMessage = stringResource(R.string.error_load_threads)
     val retryActionLabel = stringResource(R.string.action_retry)
     LaunchedEffect(uiState.errorMessageSeq) {

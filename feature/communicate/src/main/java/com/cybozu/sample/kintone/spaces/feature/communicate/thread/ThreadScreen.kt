@@ -79,8 +79,8 @@ fun ThreadContent(
     uiState: ThreadUiState,
     onErrorMessageShown: () -> Unit = {},
     onRetryClick: () -> Unit = {},
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
     val errorMessage = stringResource(R.string.error_load_messages)
     val retryActionLabel = stringResource(R.string.action_retry)
     LaunchedEffect(uiState.errorMessageSeq) {
