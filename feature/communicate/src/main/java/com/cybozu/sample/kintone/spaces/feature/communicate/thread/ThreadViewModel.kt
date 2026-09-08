@@ -52,4 +52,9 @@ class ThreadViewModel @AssistedInject constructor(
             }
         }
     }
+
+    fun clearErrorMessage() {
+        _uiState.value =
+            _uiState.value.copy(errorMessage = null)
+    }
 }
