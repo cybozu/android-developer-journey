@@ -27,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -62,7 +63,8 @@ fun ThreadScreen(
     ThreadContent(
         threadName = threadName,
         uiState = uiState,
-        onErrorDialogDismissed = viewModel::onErrorDialogDismissed
+        onErrorDialogDismissed = viewModel::onErrorDialogDismissed,
+        onRefresh = viewModel::onRefresh
     )
 }
 
@@ -72,6 +74,7 @@ fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
     onErrorDialogDismissed: () -> Unit = {},
+    onRefresh: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -113,16 +116,21 @@ fun ThreadContent(
                 )
             }
             else -> {
-                LazyColumn(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                    contentPadding = PaddingValues(all = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                PullToRefreshBox(
+                    isRefreshing = uiState.isRefreshing,
+                    onRefresh = onRefresh,
                 ) {
-                    items(uiState.threadMessages) { threadMessage ->
-                        MessageListItem(threadMessage = threadMessage)
+                    LazyColumn(
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                        contentPadding = PaddingValues(all = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(uiState.threadMessages) { threadMessage ->
+                            MessageListItem(threadMessage = threadMessage)
+                        }
                     }
                 }
             }
@@ -242,6 +250,19 @@ class ThreadContentPreviewParameter :
                 threadMessages = emptyList(),
                 isLoading = false,
                 errorMessage = "メッセージを取得できませんでした"
+            ),
+            ThreadUiState(
+                threadMessages =
+                    listOf(
+                        ThreadMessage(
+                            id = "1",
+                            body = "plain text",
+                            creator = Creator(name = "name1"),
+                            comments = emptyList()
+                        )
+                    ),
+                isLoading = false,
+                isRefreshing = true
             )
         )
     )

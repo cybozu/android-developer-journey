@@ -52,4 +52,24 @@ class ThreadViewModel @AssistedInject constructor(
     fun onErrorDialogDismissed() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
     }
+
+    fun onRefresh(){
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isRefreshing = true, errorMessage = null)
+            try {
+                val threadMessages = repository.getMessagesForThread(threadId = threadId)
+                _uiState.value =
+                    _uiState.value.copy(
+                        threadMessages = threadMessages,
+                        isRefreshing = false
+                    )
+            } catch (_: Exception) {
+                _uiState.value =
+                    _uiState.value.copy(
+                        isRefreshing = false,
+                        errorMessage = "メッセージを取得できませんでした"
+                    )
+            }
+        }
+    }
 }
