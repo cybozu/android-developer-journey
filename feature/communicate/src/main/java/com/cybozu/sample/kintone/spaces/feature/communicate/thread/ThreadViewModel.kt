@@ -43,7 +43,7 @@ class ThreadViewModel @AssistedInject constructor(
                     )
             } catch (e: CancellationException) {
                 throw e
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 _uiState.value =
                     _uiState.value.copy(
                         isLoading = false,
