@@ -98,7 +98,7 @@ fun ThreadContent(
                         .fillMaxSize()
                         .padding(innerPadding),
                 contentAlignment = Alignment.Center
-            ){
+            ) {
                 Text(
                     text = "メッセージを取得できませんでした",
                     style = MaterialTheme.typography.bodyMedium
@@ -231,7 +231,7 @@ class ThreadContentPreviewParameter :
             ),
             ThreadUiState(
                 threadMessages = emptyList(),
-                isLoading = true
+                hasError = true
             )
         )
     )
