@@ -20,7 +20,7 @@ constructor(
     private val _uiState = MutableStateFlow(SpaceUiState())
     val uiState: StateFlow<SpaceUiState> = _uiState.asStateFlow()
 
-    private var errorMessageSeq = 0L
+    private var errorMessageSeq = 0
 
     init {
         loadThreads()
