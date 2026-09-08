@@ -20,6 +20,8 @@ constructor(
     private val _uiState = MutableStateFlow(SpaceUiState())
     val uiState: StateFlow<SpaceUiState> = _uiState.asStateFlow()
 
+    private var errorMessageSeq = 0L
+
     init {
         loadThreads()
     }
@@ -36,12 +38,17 @@ constructor(
                     )
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
-                _uiState.value = _uiState.value.copy(isLoading = false, isGetMessageError = true)
+                errorMessageSeq++
+                _uiState.value = _uiState.value.copy(isLoading = false, errorMessageId = errorMessageSeq)
             }
         }
     }
 
+    fun onRetryClick(){
+        loadThreads()
+    }
+
     fun onErrorMessageShown() {
-        _uiState.value = _uiState.value.copy(isGetMessageError = false)
+        _uiState.value = _uiState.value.copy(errorMessageId = null)
     }
 }

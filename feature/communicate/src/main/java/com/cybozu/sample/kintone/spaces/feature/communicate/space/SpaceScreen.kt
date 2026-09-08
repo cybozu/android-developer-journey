@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -45,7 +46,8 @@ fun SpaceScreen(
     SpaceContent(
         uiState = uiState,
         onThreadClick = onThreadClick,
-        onErrorMessageShown = viewModel::onErrorMessageShown
+        onErrorMessageShown = viewModel::onErrorMessageShown,
+        onRetryClick = viewModel::onRetryClick
     )
 }
 
@@ -55,12 +57,19 @@ fun SpaceContent(
     uiState: SpaceUiState,
     onThreadClick: (Thread) -> Unit,
     onErrorMessageShown: () -> Unit = {},
+    onRetryClick: () -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
-    LaunchedEffect(uiState.isGetMessageError) {
-        if (uiState.isGetMessageError) {
-            snackbarHostState.showSnackbar("メッセージを取得できませんでした")
+    LaunchedEffect(uiState.errorMessageId) {
+        if (uiState.errorMessageId != null) {
+            val result = snackbarHostState.showSnackbar(
+                "メッセージを取得できませんでした",
+                actionLabel = "再読み込み"
+            )
             onErrorMessageShown()
+            if (result == SnackbarResult.ActionPerformed) {
+                onRetryClick()
+            }
         }
     }
     Scaffold(
