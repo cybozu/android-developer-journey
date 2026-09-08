@@ -59,7 +59,7 @@ fun SpaceContent(
 ) {
     LaunchedEffect(uiState.isGetMessageError) {
         if (uiState.isGetMessageError) {
-            snackbarHostState.showSnackbar("スレッドの取得に失敗しました")
+            snackbarHostState.showSnackbar("メッセージを取得できませんでした")
             onErrorMessageShown()
         }
     }
