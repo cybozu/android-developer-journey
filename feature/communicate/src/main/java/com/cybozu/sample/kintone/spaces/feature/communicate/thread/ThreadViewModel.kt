@@ -42,8 +42,9 @@ class ThreadViewModel @AssistedInject constructor(
                         threadMessages = threadMessages,
                         isLoading = false
                     )
-            } catch (e: Exception) {
-                if (e is CancellationException) throw e
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
                 errorMessageSeq++
                 _uiState.value =
                     _uiState.value.copy(isLoading = false, errorMessageId = errorMessageSeq)
