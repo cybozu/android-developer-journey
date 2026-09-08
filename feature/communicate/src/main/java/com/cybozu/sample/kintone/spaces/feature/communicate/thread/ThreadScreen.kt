@@ -63,12 +63,28 @@ fun ThreadScreen(
         ),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val errorMessage = stringResource(R.string.error_load_messages)
+    val retryActionLabel = stringResource(R.string.action_retry)
+
+    LaunchedEffect(uiState.errorMessageSeq) {
+        if (uiState.errorMessageSeq != null) {
+            val result =
+                snackbarHostState.showSnackbar(
+                    errorMessage,
+                    actionLabel = retryActionLabel
+                )
+            viewModel.onErrorMessageShown()
+            if (result == SnackbarResult.ActionPerformed) {
+                viewModel.onRetryClick()
+            }
+        }
+    }
 
     ThreadContent(
         threadName = threadName,
         uiState = uiState,
-        onErrorMessageShown = viewModel::onErrorMessageShown,
-        onRetryClick = viewModel::onRetryClick
+        snackbarHostState = snackbarHostState
     )
 }
 
@@ -77,25 +93,8 @@ fun ThreadScreen(
 fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
-    onErrorMessageShown: () -> Unit = {},
-    onRetryClick: () -> Unit = {},
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    val errorMessage = stringResource(R.string.error_load_messages)
-    val retryActionLabel = stringResource(R.string.action_retry)
-    LaunchedEffect(uiState.errorMessageSeq) {
-        if (uiState.errorMessageSeq != null) {
-            val result =
-                snackbarHostState.showSnackbar(
-                    errorMessage,
-                    actionLabel = retryActionLabel
-                )
-            onErrorMessageShown()
-            if (result == SnackbarResult.ActionPerformed) {
-                onRetryClick()
-            }
-        }
-    }
     Scaffold(
         topBar = {
             TopAppBar(
