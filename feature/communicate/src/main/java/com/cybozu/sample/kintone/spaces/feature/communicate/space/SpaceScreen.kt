@@ -60,8 +60,8 @@ fun SpaceContent(
     onRetryClick: () -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
-    LaunchedEffect(uiState.errorMessageId) {
-        if (uiState.errorMessageId != null) {
+    LaunchedEffect(uiState.errorMessageSeq) {
+        if (uiState.errorMessageSeq != null) {
             val result =
                 snackbarHostState.showSnackbar(
                     "メッセージを取得できませんでした",

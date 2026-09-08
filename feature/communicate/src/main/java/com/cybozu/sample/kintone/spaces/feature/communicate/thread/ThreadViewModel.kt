@@ -47,7 +47,7 @@ class ThreadViewModel @AssistedInject constructor(
             } catch (_: Exception) {
                 errorMessageSeq++
                 _uiState.value =
-                    _uiState.value.copy(isLoading = false, errorMessageId = errorMessageSeq)
+                    _uiState.value.copy(isLoading = false, errorMessageSeq = errorMessageSeq)
             }
         }
     }
@@ -57,6 +57,6 @@ class ThreadViewModel @AssistedInject constructor(
     }
 
     fun onErrorMessageShown() {
-        _uiState.value = _uiState.value.copy(errorMessageId = null)
+        _uiState.value = _uiState.value.copy(errorMessageSeq = null)
     }
 }
