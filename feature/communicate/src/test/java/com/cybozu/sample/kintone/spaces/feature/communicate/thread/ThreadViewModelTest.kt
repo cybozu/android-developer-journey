@@ -29,10 +29,8 @@ class ThreadViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(
-        repository: SpaceRepository = FakeSpaceRepository(),
-        ): ThreadViewModel = ThreadViewModel(threadId = "thread-1", repository = repository)
-
+    private fun createViewModel(repository: SpaceRepository = FakeSpaceRepository()): ThreadViewModel =
+        ThreadViewModel(threadId = "thread-1", repository = repository)
 
     @Test
     fun `メッセージ一覧が取得できる`() =
