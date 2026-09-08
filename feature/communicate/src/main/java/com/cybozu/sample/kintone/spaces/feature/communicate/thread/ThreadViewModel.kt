@@ -3,6 +3,7 @@ package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
+import com.cybozu.sample.kintone.spaces.data.space.ThreadRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -21,6 +22,7 @@ interface ThreadViewModelFactory {
 class ThreadViewModel @AssistedInject constructor(
     @Assisted private val threadId: String,
     private val repository: SpaceRepository,
+    private val threadRepository: ThreadRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ThreadUiState())
     val uiState: StateFlow<ThreadUiState> = _uiState.asStateFlow()
@@ -38,6 +40,24 @@ class ThreadViewModel @AssistedInject constructor(
                     threadMessages = threadMessages,
                     isLoading = false
                 )
+        }
+    }
+
+    fun updateComment(newComment: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(comment = newComment)
+        }
+    }
+
+    fun postComment() {
+        viewModelScope.launch {
+            threadRepository.postComment(
+                spaceId = 3,
+                threadId = threadId.toInt(),
+                comment = _uiState.value.comment
+            )
+        }.invokeOnCompletion {
+            loadMessages()
         }
     }
 }
