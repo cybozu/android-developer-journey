@@ -48,4 +48,8 @@ class ThreadViewModel @AssistedInject constructor(
             }
         }
     }
+
+    fun onErrorDialogDismissed() {
+        _uiState.value = _uiState.value.copy(errorMessage = null)
+    }
 }

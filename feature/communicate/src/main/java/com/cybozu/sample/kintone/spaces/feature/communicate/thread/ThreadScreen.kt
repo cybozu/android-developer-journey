@@ -30,9 +30,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,7 +61,8 @@ fun ThreadScreen(
 
     ThreadContent(
         threadName = threadName,
-        uiState = uiState
+        uiState = uiState,
+        onErrorDialogDismissed = viewModel::onErrorDialogDismissed
     )
 }
 
@@ -73,11 +71,8 @@ fun ThreadScreen(
 fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
+    onErrorDialogDismissed: () -> Unit = {},
 ) {
-    var isErrorDialogVisible by remember(uiState.errorMessage) {
-        mutableStateOf(uiState.errorMessage != null)
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -90,41 +85,45 @@ fun ThreadContent(
             )
         }
     ) { innerPadding ->
-        if (uiState.isLoading) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else if (uiState.errorMessage != null && isErrorDialogVisible) {
-            // 一覧が丸ごと取得できない致命的なエラーのため、自然に消えるSnackbar/Toastではなく
-            // ユーザーが閉じるまで残り続けるダイアログで表示する
-            AlertDialog(
-                onDismissRequest = { isErrorDialogVisible = false },
-                confirmButton = {
-                    TextButton(onClick = { isErrorDialogVisible = false }) {
-                        Text("OK")
-                    }
-                },
-                text = {
-                    Text(uiState.errorMessage)
+        when {
+            uiState.isLoading -> {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
-            )
-        } else {
-            LazyColumn(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                contentPadding = PaddingValues(all = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(uiState.threadMessages) { threadMessage ->
-                    MessageListItem(threadMessage = threadMessage)
+            }
+            uiState.errorMessage != null -> {
+                // 一覧が丸ごと取得できない致命的なエラーのため、自然に消えるSnackbar/Toastではなく
+                // ユーザーが閉じるまで残り続けるダイアログで表示する
+                AlertDialog(
+                    onDismissRequest = onErrorDialogDismissed,
+                    confirmButton = {
+                        TextButton(onClick = onErrorDialogDismissed) {
+                            Text("OK")
+                        }
+                    },
+                    text = {
+                        Text(uiState.errorMessage)
+                    }
+                )
+            }
+            else -> {
+                LazyColumn(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                    contentPadding = PaddingValues(all = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(uiState.threadMessages) { threadMessage ->
+                        MessageListItem(threadMessage = threadMessage)
+                    }
                 }
             }
         }
