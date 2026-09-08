@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -48,6 +49,7 @@ import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 import com.cybozu.sample.kintone.spaces.data.space.entity.Comment
 import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
+import com.cybozu.sample.kintone.spaces.feature.communicate.R
 
 @Composable
 fun ThreadScreen(
@@ -79,12 +81,14 @@ fun ThreadContent(
     onRetryClick: () -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
+    val errorMessage = stringResource(R.string.error_load_messages)
+    val retryActionLabel = stringResource(R.string.action_retry)
     LaunchedEffect(uiState.errorMessageSeq) {
         if (uiState.errorMessageSeq != null) {
             val result =
                 snackbarHostState.showSnackbar(
-                    "メッセージを取得できませんでした",
-                    actionLabel = "再読み込み"
+                    errorMessage,
+                    actionLabel = retryActionLabel
                 )
             onErrorMessageShown()
             if (result == SnackbarResult.ActionPerformed) {

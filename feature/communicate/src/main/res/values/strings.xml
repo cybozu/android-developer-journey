@@ -1,0 +1,5 @@
+<resources>
+    <string name="error_load_threads">スレッドを取得できませんでした</string>
+    <string name="error_load_messages">メッセージを取得できませんでした</string>
+    <string name="action_retry">再読み込み</string>
+</resources>
