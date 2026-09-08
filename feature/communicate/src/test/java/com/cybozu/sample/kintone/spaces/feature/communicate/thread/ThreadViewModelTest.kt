@@ -6,6 +6,7 @@ import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 import io.kotest.matchers.shouldBe
+import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -29,15 +30,15 @@ class ThreadViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(): ThreadViewModel {
-        val repository = FakeSpaceRepository()
+    private fun createViewModel(shouldFail: Boolean): ThreadViewModel {
+        val repository = FakeSpaceRepository(shouldFail = shouldFail)
         return ThreadViewModel(threadId = "thread-1", repository = repository)
     }
 
     @Test
     fun `メッセージ一覧が取得できる`() =
         runTest {
-            val viewModel = createViewModel()
+            val viewModel = createViewModel(shouldFail = false)
 
             viewModel.uiState.test {
                 val initialState = awaitItem()
@@ -59,13 +60,38 @@ class ThreadViewModelTest {
                 loadedState.isLoading shouldBe false
             }
         }
+
+    @Test
+    fun `メッセージ取得に失敗したときエラー状態になる`() =
+        runTest {
+            val viewModel = createViewModel(shouldFail = true)
+
+            viewModel.uiState.test {
+                val initialState = awaitItem()
+                initialState.threadMessages shouldBe emptyList()
+                initialState.isLoading shouldBe false
+
+                val loadingState = awaitItem()
+                loadingState.threadMessages shouldBe emptyList()
+                loadingState.isLoading shouldBe true
+
+                val loadedState = awaitItem()
+                loadedState.threadMessages shouldBe emptyList()
+                loadedState.errorMessage shouldBe "メッセージを取得できませんでした"
+                loadedState.isLoading shouldBe false
+            }
+        }
 }
 
-private class FakeSpaceRepository : SpaceRepository {
+private class FakeSpaceRepository(
+    private val shouldFail: Boolean,
+) : SpaceRepository {
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
-        if (threadId == "thread-1") {
+        if (shouldFail) {
+            throw IOException("メッセージ取得失敗")
+        } else if (threadId == "thread-1") {
             return listOf(
                 ThreadMessage(
                     id = "msg-1",
