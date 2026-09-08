@@ -29,10 +29,10 @@ class ThreadViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(): ThreadViewModel {
-        val repository = FakeSpaceRepository()
-        return ThreadViewModel(threadId = "thread-1", repository = repository)
-    }
+    private fun createViewModel(
+        repository: SpaceRepository = FakeSpaceRepository(),
+        ): ThreadViewModel = ThreadViewModel(threadId = "thread-1", repository = repository)
+
 
     @Test
     fun `メッセージ一覧が取得できる`() =
@@ -63,11 +63,7 @@ class ThreadViewModelTest {
     @Test
     fun `メッセージ取得に失敗するとエラーになる`() =
         runTest {
-            val viewModel =
-                ThreadViewModel(
-                    threadId = "thread-1",
-                    repository = FailingSpaceRepository()
-                )
+            val viewModel = createViewModel(repository = FailingSpaceRepository())
 
             viewModel.uiState.test {
                 val initialState = awaitItem()
