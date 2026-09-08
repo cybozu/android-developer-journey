@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -59,7 +61,8 @@ fun ThreadScreen(
 
     ThreadContent(
         threadName = threadName,
-        uiState = uiState
+        uiState = uiState,
+        onErrorDialogDismissed = viewModel::onErrorDialogDismissed
     )
 }
 
@@ -68,6 +71,7 @@ fun ThreadScreen(
 fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
+    onErrorDialogDismissed: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -81,27 +85,45 @@ fun ThreadContent(
             )
         }
     ) { innerPadding ->
-        if (uiState.isLoading) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+        when {
+            uiState.isLoading -> {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
-        } else {
-            LazyColumn(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                contentPadding = PaddingValues(all = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(uiState.threadMessages) { threadMessage ->
-                    MessageListItem(threadMessage = threadMessage)
+            uiState.errorMessage != null -> {
+                // 一覧が丸ごと取得できない致命的なエラーのため、自然に消えるSnackbar/Toastではなく
+                // ユーザーが閉じるまで残り続けるダイアログで表示する
+                AlertDialog(
+                    onDismissRequest = onErrorDialogDismissed,
+                    confirmButton = {
+                        TextButton(onClick = onErrorDialogDismissed) {
+                            Text("OK")
+                        }
+                    },
+                    text = {
+                        Text(uiState.errorMessage)
+                    }
+                )
+            }
+            else -> {
+                LazyColumn(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                    contentPadding = PaddingValues(all = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(uiState.threadMessages) { threadMessage ->
+                        MessageListItem(threadMessage = threadMessage)
+                    }
                 }
             }
         }
@@ -215,6 +237,11 @@ class ThreadContentPreviewParameter :
             ThreadUiState(
                 threadMessages = emptyList(),
                 isLoading = true
+            ),
+            ThreadUiState(
+                threadMessages = emptyList(),
+                isLoading = false,
+                errorMessage = "メッセージを取得できませんでした"
             )
         )
     )
