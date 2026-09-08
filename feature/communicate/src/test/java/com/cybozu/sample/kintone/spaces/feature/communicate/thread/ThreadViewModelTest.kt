@@ -58,6 +58,7 @@ class ThreadViewModelTest {
                 loadedState.threadMessages[1].body shouldBe "thread-2"
                 loadedState.threadMessages[1].creator shouldBe Creator(name = "name2")
                 loadedState.isLoading shouldBe false
+                loadedState.errorMessage shouldBe null
             }
         }
 
