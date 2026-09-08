@@ -29,8 +29,8 @@ class ThreadViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(): ThreadViewModel {
-        val repository = FakeSpaceRepository()
+    private fun createViewModel(shouldThrowOnGetMessages: Boolean = false): ThreadViewModel {
+        val repository = FakeSpaceRepository(shouldThrowOnGetMessages = shouldThrowOnGetMessages)
         return ThreadViewModel(threadId = "thread-1", repository = repository)
     }
 
@@ -59,12 +59,38 @@ class ThreadViewModelTest {
                 loadedState.isLoading shouldBe false
             }
         }
+
+    @Test
+    fun `メッセージ取得に失敗した場合エラーメッセージがセットされる`() =
+        runTest {
+            val viewModel = createViewModel(shouldThrowOnGetMessages = true)
+
+            viewModel.uiState.test {
+                val initialState = awaitItem()
+                initialState.errorMessage shouldBe null
+                initialState.isLoading shouldBe false
+
+                val loadingState = awaitItem()
+                loadingState.isLoading shouldBe true
+                loadingState.errorMessage shouldBe null
+
+                val errorState = awaitItem()
+                errorState.isLoading shouldBe false
+                errorState.threadMessages shouldBe emptyList()
+                errorState.errorMessage shouldBe "メッセージを取得できませんでした"
+            }
+        }
 }
 
-private class FakeSpaceRepository : SpaceRepository {
+private class FakeSpaceRepository(
+    private val shouldThrowOnGetMessages: Boolean = false,
+) : SpaceRepository {
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
+        if (shouldThrowOnGetMessages) {
+            throw RuntimeException("network error")
+        }
         if (threadId == "thread-1") {
             return listOf(
                 ThreadMessage(
