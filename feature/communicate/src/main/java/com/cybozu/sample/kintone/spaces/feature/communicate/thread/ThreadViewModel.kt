@@ -39,7 +39,7 @@ class ThreadViewModel @AssistedInject constructor(
                         threadMessages = threadMessages,
                         isLoading = false
                     )
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 _uiState.value =
                     _uiState.value.copy(
                         isLoading = false,
