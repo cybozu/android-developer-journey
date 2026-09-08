@@ -13,42 +13,42 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class SpaceViewModel
-@Inject
-constructor(
-    private val repository: SpaceRepository,
-) : ViewModel() {
-    private val _uiState = MutableStateFlow(SpaceUiState())
-    val uiState: StateFlow<SpaceUiState> = _uiState.asStateFlow()
+    @Inject
+    constructor(
+        private val repository: SpaceRepository,
+    ) : ViewModel() {
+        private val _uiState = MutableStateFlow(SpaceUiState())
+        val uiState: StateFlow<SpaceUiState> = _uiState.asStateFlow()
 
-    private var errorMessageSeq = 0
+        private var errorMessageSeq = 0
 
-    init {
-        loadThreads()
-    }
+        init {
+            loadThreads()
+        }
 
-    private fun loadThreads() {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            try {
-                val threads = repository.getAllThreads(spaceId = "3")
-                _uiState.value =
-                    _uiState.value.copy(
-                        threads = threads,
-                        isLoading = false
-                    )
-            } catch (e: Exception) {
-                if (e is CancellationException) throw e
-                errorMessageSeq++
-                _uiState.value = _uiState.value.copy(isLoading = false, errorMessageId = errorMessageSeq)
+        private fun loadThreads() {
+            viewModelScope.launch {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+                try {
+                    val threads = repository.getAllThreads(spaceId = "3")
+                    _uiState.value =
+                        _uiState.value.copy(
+                            threads = threads,
+                            isLoading = false
+                        )
+                } catch (e: Exception) {
+                    if (e is CancellationException) throw e
+                    errorMessageSeq++
+                    _uiState.value = _uiState.value.copy(isLoading = false, errorMessageId = errorMessageSeq)
+                }
             }
         }
-    }
 
-    fun onRetryClick(){
-        loadThreads()
-    }
+        fun onRetryClick() {
+            loadThreads()
+        }
 
-    fun onErrorMessageShown() {
-        _uiState.value = _uiState.value.copy(errorMessageId = null)
+        fun onErrorMessageShown() {
+            _uiState.value = _uiState.value.copy(errorMessageId = null)
+        }
     }
-}

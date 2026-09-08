@@ -81,10 +81,11 @@ fun ThreadContent(
 ) {
     LaunchedEffect(uiState.errorMessageId) {
         if (uiState.errorMessageId != null) {
-            val result = snackbarHostState.showSnackbar(
-                "メッセージを取得できませんでした",
-                actionLabel = "再読み込み"
-            )
+            val result =
+                snackbarHostState.showSnackbar(
+                    "メッセージを取得できませんでした",
+                    actionLabel = "再読み込み"
+                )
             onErrorMessageShown()
             if (result == SnackbarResult.ActionPerformed) {
                 onRetryClick()
