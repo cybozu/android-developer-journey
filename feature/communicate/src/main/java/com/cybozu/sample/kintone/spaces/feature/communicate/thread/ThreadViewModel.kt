@@ -41,13 +41,14 @@ class ThreadViewModel @AssistedInject constructor(
                         isLoading = false,
                         errorMessage = null
                     )
-            }catch (e: CancellationException) {
+            } catch (e: CancellationException) {
                 throw e
-            }catch (e: Exception){
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    errorMessage = "メッセージを取得できませんでした"
-                )
+            } catch (e: Exception) {
+                _uiState.value =
+                    _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = "メッセージを取得できませんでした"
+                    )
             }
         }
     }

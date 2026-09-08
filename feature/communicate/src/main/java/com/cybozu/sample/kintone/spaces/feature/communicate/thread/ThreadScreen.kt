@@ -63,7 +63,7 @@ fun ThreadScreen(
     val context = LocalContext.current
 
     LaunchedEffect(uiState.errorMessage) {
-        if(uiState.errorMessage != null) {
+        if (uiState.errorMessage != null) {
             Toast.makeText(context, "メッセージを取得できませんでした", Toast.LENGTH_SHORT).show()
         }
     }
