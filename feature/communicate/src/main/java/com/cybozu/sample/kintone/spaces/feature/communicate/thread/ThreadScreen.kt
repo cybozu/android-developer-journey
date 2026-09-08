@@ -91,6 +91,19 @@ fun ThreadContent(
             ) {
                 CircularProgressIndicator()
             }
+        } else if (uiState.hasError) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ){
+                Text(
+                    text = "メッセージを取得できませんでした",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         } else {
             LazyColumn(
                 modifier =
@@ -211,6 +224,10 @@ class ThreadContentPreviewParameter :
                         )
                     ),
                 isLoading = false
+            ),
+            ThreadUiState(
+                threadMessages = emptyList(),
+                isLoading = true
             ),
             ThreadUiState(
                 threadMessages = emptyList(),
