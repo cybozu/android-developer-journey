@@ -42,9 +42,9 @@ import com.cybozu.sample.kintone.spaces.core.design.component.Html
 import com.cybozu.sample.kintone.spaces.core.design.component.SystemBackNavButton
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 import com.cybozu.sample.kintone.spaces.data.space.entity.Comment
-import com.cybozu.sample.kintone.spaces.feature.communicate.R
 import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
+import com.cybozu.sample.kintone.spaces.feature.communicate.R
 
 @Composable
 fun ThreadScreen(
