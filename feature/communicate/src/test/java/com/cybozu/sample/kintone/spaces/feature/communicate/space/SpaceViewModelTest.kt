@@ -58,6 +58,39 @@ class SpaceViewModelTest {
                 loadedState.isLoading shouldBe false
             }
         }
+
+    @Test
+    fun `スレッド一覧取得に失敗するとエラー状態になる`() =
+        runTest {
+            val viewModel = SpaceViewModel(FailingFakeSpaceRepository())
+
+            viewModel.uiState.test {
+                val initialState = awaitItem()
+                initialState.isLoading shouldBe false
+
+                val loadingState = awaitItem()
+                loadingState.isLoading shouldBe true
+
+                val errorState = awaitItem()
+                errorState.isLoading shouldBe false
+                errorState.threads shouldBe emptyList()
+                errorState.errorMessageSeq shouldBe 1
+            }
+        }
+
+    @Test
+    fun `スレッド一覧取得がキャンセルされてもエラー状態にはならない`() =
+        runTest {
+            val viewModel = SpaceViewModel(CancellingFakeSpaceRepository())
+
+            viewModel.uiState.test {
+                awaitItem() // 初期状態
+                val loadingState = awaitItem()
+                loadingState.isLoading shouldBe true
+
+                expectNoEvents()
+            }
+        }
 }
 
 private class FakeSpaceRepository : SpaceRepository {

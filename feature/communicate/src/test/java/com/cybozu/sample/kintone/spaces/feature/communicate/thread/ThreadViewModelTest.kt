@@ -60,6 +60,41 @@ class ThreadViewModelTest {
                 loadedState.isLoading shouldBe false
             }
         }
+
+    @Test
+    fun `メッセージ取得に失敗するとエラー状態になる`() =
+        runTest {
+            val viewModel =
+                ThreadViewModel(threadId = "thread-1", repository = FailingFakeSpaceRepository())
+
+            viewModel.uiState.test {
+                val initialState = awaitItem()
+                initialState.isLoading shouldBe false
+
+                val loadingState = awaitItem()
+                loadingState.isLoading shouldBe true
+
+                val errorState = awaitItem()
+                errorState.isLoading shouldBe false
+                errorState.threadMessages shouldBe emptyList()
+                errorState.errorMessageSeq shouldBe 1
+            }
+        }
+
+    @Test
+    fun `メッセージ取得がキャンセルされてもエラー状態にはならない`() =
+        runTest {
+            val viewModel =
+                ThreadViewModel(threadId = "thread-1", repository = CancellingFakeSpaceRepository())
+
+            viewModel.uiState.test {
+                awaitItem() // 初期状態
+                val loadingState = awaitItem()
+                loadingState.isLoading shouldBe true
+
+                expectNoEvents()
+            }
+        }
 }
 
 private class FakeSpaceRepository : SpaceRepository {
