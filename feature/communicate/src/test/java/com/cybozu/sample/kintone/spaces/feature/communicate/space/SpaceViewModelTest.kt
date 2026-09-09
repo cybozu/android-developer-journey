@@ -31,10 +31,15 @@ class SpaceViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(): SpaceViewModel {
-        val repository = FakeSpaceRepository()
-        return SpaceViewModel(repository)
-    }
+    private fun createViewModel(
+        getAllThreads: suspend (String) -> List<Thread> = {
+            delay(100) // 通信時間を模擬
+            listOf(
+                Thread("thread-1", "space1", "Test Thread 1", "Last message 1"),
+                Thread("thread-2", "space2", "Test Thread 2", "Last message 2")
+            )
+        },
+    ): SpaceViewModel = SpaceViewModel(FakeSpaceRepository(getAllThreads))
 
     @Test
     fun `スレッド一覧が取得できる`() =
@@ -63,7 +68,7 @@ class SpaceViewModelTest {
     @Test
     fun `スレッド一覧取得に失敗するとエラー状態になる`() =
         runTest {
-            val viewModel = SpaceViewModel(FailingFakeSpaceRepository())
+            val viewModel = createViewModel(getAllThreads = { throw RuntimeException("test exception") })
 
             viewModel.uiState.test {
                 val initialState = awaitItem()
@@ -82,7 +87,13 @@ class SpaceViewModelTest {
     @Test
     fun `スレッド一覧取得がキャンセルされてもエラー状態にはならない`() =
         runTest {
-            val viewModel = SpaceViewModel(CancellingFakeSpaceRepository())
+            val viewModel =
+                createViewModel(
+                    getAllThreads = {
+                        delay(100) // 通信時間を模擬
+                        throw CancellationException("test cancellation")
+                    }
+                )
 
             viewModel.uiState.test {
                 awaitItem() // 初期状態
@@ -97,7 +108,17 @@ class SpaceViewModelTest {
     @Test
     fun `リトライすると再度データ取得が行われる`() =
         runTest {
-            val viewModel = SpaceViewModel(RetryableFakeSpaceRepository())
+            var callCount = 0
+            val viewModel =
+                createViewModel(
+                    getAllThreads = {
+                        callCount++
+                        if (callCount == 1) {
+                            throw RuntimeException("test exception")
+                        }
+                        listOf(Thread("thread-1", "space1", "retry success", "body"))
+                    }
+                )
 
             viewModel.uiState.test {
                 awaitItem()
@@ -123,43 +144,10 @@ class SpaceViewModelTest {
         }
 }
 
-private class FakeSpaceRepository : SpaceRepository {
-    override suspend fun getAllThreads(spaceId: String): List<Thread> {
-        delay(100) // 通信時間を模擬
-        return listOf(
-            Thread("thread-1", "space1", "Test Thread 1", "Last message 1"),
-            Thread("thread-2", "space2", "Test Thread 2", "Last message 2")
-        )
-    }
-
-    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = emptyList()
-}
-
-private class FailingFakeSpaceRepository : SpaceRepository {
-    override suspend fun getAllThreads(spaceId: String): List<Thread> = throw RuntimeException("test exception")
-
-    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = emptyList()
-}
-
-private class CancellingFakeSpaceRepository : SpaceRepository {
-    override suspend fun getAllThreads(spaceId: String): List<Thread> {
-        delay(100) // 通信時間を模擬
-        throw CancellationException("test cancellation")
-    }
-
-    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = emptyList()
-}
-
-private class RetryableFakeSpaceRepository : SpaceRepository {
-    private var callCount = 0
-
-    override suspend fun getAllThreads(spaceId: String): List<Thread> {
-        callCount++
-        if (callCount == 1) {
-            throw RuntimeException("test exception")
-        }
-        return listOf(Thread("thread-1", "space1", "retry success", "body"))
-    }
+private class FakeSpaceRepository(
+    private val getAllThreadsImpl: suspend (String) -> List<Thread>,
+) : SpaceRepository {
+    override suspend fun getAllThreads(spaceId: String): List<Thread> = getAllThreadsImpl(spaceId)
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = emptyList()
 }
