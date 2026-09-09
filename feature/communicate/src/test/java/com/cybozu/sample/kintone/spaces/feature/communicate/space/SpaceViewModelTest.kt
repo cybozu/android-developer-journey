@@ -120,3 +120,17 @@ private class CancellingFakeSpaceRepository : SpaceRepository {
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = emptyList()
 }
+
+private class RetryableFakeSpaceRepository : SpaceRepository {
+    private var callCount = 0
+
+    override suspend fun getAllThreads(spaceId: String): List<Thread> {
+        callCount++
+        if (callCount == 1) {
+            throw RuntimeException("test exception")
+        }
+        return listOf(Thread("thread-1", "space1", "retry success", "body"))
+    }
+
+    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = emptyList()
+}
