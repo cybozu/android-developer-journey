@@ -120,7 +120,7 @@ fun ThreadContent(
             else -> {
                 PullToRefreshBox(
                     isRefreshing = uiState.isRefreshing,
-                    onRefresh = onRefresh,
+                    onRefresh = onRefresh
                 ) {
                     LazyColumn(
                         modifier =

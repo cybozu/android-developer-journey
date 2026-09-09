@@ -35,105 +35,109 @@ class ThreadViewModelTest {
     }
 
     @Test
-    fun `メッセージ一覧が取得できる`() = runTest {
-        val (viewModel, _) = createViewModel()
+    fun `メッセージ一覧が取得できる`() =
+        runTest {
+            val (viewModel, _) = createViewModel()
 
-        viewModel.uiState.test {
-            val initialState = awaitItem()
-            initialState.threadMessages shouldBe emptyList()
-            initialState.isLoading shouldBe false
+            viewModel.uiState.test {
+                val initialState = awaitItem()
+                initialState.threadMessages shouldBe emptyList()
+                initialState.isLoading shouldBe false
 
-            val loadingState = awaitItem()
-            loadingState.threadMessages shouldBe emptyList()
-            loadingState.isLoading shouldBe true
+                val loadingState = awaitItem()
+                loadingState.threadMessages shouldBe emptyList()
+                loadingState.isLoading shouldBe true
 
-            val loadedState = awaitItem()
-            loadedState.threadMessages.size shouldBe 2
-            loadedState.threadMessages[0].id shouldBe "msg-1"
-            loadedState.threadMessages[0].body shouldBe "thread-1"
-            loadedState.threadMessages[0].creator shouldBe Creator(name = "name1")
-            loadedState.threadMessages[1].id shouldBe "msg-2"
-            loadedState.threadMessages[1].body shouldBe "thread-2"
-            loadedState.threadMessages[1].creator shouldBe Creator(name = "name2")
-            loadedState.isLoading shouldBe false
+                val loadedState = awaitItem()
+                loadedState.threadMessages.size shouldBe 2
+                loadedState.threadMessages[0].id shouldBe "msg-1"
+                loadedState.threadMessages[0].body shouldBe "thread-1"
+                loadedState.threadMessages[0].creator shouldBe Creator(name = "name1")
+                loadedState.threadMessages[1].id shouldBe "msg-2"
+                loadedState.threadMessages[1].body shouldBe "thread-2"
+                loadedState.threadMessages[1].creator shouldBe Creator(name = "name2")
+                loadedState.isLoading shouldBe false
+            }
         }
-    }
 
     @Test
-    fun `メッセージ取得に失敗した場合エラーメッセージがセットされる`() = runTest {
-        val (viewModel, _) = createViewModel(shouldThrowOnGetMessages = true)
+    fun `メッセージ取得に失敗した場合エラーメッセージがセットされる`() =
+        runTest {
+            val (viewModel, _) = createViewModel(shouldThrowOnGetMessages = true)
 
-        viewModel.uiState.test {
-            val initialState = awaitItem()
-            initialState.errorMessage shouldBe null
-            initialState.isLoading shouldBe false
+            viewModel.uiState.test {
+                val initialState = awaitItem()
+                initialState.errorMessage shouldBe null
+                initialState.isLoading shouldBe false
 
-            val loadingState = awaitItem()
-            loadingState.isLoading shouldBe true
-            loadingState.errorMessage shouldBe null
+                val loadingState = awaitItem()
+                loadingState.isLoading shouldBe true
+                loadingState.errorMessage shouldBe null
 
-            val errorState = awaitItem()
-            errorState.isLoading shouldBe false
-            errorState.threadMessages shouldBe emptyList()
-            errorState.errorMessage shouldBe "メッセージを取得できませんでした"
+                val errorState = awaitItem()
+                errorState.isLoading shouldBe false
+                errorState.threadMessages shouldBe emptyList()
+                errorState.errorMessage shouldBe "メッセージを取得できませんでした"
+            }
         }
-    }
 
     @Test
-    fun `更新すると最新のメッセージ一覧が表示される`() = runTest {
-        val (viewModel, _) = createViewModel()
+    fun `更新すると最新のメッセージ一覧が表示される`() =
+        runTest {
+            val (viewModel, _) = createViewModel()
 
-        viewModel.uiState.test {
-            awaitItem()
-            awaitItem()
-            awaitItem()
+            viewModel.uiState.test {
+                awaitItem()
+                awaitItem()
+                awaitItem()
 
-            viewModel.onRefresh()
+                viewModel.onRefresh()
 
-            val refreshingState = awaitItem()
-            refreshingState.isRefreshing shouldBe true
+                val refreshingState = awaitItem()
+                refreshingState.isRefreshing shouldBe true
 
-            val refreshedState = awaitItem() // ⑤リフレッシュ完了
-            refreshedState.isRefreshing shouldBe false
-            refreshedState.threadMessages.size shouldBe 2
-            refreshedState.threadMessages[0].id shouldBe "msg-1"
-            refreshedState.threadMessages[0].body shouldBe "thread-1"
-            refreshedState.threadMessages[0].creator shouldBe Creator(name = "name1")
-            refreshedState.threadMessages[1].id shouldBe "msg-2"
-            refreshedState.threadMessages[1].body shouldBe "thread-2"
-            refreshedState.threadMessages[1].creator shouldBe Creator(name = "name2")
-            refreshedState.isLoading shouldBe false
+                val refreshedState = awaitItem() // ⑤リフレッシュ完了
+                refreshedState.isRefreshing shouldBe false
+                refreshedState.threadMessages.size shouldBe 2
+                refreshedState.threadMessages[0].id shouldBe "msg-1"
+                refreshedState.threadMessages[0].body shouldBe "thread-1"
+                refreshedState.threadMessages[0].creator shouldBe Creator(name = "name1")
+                refreshedState.threadMessages[1].id shouldBe "msg-2"
+                refreshedState.threadMessages[1].body shouldBe "thread-2"
+                refreshedState.threadMessages[1].creator shouldBe Creator(name = "name2")
+                refreshedState.isLoading shouldBe false
+            }
         }
-    }
 
     @Test
-    fun `更新に失敗した場合エラーメッセージがセットされ元の一覧が維持される`() = runTest {
-        val (viewModel, repository) = createViewModel()
+    fun `更新に失敗した場合エラーメッセージがセットされ元の一覧が維持される`() =
+        runTest {
+            val (viewModel, repository) = createViewModel()
 
-        viewModel.uiState.test {
-            awaitItem()
-            awaitItem()
-            awaitItem()
+            viewModel.uiState.test {
+                awaitItem()
+                awaitItem()
+                awaitItem()
 
-            repository.shouldThrowOnGetMessages = true
+                repository.shouldThrowOnGetMessages = true
 
-            viewModel.onRefresh()
+                viewModel.onRefresh()
 
-            val refreshingState = awaitItem()
-            refreshingState.isRefreshing shouldBe true
+                val refreshingState = awaitItem()
+                refreshingState.isRefreshing shouldBe true
 
-            val errorRefreshState = awaitItem()
-            errorRefreshState.isRefreshing shouldBe false
-            errorRefreshState.threadMessages.size shouldBe 2
-            errorRefreshState.threadMessages[0].id shouldBe "msg-1"
-            errorRefreshState.threadMessages[0].body shouldBe "thread-1"
-            errorRefreshState.threadMessages[0].creator shouldBe Creator(name = "name1")
-            errorRefreshState.threadMessages[1].id shouldBe "msg-2"
-            errorRefreshState.threadMessages[1].body shouldBe "thread-2"
-            errorRefreshState.threadMessages[1].creator shouldBe Creator(name = "name2")
-            errorRefreshState.errorMessage shouldBe "メッセージを取得できませんでした"
+                val errorRefreshState = awaitItem()
+                errorRefreshState.isRefreshing shouldBe false
+                errorRefreshState.threadMessages.size shouldBe 2
+                errorRefreshState.threadMessages[0].id shouldBe "msg-1"
+                errorRefreshState.threadMessages[0].body shouldBe "thread-1"
+                errorRefreshState.threadMessages[0].creator shouldBe Creator(name = "name1")
+                errorRefreshState.threadMessages[1].id shouldBe "msg-2"
+                errorRefreshState.threadMessages[1].body shouldBe "thread-2"
+                errorRefreshState.threadMessages[1].creator shouldBe Creator(name = "name2")
+                errorRefreshState.errorMessage shouldBe "メッセージを取得できませんでした"
+            }
         }
-    }
 }
 
 private class FakeSpaceRepository(
@@ -152,7 +156,8 @@ private class FakeSpaceRepository(
                     body = "thread-1",
                     creator = Creator(name = "name1"),
                     comments = emptyList()
-                ), ThreadMessage(
+                ),
+                ThreadMessage(
                     id = "msg-2",
                     body = "thread-2",
                     creator = Creator(name = "name2"),

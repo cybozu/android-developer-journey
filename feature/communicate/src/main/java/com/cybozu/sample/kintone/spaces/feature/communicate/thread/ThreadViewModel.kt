@@ -37,10 +37,11 @@ class ThreadViewModel @AssistedInject constructor(
                 _uiState.value =
                     applyInProgress(uiState.value.copy(threadMessages = threadMessages), false)
             } catch (_: Exception) {
-                _uiState.value = applyInProgress(
-                    uiState.value.copy(errorMessage = "メッセージを取得できませんでした"),
-                    false
-                )
+                _uiState.value =
+                    applyInProgress(
+                        uiState.value.copy(errorMessage = "メッセージを取得できませんでした"),
+                        false
+                    )
             }
         }
     }
