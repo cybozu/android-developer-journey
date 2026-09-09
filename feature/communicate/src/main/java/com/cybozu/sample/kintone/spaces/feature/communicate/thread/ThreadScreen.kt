@@ -88,54 +88,47 @@ fun ThreadContent(
             )
         }
     ) { innerPadding ->
-        when {
-            uiState.isLoading -> {
-                Box(
+        if (uiState.isLoading) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = onRefresh,
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                LazyColumn(
                     modifier =
                         Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                    contentAlignment = Alignment.Center
+                            .fillMaxSize(),
+                    contentPadding = PaddingValues(all = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            uiState.errorMessage != null -> {
-                // 一覧が丸ごと取得できない致命的なエラーのため、自然に消えるSnackbar/Toastではなく
-                // ユーザーが閉じるまで残り続けるダイアログで表示する
-                AlertDialog(
-                    onDismissRequest = onErrorDialogDismissed,
-                    confirmButton = {
-                        TextButton(onClick = onErrorDialogDismissed) {
-                            Text("OK")
-                        }
-                    },
-                    text = {
-                        Text(uiState.errorMessage)
-                    }
-                )
-            }
-
-            else -> {
-                PullToRefreshBox(
-                    isRefreshing = uiState.isRefreshing,
-                    onRefresh = onRefresh
-                ) {
-                    LazyColumn(
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding),
-                        contentPadding = PaddingValues(all = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(uiState.threadMessages) { threadMessage ->
-                            MessageListItem(threadMessage = threadMessage)
-                        }
+                    items(uiState.threadMessages) { threadMessage ->
+                        MessageListItem(threadMessage = threadMessage)
                     }
                 }
             }
+        }
+        if (uiState.errorMessage != null) {
+            AlertDialog(
+                onDismissRequest = onErrorDialogDismissed,
+                confirmButton = {
+                    TextButton(onClick = onErrorDialogDismissed) {
+                        Text("OK")
+                    }
+                },
+                text = {
+                    Text(uiState.errorMessage)
+                }
+            )
         }
     }
 }
