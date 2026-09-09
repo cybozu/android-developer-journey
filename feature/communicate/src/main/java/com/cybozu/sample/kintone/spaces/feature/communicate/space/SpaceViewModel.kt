@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +19,8 @@ class SpaceViewModel
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(SpaceUiState())
         val uiState: StateFlow<SpaceUiState> = _uiState.asStateFlow()
+
+        private var errorMessageSeq = 0
 
         init {
             loadThreads()
@@ -33,9 +36,20 @@ class SpaceViewModel
                             threads = threads,
                             isLoading = false
                         )
-                } catch (e: Exception) {
-                    _uiState.value = _uiState.value.copy(isLoading = false)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    errorMessageSeq++
+                    _uiState.value = _uiState.value.copy(isLoading = false, errorMessageSeq = errorMessageSeq)
                 }
             }
+        }
+
+        fun onRetryClick() {
+            loadThreads()
+        }
+
+        fun onErrorMessageShown() {
+            _uiState.value = _uiState.value.copy(errorMessageSeq = null)
         }
     }
