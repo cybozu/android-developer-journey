@@ -29,17 +29,17 @@ class ThreadViewModel @AssistedInject constructor(
         loadMessages()
     }
 
-    private fun fetchMessages(applyInProgress: (ThreadUiState, Boolean) -> ThreadUiState) {
+    private fun fetchMessages(applyInProgress: (state: ThreadUiState, progress: Boolean) -> ThreadUiState) {
         viewModelScope.launch {
-            _uiState.value = applyInProgress(uiState.value.copy(errorMessage = null), true)
+            _uiState.value = applyInProgress(_uiState.value.copy(errorMessage = null), true)
             try {
                 val threadMessages = repository.getMessagesForThread(threadId = threadId)
                 _uiState.value =
-                    applyInProgress(uiState.value.copy(threadMessages = threadMessages), false)
+                    applyInProgress(_uiState.value.copy(threadMessages = threadMessages), false)
             } catch (_: Exception) {
                 _uiState.value =
                     applyInProgress(
-                        uiState.value.copy(errorMessage = "メッセージを取得できませんでした"),
+                        _uiState.value.copy(errorMessage = "メッセージを取得できませんでした"),
                         false
                     )
             }
