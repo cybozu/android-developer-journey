@@ -6,6 +6,8 @@ import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -29,15 +31,15 @@ class ThreadViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(): ThreadViewModel {
-        val repository = FakeSpaceRepository()
+    private fun createViewModel(shouldFail: Boolean): ThreadViewModel {
+        val repository = FakeSpaceRepository(shouldFail = shouldFail)
         return ThreadViewModel(threadId = "thread-1", repository = repository)
     }
 
     @Test
     fun `メッセージ一覧が取得できる`() =
         runTest {
-            val viewModel = createViewModel()
+            val viewModel = createViewModel(shouldFail = false)
 
             viewModel.uiState.test {
                 val initialState = awaitItem()
@@ -57,14 +59,60 @@ class ThreadViewModelTest {
                 loadedState.threadMessages[1].body shouldBe "thread-2"
                 loadedState.threadMessages[1].creator shouldBe Creator(name = "name2")
                 loadedState.isLoading shouldBe false
+                loadedState.errorMessage shouldBe null
+            }
+        }
+
+    @Test
+    fun `メッセージ取得に失敗したときエラー状態になる`() =
+        runTest {
+            val viewModel = createViewModel(shouldFail = true)
+
+            viewModel.uiState.test {
+                val initialState = awaitItem()
+                initialState.threadMessages shouldBe emptyList()
+                initialState.isLoading shouldBe false
+
+                val loadingState = awaitItem()
+                loadingState.threadMessages shouldBe emptyList()
+                loadingState.isLoading shouldBe true
+
+                val errorState = awaitItem()
+                errorState.threadMessages shouldBe emptyList()
+                errorState.errorMessage shouldNotBe null
+                errorState.isLoading shouldBe false
+            }
+        }
+
+    @Test
+    fun `clearErrorMessageでerrorMessageがnullに戻る`() =
+        runTest {
+            val viewModel = createViewModel(shouldFail = true)
+
+            viewModel.uiState.test {
+                awaitItem() // initialState
+
+                awaitItem() // loadingState
+
+                val errorState = awaitItem()
+                errorState.errorMessage shouldNotBe null
+
+                viewModel.clearErrorMessage()
+                val clearedState = awaitItem()
+                clearedState.errorMessage shouldBe null
             }
         }
 }
 
-private class FakeSpaceRepository : SpaceRepository {
+private class FakeSpaceRepository(
+    private val shouldFail: Boolean,
+) : SpaceRepository {
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
+        if (shouldFail) {
+            throw IOException("メッセージ取得失敗")
+        }
         if (threadId == "thread-1") {
             return listOf(
                 ThreadMessage(
