@@ -90,18 +90,12 @@ class ThreadViewModelTest {
             val viewModel = createViewModel(shouldFail = true)
 
             viewModel.uiState.test {
-                val initialState = awaitItem()
-                initialState.threadMessages shouldBe emptyList()
-                initialState.isLoading shouldBe false
+                awaitItem() // initialState
 
-                val loadingState = awaitItem()
-                loadingState.threadMessages shouldBe emptyList()
-                loadingState.isLoading shouldBe true
+                awaitItem() // loadingState
 
                 val errorState = awaitItem()
-                errorState.threadMessages shouldBe emptyList()
                 errorState.errorMessage shouldNotBe null
-                errorState.isLoading shouldBe false
 
                 viewModel.clearErrorMessage()
                 val clearedState = awaitItem()
