@@ -9,7 +9,9 @@ import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -92,6 +94,7 @@ class ThreadViewModelTest {
                 val loadingState = awaitItem()
                 loadingState.isLoading shouldBe true
 
+                advanceUntilIdle()
                 expectNoEvents()
             }
         }
@@ -159,7 +162,10 @@ private class FailingFakeSpaceRepository : SpaceRepository {
 private class CancellingFakeSpaceRepository : SpaceRepository {
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
-    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = throw CancellationException("test cancellation")
+    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
+        delay(100) // 通信時間を模擬
+        throw CancellationException("test cancellation")
+    }
 }
 
 private class RetryableFakeSpaceRepository : SpaceRepository {
