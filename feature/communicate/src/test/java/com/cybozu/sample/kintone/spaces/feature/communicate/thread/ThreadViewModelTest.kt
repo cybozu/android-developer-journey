@@ -110,7 +110,7 @@ class ThreadViewModelTest {
         }
 
     @Test
-    fun `メッセージ一覧が取得後、refreshでメッセージ一覧を再取得できる`() {
+    fun `メッセージ一覧取得後、refreshでメッセージ一覧を再取得できる`() {
         runTest {
             val viewModel = createViewModel { false }
 
@@ -144,7 +144,7 @@ class ThreadViewModelTest {
     }
 
     @Test
-    fun `メッセージ一覧が取得後、refreshでメッセージ取得失敗時にエラー状態になる`() {
+    fun `メッセージ一覧取得後、refreshでメッセージ取得失敗時にエラー状態になる`() {
         runTest {
             val viewModel = createViewModel(shouldFail = { count -> count == 2 })
 
