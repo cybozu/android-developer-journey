@@ -27,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -62,7 +63,8 @@ fun ThreadScreen(
     ThreadContent(
         threadName = threadName,
         uiState = uiState,
-        onErrorDialogDismissed = viewModel::onErrorDialogDismissed
+        onErrorDialogDismissed = viewModel::onErrorDialogDismissed,
+        onRefresh = viewModel::onRefresh
     )
 }
 
@@ -72,6 +74,7 @@ fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
     onErrorDialogDismissed: () -> Unit = {},
+    onRefresh: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -85,39 +88,26 @@ fun ThreadContent(
             )
         }
     ) { innerPadding ->
-        when {
-            uiState.isLoading -> {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
+        if (uiState.isLoading) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
-            uiState.errorMessage != null -> {
-                // 一覧が丸ごと取得できない致命的なエラーのため、自然に消えるSnackbar/Toastではなく
-                // ユーザーが閉じるまで残り続けるダイアログで表示する
-                AlertDialog(
-                    onDismissRequest = onErrorDialogDismissed,
-                    confirmButton = {
-                        TextButton(onClick = onErrorDialogDismissed) {
-                            Text("OK")
-                        }
-                    },
-                    text = {
-                        Text(uiState.errorMessage)
-                    }
-                )
-            }
-            else -> {
+        } else {
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = onRefresh,
+                modifier = Modifier.padding(innerPadding)
+            ) {
                 LazyColumn(
                     modifier =
                         Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
+                            .fillMaxSize(),
                     contentPadding = PaddingValues(all = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -126,6 +116,19 @@ fun ThreadContent(
                     }
                 }
             }
+        }
+        if (uiState.errorMessage != null) {
+            AlertDialog(
+                onDismissRequest = onErrorDialogDismissed,
+                confirmButton = {
+                    TextButton(onClick = onErrorDialogDismissed) {
+                        Text("OK")
+                    }
+                },
+                text = {
+                    Text(uiState.errorMessage)
+                }
+            )
         }
     }
 }
@@ -242,6 +245,19 @@ class ThreadContentPreviewParameter :
                 threadMessages = emptyList(),
                 isLoading = false,
                 errorMessage = "メッセージを取得できませんでした"
+            ),
+            ThreadUiState(
+                threadMessages =
+                    listOf(
+                        ThreadMessage(
+                            id = "1",
+                            body = "plain text",
+                            creator = Creator(name = "name1"),
+                            comments = emptyList()
+                        )
+                    ),
+                isLoading = false,
+                isRefreshing = true
             )
         )
     )

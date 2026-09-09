@@ -29,15 +29,15 @@ class ThreadViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(shouldThrowOnGetMessages: Boolean = false): ThreadViewModel {
+    private fun createViewModel(shouldThrowOnGetMessages: Boolean = false): Pair<ThreadViewModel, FakeSpaceRepository> {
         val repository = FakeSpaceRepository(shouldThrowOnGetMessages = shouldThrowOnGetMessages)
-        return ThreadViewModel(threadId = "thread-1", repository = repository)
+        return ThreadViewModel(threadId = "thread-1", repository = repository) to repository
     }
 
     @Test
     fun `メッセージ一覧が取得できる`() =
         runTest {
-            val viewModel = createViewModel()
+            val (viewModel) = createViewModel()
 
             viewModel.uiState.test {
                 val initialState = awaitItem()
@@ -63,7 +63,7 @@ class ThreadViewModelTest {
     @Test
     fun `メッセージ取得に失敗した場合エラーメッセージがセットされる`() =
         runTest {
-            val viewModel = createViewModel(shouldThrowOnGetMessages = true)
+            val (viewModel) = createViewModel(shouldThrowOnGetMessages = true)
 
             viewModel.uiState.test {
                 val initialState = awaitItem()
@@ -80,10 +80,66 @@ class ThreadViewModelTest {
                 errorState.errorMessage shouldBe "メッセージを取得できませんでした"
             }
         }
+
+    @Test
+    fun `更新すると最新のメッセージ一覧が表示される`() =
+        runTest {
+            val (viewModel) = createViewModel()
+
+            viewModel.uiState.test {
+                // 初期状態・ローディング中・初回読み込み完了の3件は、今回の検証に不要なので読み飛ばす
+                skipItems(3)
+
+                viewModel.onRefresh()
+
+                val refreshingState = awaitItem()
+                refreshingState.isRefreshing shouldBe true
+
+                val refreshedState = awaitItem()
+                refreshedState.isRefreshing shouldBe false
+                refreshedState.threadMessages.size shouldBe 2
+                refreshedState.threadMessages[0].id shouldBe "msg-1"
+                refreshedState.threadMessages[0].body shouldBe "thread-1"
+                refreshedState.threadMessages[0].creator shouldBe Creator(name = "name1")
+                refreshedState.threadMessages[1].id shouldBe "msg-2"
+                refreshedState.threadMessages[1].body shouldBe "thread-2"
+                refreshedState.threadMessages[1].creator shouldBe Creator(name = "name2")
+                refreshedState.isLoading shouldBe false
+            }
+        }
+
+    @Test
+    fun `更新に失敗した場合エラーメッセージがセットされ元の一覧が維持される`() =
+        runTest {
+            val (viewModel, repository) = createViewModel()
+
+            viewModel.uiState.test {
+                // 初期状態・ローディング中・初回読み込み完了の3件は、今回の検証に不要なので読み飛ばす
+                skipItems(3)
+
+                repository.shouldThrowOnGetMessages = true
+
+                viewModel.onRefresh()
+
+                val refreshingState = awaitItem()
+                refreshingState.isRefreshing shouldBe true
+
+                val errorRefreshState = awaitItem()
+                errorRefreshState.isRefreshing shouldBe false
+                errorRefreshState.threadMessages.size shouldBe 2
+                errorRefreshState.threadMessages[0].id shouldBe "msg-1"
+                errorRefreshState.threadMessages[0].body shouldBe "thread-1"
+                errorRefreshState.threadMessages[0].creator shouldBe Creator(name = "name1")
+                errorRefreshState.threadMessages[1].id shouldBe "msg-2"
+                errorRefreshState.threadMessages[1].body shouldBe "thread-2"
+                errorRefreshState.threadMessages[1].creator shouldBe Creator(name = "name2")
+                errorRefreshState.errorMessage shouldBe "メッセージを取得できませんでした"
+            }
+        }
 }
 
 private class FakeSpaceRepository(
-    private val shouldThrowOnGetMessages: Boolean = false,
+    var shouldThrowOnGetMessages: Boolean = false,
 ) : SpaceRepository {
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
