@@ -59,6 +59,41 @@ class ThreadViewModelTest {
         }
 
     @Test
+    fun `更新すると最新のメッセージ一覧が表示される`() =
+        runTest {
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                val initialState = awaitItem()
+                initialState.threadMessages shouldBe emptyList()
+                initialState.isLoading shouldBe false
+                initialState.isRefreshing shouldBe false
+
+                val loadingState = awaitItem()
+                loadingState.isLoading shouldBe true
+                loadingState.isRefreshing shouldBe false
+
+                val loadedState = awaitItem()
+                loadedState.threadMessages.size shouldBe 2
+                loadedState.isLoading shouldBe false
+                loadedState.isRefreshing shouldBe false
+
+                viewModel.refresh()
+
+                val refreshingState = awaitItem()
+                refreshingState.isRefreshing shouldBe true
+                refreshingState.isLoading shouldBe false
+                refreshingState.threadMessages.size shouldBe 2
+
+                val refreshedState = awaitItem()
+                refreshedState.isRefreshing shouldBe false
+                refreshedState.isLoading shouldBe false
+                refreshedState.threadMessages.size shouldBe 3
+                refreshedState.threadMessages[2].id shouldBe "msg-3"
+            }
+        }
+
+    @Test
     fun `メッセージ取得に失敗するとエラーになる`() =
         runTest {
             val viewModel = createViewModel(repository = FailingSpaceRepository())
@@ -80,11 +115,17 @@ class ThreadViewModelTest {
 }
 
 private class FakeSpaceRepository : SpaceRepository {
+    private var callCount = 0
+
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
-        if (threadId == "thread-1") {
-            return listOf(
+        callCount++
+
+        if (threadId != "thread-1") return emptyList()
+
+        val messages =
+            listOf(
                 ThreadMessage(
                     id = "msg-1",
                     body = "thread-1",
@@ -98,8 +139,15 @@ private class FakeSpaceRepository : SpaceRepository {
                     comments = emptyList()
                 )
             )
-        }
-        return emptyList()
+        if (callCount == 1) return messages
+
+        return messages +
+            ThreadMessage(
+                id = "msg-3",
+                body = "thread-3",
+                creator = Creator(name = "name3"),
+                comments = emptyList()
+            )
     }
 }
 

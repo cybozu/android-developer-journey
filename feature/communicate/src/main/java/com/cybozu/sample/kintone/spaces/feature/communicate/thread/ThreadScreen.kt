@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
@@ -25,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -61,7 +64,8 @@ fun ThreadScreen(
 
     ThreadContent(
         threadName = threadName,
-        uiState = uiState
+        uiState = uiState,
+        onRefresh = viewModel::refresh
     )
 }
 
@@ -70,6 +74,7 @@ fun ThreadScreen(
 fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
+    onRefresh: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -97,31 +102,41 @@ fun ThreadContent(
             }
 
             uiState.hasError -> {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                    contentAlignment = Alignment.Center
+                PullToRefreshBox(
+                    isRefreshing = uiState.isRefreshing,
+                    onRefresh = onRefresh,
+                    modifier = Modifier.fillMaxSize().padding(innerPadding)
                 ) {
-                    Text(
-                        text = stringResource(R.string.thread_fetch_error),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState()),
+                        contentAlignment =
+                            Alignment.Center
+                    ) {
+                        Text(text = stringResource(R.string.thread_fetch_error))
+                    }
                 }
             }
 
             else -> {
-                LazyColumn(
+                PullToRefreshBox(
+                    isRefreshing = uiState.isRefreshing,
+                    onRefresh = onRefresh,
                     modifier =
                         Modifier
                             .fillMaxSize()
-                            .padding(innerPadding),
-                    contentPadding = PaddingValues(all = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                            .padding(innerPadding)
                 ) {
-                    items(uiState.threadMessages) { threadMessage ->
-                        MessageListItem(threadMessage = threadMessage)
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(all = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(uiState.threadMessages) { threadMessage ->
+                            MessageListItem(threadMessage = threadMessage)
+                        }
                     }
                 }
             }
@@ -252,7 +267,8 @@ fun ThreadContentPreview(
     KintoneSpacesTheme {
         ThreadContent(
             threadName = "Sample Thread",
-            uiState = uiState
+            uiState = uiState,
+            onRefresh = {}
         )
     }
 }
