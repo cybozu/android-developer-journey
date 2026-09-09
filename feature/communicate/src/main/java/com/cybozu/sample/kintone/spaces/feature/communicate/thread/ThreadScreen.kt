@@ -100,6 +100,7 @@ fun ThreadContent(
                     CircularProgressIndicator()
                 }
             }
+
             uiState.errorMessage != null -> {
                 // 一覧が丸ごと取得できない致命的なエラーのため、自然に消えるSnackbar/Toastではなく
                 // ユーザーが閉じるまで残り続けるダイアログで表示する
@@ -115,6 +116,7 @@ fun ThreadContent(
                     }
                 )
             }
+
             else -> {
                 PullToRefreshBox(
                     isRefreshing = uiState.isRefreshing,
