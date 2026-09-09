@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -64,7 +66,9 @@ fun ThreadScreen(
         threadName = threadName,
         uiState = uiState,
         onErrorDialogDismissed = viewModel::onErrorDialogDismissed,
-        onRefresh = viewModel::onRefresh
+        onRefresh = viewModel::onRefresh,
+        onInputTextChanged = viewModel::onInputTextChanged,
+        onSendMessage = viewModel::onSendMessage
     )
 }
 
@@ -75,6 +79,8 @@ fun ThreadContent(
     uiState: ThreadUiState,
     onErrorDialogDismissed: () -> Unit = {},
     onRefresh: () -> Unit = {},
+    onInputTextChanged: (String) -> Unit = {},
+    onSendMessage: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -86,6 +92,18 @@ fun ThreadContent(
                     SystemBackNavButton()
                 }
             )
+        },
+        bottomBar = {
+            Row(
+                modifier = Modifier,
+            ) {
+                TextField(value = uiState.inputText, onValueChange = onInputTextChanged)
+                Button(
+                    onClick = onSendMessage,
+                ) {
+                    Text("投稿")
+                }
+            }
         }
     ) { innerPadding ->
         if (uiState.isLoading) {

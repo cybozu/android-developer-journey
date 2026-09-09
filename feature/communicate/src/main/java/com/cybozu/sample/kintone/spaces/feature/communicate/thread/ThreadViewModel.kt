@@ -54,6 +54,12 @@ class ThreadViewModel @AssistedInject constructor(
         fetchMessages { state, inProgress -> state.copy(isRefreshing = inProgress) }
     }
 
+    fun onInputTextChanged(text: String){
+        _uiState.value = _uiState.value.copy(inputText = text)
+    }
+
+    fun onSendMessage(){}
+
     fun onErrorDialogDismissed() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
     }
