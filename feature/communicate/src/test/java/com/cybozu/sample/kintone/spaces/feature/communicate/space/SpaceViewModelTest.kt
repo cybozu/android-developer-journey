@@ -134,17 +134,13 @@ private class FakeSpaceRepository : SpaceRepository {
 }
 
 private class FailingFakeSpaceRepository : SpaceRepository {
-    override suspend fun getAllThreads(spaceId: String): List<Thread> {
-        throw RuntimeException("test exception")
-    }
+    override suspend fun getAllThreads(spaceId: String): List<Thread> = throw RuntimeException("test exception")
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = emptyList()
 }
 
 private class CancellingFakeSpaceRepository : SpaceRepository {
-    override suspend fun getAllThreads(spaceId: String): List<Thread> {
-        throw CancellationException("test cancellation")
-    }
+    override suspend fun getAllThreads(spaceId: String): List<Thread> = throw CancellationException("test cancellation")
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = emptyList()
 }
