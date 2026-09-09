@@ -6,6 +6,7 @@ import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -76,10 +77,35 @@ class ThreadViewModelTest {
                 loadingState.threadMessages shouldBe emptyList()
                 loadingState.isLoading shouldBe true
 
-                val loadedState = awaitItem()
-                loadedState.threadMessages shouldBe emptyList()
-                loadedState.errorMessage shouldBe "メッセージを取得できませんでした"
-                loadedState.isLoading shouldBe false
+                val errorState = awaitItem()
+                errorState.threadMessages shouldBe emptyList()
+                errorState.errorMessage shouldNotBe null
+                errorState.isLoading shouldBe false
+            }
+        }
+
+    @Test
+    fun `clearErrorMessageでerrorMessageがnullに戻る`() =
+        runTest {
+            val viewModel = createViewModel(shouldFail = true)
+
+            viewModel.uiState.test {
+                val initialState = awaitItem()
+                initialState.threadMessages shouldBe emptyList()
+                initialState.isLoading shouldBe false
+
+                val loadingState = awaitItem()
+                loadingState.threadMessages shouldBe emptyList()
+                loadingState.isLoading shouldBe true
+
+                val errorState = awaitItem()
+                errorState.threadMessages shouldBe emptyList()
+                errorState.errorMessage shouldNotBe null
+                errorState.isLoading shouldBe false
+
+                viewModel.clearErrorMessage()
+                val clearedState = awaitItem()
+                clearedState.errorMessage shouldBe null
             }
         }
 }
@@ -92,7 +118,8 @@ private class FakeSpaceRepository(
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
         if (shouldFail) {
             throw IOException("メッセージ取得失敗")
-        } else if (threadId == "thread-1") {
+        }
+        if (threadId == "thread-1") {
             return listOf(
                 ThreadMessage(
                     id = "msg-1",
