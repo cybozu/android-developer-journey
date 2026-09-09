@@ -139,9 +139,7 @@ class ThreadViewModelTest {
                 refreshedState.isLoading shouldBe false
                 refreshedState.errorMessage shouldBe null
                 refreshedState.isRefreshing shouldBe false
-
             }
-
         }
     }
 
@@ -151,7 +149,6 @@ class ThreadViewModelTest {
             val viewModel = createViewModel(shouldFail = { count -> count == 2 })
 
             viewModel.uiState.test {
-
                 awaitItem() // initialState
 
                 awaitItem() // loadingState
@@ -180,7 +177,6 @@ class ThreadViewModelTest {
             val viewModel = createViewModel(shouldFail = { count -> count == 1 })
 
             viewModel.uiState.test {
-
                 awaitItem() // initialState
 
                 awaitItem() // loadingState
@@ -218,7 +214,6 @@ class ThreadViewModelTest {
             val viewModel = createViewModel(shouldFail = { true })
 
             viewModel.uiState.test {
-
                 awaitItem() // initialState
 
                 awaitItem() // loadingState
@@ -248,13 +243,12 @@ class ThreadViewModelTest {
 private class FakeSpaceRepository(
     private val shouldFail: (callCount: Int) -> Boolean = { false },
 ) : SpaceRepository {
-
     private var callCount = 0
 
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
-        callCount ++
+        callCount++
         if (shouldFail(callCount)) {
             throw IOException("メッセージ取得失敗")
         }

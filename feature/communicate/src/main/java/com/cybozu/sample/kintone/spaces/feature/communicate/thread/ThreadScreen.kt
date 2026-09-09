@@ -73,7 +73,7 @@ fun ThreadScreen(
 
     PullToRefreshBox(
         isRefreshing = uiState.isRefreshing,
-        onRefresh = { viewModel.refresh() },
+        onRefresh = { viewModel.refresh() }
     ) {
         ThreadContent(
             threadName = threadName,
