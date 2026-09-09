@@ -95,6 +95,35 @@ class ThreadViewModelTest {
                 expectNoEvents()
             }
         }
+
+    @Test
+    fun `リトライすると再度データ取得が行われる`() =
+        runTest {
+            val viewModel =
+                ThreadViewModel(threadId = "thread-1", repository = RetryableFakeSpaceRepository())
+
+            viewModel.uiState.test {
+                awaitItem()
+                awaitItem()
+
+                val errorState = awaitItem()
+                errorState.errorMessageSeq shouldBe 1
+
+                viewModel.onErrorMessageShown()
+                val clearedState = awaitItem()
+                clearedState.errorMessageSeq shouldBe null
+
+                viewModel.onRetryClick()
+                val retryLoadingState = awaitItem()
+                retryLoadingState.isLoading shouldBe true
+
+                val successState = awaitItem()
+                successState.isLoading shouldBe false
+                successState.threadMessages.size shouldBe 1
+                successState.threadMessages[0].id shouldBe "msg-1"
+                successState.errorMessageSeq shouldBe null
+            }
+        }
 }
 
 private class FakeSpaceRepository : SpaceRepository {

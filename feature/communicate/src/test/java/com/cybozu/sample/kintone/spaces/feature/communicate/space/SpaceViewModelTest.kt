@@ -91,6 +91,34 @@ class SpaceViewModelTest {
                 expectNoEvents()
             }
         }
+
+    @Test
+    fun `リトライすると再度データ取得が行われる`() =
+        runTest {
+            val viewModel = SpaceViewModel(RetryableFakeSpaceRepository())
+
+            viewModel.uiState.test {
+                awaitItem()
+                awaitItem()
+
+                val errorState = awaitItem()
+                errorState.errorMessageSeq shouldBe 1
+
+                viewModel.onErrorMessageShown()
+                val clearedState = awaitItem() // errorMessageSeqがnullに戻っただけの状態
+                clearedState.errorMessageSeq shouldBe null
+
+                viewModel.onRetryClick()
+                val retryLoadingState = awaitItem()
+                retryLoadingState.isLoading shouldBe true
+
+                val successState = awaitItem()
+                successState.isLoading shouldBe false
+                successState.threads.size shouldBe 1
+                successState.threads[0].id shouldBe "thread-1"
+                successState.errorMessageSeq shouldBe null
+            }
+        }
 }
 
 private class FakeSpaceRepository : SpaceRepository {
