@@ -37,7 +37,7 @@ class ThreadViewModelTest {
     @Test
     fun `メッセージ一覧が取得できる`() =
         runTest {
-            val (viewModel, _) = createViewModel()
+            val (viewModel) = createViewModel()
 
             viewModel.uiState.test {
                 val initialState = awaitItem()
@@ -63,7 +63,7 @@ class ThreadViewModelTest {
     @Test
     fun `メッセージ取得に失敗した場合エラーメッセージがセットされる`() =
         runTest {
-            val (viewModel, _) = createViewModel(shouldThrowOnGetMessages = true)
+            val (viewModel) = createViewModel(shouldThrowOnGetMessages = true)
 
             viewModel.uiState.test {
                 val initialState = awaitItem()
@@ -84,19 +84,18 @@ class ThreadViewModelTest {
     @Test
     fun `更新すると最新のメッセージ一覧が表示される`() =
         runTest {
-            val (viewModel, _) = createViewModel()
+            val (viewModel) = createViewModel()
 
             viewModel.uiState.test {
-                awaitItem()
-                awaitItem()
-                awaitItem()
+                // 初期状態・ローディング中・初回読み込み完了の3件は、今回の検証に不要なので読み飛ばす
+                skipItems(3)
 
                 viewModel.onRefresh()
 
                 val refreshingState = awaitItem()
                 refreshingState.isRefreshing shouldBe true
 
-                val refreshedState = awaitItem() // ⑤リフレッシュ完了
+                val refreshedState = awaitItem()
                 refreshedState.isRefreshing shouldBe false
                 refreshedState.threadMessages.size shouldBe 2
                 refreshedState.threadMessages[0].id shouldBe "msg-1"
@@ -115,9 +114,8 @@ class ThreadViewModelTest {
             val (viewModel, repository) = createViewModel()
 
             viewModel.uiState.test {
-                awaitItem()
-                awaitItem()
-                awaitItem()
+                // 初期状態・ローディング中・初回読み込み完了の3件は、今回の検証に不要なので読み飛ばす
+                skipItems(3)
 
                 repository.shouldThrowOnGetMessages = true
 
