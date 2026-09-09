@@ -6,6 +6,7 @@ import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
 import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -82,5 +83,21 @@ private class FakeSpaceRepository : SpaceRepository {
             )
         }
         return emptyList()
+    }
+}
+
+private class FailingFakeSpaceRepository : SpaceRepository {
+    override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
+
+    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
+        throw RuntimeException("test exception")
+    }
+}
+
+private class CancellingFakeSpaceRepository : SpaceRepository {
+    override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
+
+    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
+        throw CancellationException("test cancellation")
     }
 }

@@ -5,6 +5,7 @@ import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
 import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -66,6 +67,22 @@ private class FakeSpaceRepository : SpaceRepository {
             Thread("thread-1", "space1", "Test Thread 1", "Last message 1"),
             Thread("thread-2", "space2", "Test Thread 2", "Last message 2")
         )
+    }
+
+    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = emptyList()
+}
+
+private class FailingFakeSpaceRepository : SpaceRepository {
+    override suspend fun getAllThreads(spaceId: String): List<Thread> {
+        throw RuntimeException("test exception")
+    }
+
+    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = emptyList()
+}
+
+private class CancellingFakeSpaceRepository : SpaceRepository {
+    override suspend fun getAllThreads(spaceId: String): List<Thread> {
+        throw CancellationException("test cancellation")
     }
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = emptyList()
