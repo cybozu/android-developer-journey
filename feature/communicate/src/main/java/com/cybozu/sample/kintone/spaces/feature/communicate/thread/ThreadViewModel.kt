@@ -29,18 +29,33 @@ class ThreadViewModel @AssistedInject constructor(
         loadMessages()
     }
 
-    private fun loadMessages() {
+    fun refresh() {
+        loadMessages(isRefresh = true)
+    }
+
+    private fun loadMessages(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, hasError = false)
+            _uiState.value =
+                _uiState.value.copy(
+                    isLoading = !isRefresh,
+                    isRefreshing = isRefresh,
+                    hasError = false
+                )
             try {
                 val threadMessages = repository.getMessagesForThread(threadId = threadId)
                 _uiState.value =
                     _uiState.value.copy(
                         threadMessages = threadMessages,
-                        isLoading = false
+                        isLoading = false,
+                        isRefreshing = false
                     )
             } catch (_: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, hasError = true)
+                _uiState.value =
+                    _uiState.value.copy(
+                        isLoading = false,
+                        isRefreshing = false,
+                        hasError = true
+                    )
             }
         }
     }
