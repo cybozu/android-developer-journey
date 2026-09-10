@@ -16,6 +16,7 @@ android {
 
 dependencies {
     implementation(project(":core:design"))
+    implementation(project(":data:login"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

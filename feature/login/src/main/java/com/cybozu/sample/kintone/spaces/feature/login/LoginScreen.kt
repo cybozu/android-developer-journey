@@ -7,12 +7,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
@@ -21,8 +21,14 @@ import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
     viewModel: LoginViewModel = hiltViewModel(),
-){
-  val uiState by viewModel.uiState.collectAsState()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.isLoginSuccess) {
+        if (uiState.isLoginSuccess) {
+            onLoginSuccess()
+        }
+    }
 
     LoginContent(
         uiState = uiState,
@@ -30,9 +36,8 @@ fun LoginScreen(
         onPasswordChanged = viewModel::onInputPassword,
         onLoginClick = {
             viewModel.onLoginClick()
-            onLoginSuccess()
         },
-        modifier = Modifier,
+        modifier = Modifier
     )
 }
 
@@ -43,11 +48,11 @@ fun LoginContent(
     onPasswordChanged: (String) -> Unit,
     onLoginClick: () -> Unit,
     modifier: Modifier = Modifier,
-){
+) {
     Column(modifier = modifier) {
         TextField(
             value = uiState.userName,
-            onValueChange = onUserNameChanged,
+            onValueChange = onUserNameChanged
         )
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -55,12 +60,12 @@ fun LoginContent(
         TextField(
             value = uiState.password,
             onValueChange = onPasswordChanged,
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = PasswordVisualTransformation()
         )
 
         Button(
             onClick = onLoginClick
-        ){
+        ) {
             Text("ログイン")
         }
     }
@@ -71,7 +76,7 @@ fun LoginContent(
 fun LoginScreenPreview(
     // TODO ゆくゆくはパラメータで実装
     // @PreviewParameter(LoginContentPreviewParameter::class) uiState: LoginUiState
-){
+) {
     KintoneSpacesTheme {
         LoginContent(
             onLoginClick = {},
