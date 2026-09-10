@@ -4,8 +4,8 @@ internal data class PostMessageBody(
     val space: String,
     val thread: String,
     val comment: CommentBody,
-)
-
-internal data class CommentBody(
-    val text: String,
-)
+) {
+    internal data class CommentBody(
+        val text: String,
+    )
+}

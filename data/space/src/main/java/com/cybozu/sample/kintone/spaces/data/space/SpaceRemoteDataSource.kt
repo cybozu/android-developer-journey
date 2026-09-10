@@ -1,6 +1,5 @@
 package com.cybozu.sample.kintone.spaces.data.space
 
-import com.cybozu.sample.kintone.spaces.data.space.entity.CommentBody
 import com.cybozu.sample.kintone.spaces.data.space.entity.GetAllThreadsBody
 import com.cybozu.sample.kintone.spaces.data.space.entity.GetMessagesForThreadBody
 import com.cybozu.sample.kintone.spaces.data.space.entity.PostMessageBody
@@ -40,7 +39,7 @@ internal class SpaceRemoteDataSource @Inject constructor(
                 PostMessageBody(
                     space = spaceId,
                     thread = threadId,
-                    comment = CommentBody(text = body)
+                    comment = PostMessageBody.CommentBody(text = body)
                 )
         )
 }
