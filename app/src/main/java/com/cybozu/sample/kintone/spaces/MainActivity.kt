@@ -45,8 +45,10 @@ fun KintoneSpacesApp() {
         entryProvider =
             entryProvider {
                 communicateNavigation(
-                    onThreadClick = { threadId, threadName ->
-                        backStack.add(ThreadRoute(threadId = threadId, threadName = threadName))
+                    onThreadClick = { spaceId, threadId, threadName ->
+                        backStack.add(
+                            ThreadRoute(spaceId = spaceId, threadId = threadId, threadName = threadName)
+                        )
                     }
                 )
             }

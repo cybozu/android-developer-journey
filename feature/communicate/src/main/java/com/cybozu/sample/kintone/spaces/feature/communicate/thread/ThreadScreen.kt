@@ -54,12 +54,13 @@ import com.cybozu.sample.kintone.spaces.feature.communicate.R
 
 @Composable
 fun ThreadScreen(
+    spaceId: String,
     threadId: String,
     threadName: String,
     viewModel: ThreadViewModel =
         hiltViewModel(
             creationCallback = { factory: ThreadViewModelFactory ->
-                factory.create(threadId)
+                factory.create(spaceId = spaceId, threadId = threadId)
             }
         ),
 ) {

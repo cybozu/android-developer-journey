@@ -15,12 +15,16 @@ import kotlinx.coroutines.launch
 
 @AssistedFactory
 interface ThreadViewModelFactory {
-    fun create(threadId: String): ThreadViewModel
+    fun create(
+        @Assisted("spaceId") spaceId: String,
+        @Assisted("threadId") threadId: String,
+    ): ThreadViewModel
 }
 
 @HiltViewModel(assistedFactory = ThreadViewModelFactory::class)
 class ThreadViewModel @AssistedInject constructor(
-    @Assisted private val threadId: String,
+    @Assisted("spaceId") private val spaceId: String,
+    @Assisted("threadId") private val threadId: String,
     private val repository: SpaceRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ThreadUiState())
