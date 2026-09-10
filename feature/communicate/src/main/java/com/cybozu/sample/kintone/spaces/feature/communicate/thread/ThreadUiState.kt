@@ -7,4 +7,8 @@ data class ThreadUiState(
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
     val errorMessageSeq: Int? = null,
+    val isComposerOpen: Boolean = false,
+    val inputText: String = "",
+    val isSending: Boolean = false,
+    val sendErrorMessageSeq: Int? = null,
 )
