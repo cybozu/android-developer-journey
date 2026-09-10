@@ -3,6 +3,7 @@ package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
+import com.cybozu.sample.kintone.spaces.feature.communicate.SPACE_ID
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -50,15 +51,23 @@ class ThreadViewModel @AssistedInject constructor(
         fetchMessages { state, inProgress -> state.copy(isLoading = inProgress) }
     }
 
-    fun onRefresh() {
+    // pull to refresh以外でも画面一覧を再取得するので関数名を変更
+    fun refreshMessages() {
         fetchMessages { state, inProgress -> state.copy(isRefreshing = inProgress) }
     }
 
-    fun onInputTextChanged(text: String){
+    fun onInputTextChanged(text: String) {
         _uiState.value = _uiState.value.copy(inputText = text)
     }
 
-    fun onSendMessage(){}
+    fun onSendMessage() {
+        viewModelScope.launch {
+            val text = _uiState.value.inputText
+            repository.postMessage(spaceId = SPACE_ID, threadId = threadId, body = text)
+            _uiState.value = _uiState.value.copy(inputText = "")
+            refreshMessages()
+        }
+    }
 
     fun onErrorDialogDismissed() {
         _uiState.value = _uiState.value.copy(errorMessage = null)

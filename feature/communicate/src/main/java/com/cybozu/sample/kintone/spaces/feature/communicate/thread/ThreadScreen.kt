@@ -66,7 +66,7 @@ fun ThreadScreen(
         threadName = threadName,
         uiState = uiState,
         onErrorDialogDismissed = viewModel::onErrorDialogDismissed,
-        onRefresh = viewModel::onRefresh,
+        onRefresh = viewModel::refreshMessages,
         onInputTextChanged = viewModel::onInputTextChanged,
         onSendMessage = viewModel::onSendMessage
     )
@@ -95,11 +95,11 @@ fun ThreadContent(
         },
         bottomBar = {
             Row(
-                modifier = Modifier,
+                modifier = Modifier
             ) {
                 TextField(value = uiState.inputText, onValueChange = onInputTextChanged)
                 Button(
-                    onClick = onSendMessage,
+                    onClick = onSendMessage
                 ) {
                     Text("投稿")
                 }
