@@ -223,4 +223,10 @@ private class FakeSpaceRepository(
     override suspend fun getAllThreads(spaceId: String): List<Thread> = getAllThreadsImpl(spaceId)
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = emptyList()
+
+    override suspend fun postMessage(
+        spaceId: String,
+        threadId: String,
+        text: String,
+    ) = Unit
 }

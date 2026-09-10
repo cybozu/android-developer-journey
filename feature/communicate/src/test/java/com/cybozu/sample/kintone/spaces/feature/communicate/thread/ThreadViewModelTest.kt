@@ -54,8 +54,13 @@ class ThreadViewModelTest {
                 emptyList()
             }
         },
+        postMessage: suspend (String, String, String) -> Unit = { _, _, _ -> delay(100) }, // 通信時間を模擬
     ): ThreadViewModel =
-        ThreadViewModel(threadId = "thread-1", repository = FakeSpaceRepository(getMessagesForThread))
+        ThreadViewModel(
+            spaceId = "space-1",
+            threadId = "thread-1",
+            repository = FakeSpaceRepository(getMessagesForThread, postMessage)
+        )
 
     @Test
     fun `メッセージ一覧が取得できる`() =
@@ -115,7 +120,7 @@ class ThreadViewModelTest {
                 )
 
             viewModel.uiState.test {
-                awaitItem() // 初期状態
+                awaitItem()
                 val loadingState = awaitItem()
                 loadingState.isLoading shouldBe true
 
@@ -189,8 +194,8 @@ class ThreadViewModelTest {
                 )
 
             viewModel.uiState.test {
-                awaitItem() // 初期状態
-                awaitItem() // ロード中
+                awaitItem()
+                awaitItem()
 
                 val loadedState = awaitItem()
                 loadedState.threadMessages.size shouldBe 1
@@ -231,8 +236,8 @@ class ThreadViewModelTest {
                 )
 
             viewModel.uiState.test {
-                awaitItem() // 初期状態
-                awaitItem() // ロード中
+                awaitItem()
+                awaitItem()
 
                 val loadedState = awaitItem()
                 loadedState.threadMessages.size shouldBe 1
@@ -248,12 +253,215 @@ class ThreadViewModelTest {
                 errorState.threadMessages[0].id shouldBe "msg-1"
             }
         }
+
+    @Test
+    fun `作成ボタンを押すと入力欄が開き、閉じるボタンを押すと閉じて入力内容が破棄される`() =
+        runTest {
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                awaitItem()
+                awaitItem()
+                awaitItem()
+
+                viewModel.onComposeClick()
+                val openedState = awaitItem()
+                openedState.isComposerOpen shouldBe true
+
+                viewModel.onInputTextChange("下書き")
+                val typedState = awaitItem()
+                typedState.inputText shouldBe "下書き"
+
+                viewModel.onCloseComposeClick()
+                val closedState = awaitItem()
+                closedState.isComposerOpen shouldBe false
+                closedState.inputText shouldBe ""
+            }
+        }
+
+    @Test
+    fun `入力が空の場合は送信されない`() =
+        runTest {
+            var postCallCount = 0
+            val viewModel =
+                createViewModel(
+                    postMessage = { _, _, _ -> postCallCount++ }
+                )
+
+            viewModel.uiState.test {
+                awaitItem()
+                awaitItem()
+                awaitItem()
+
+                viewModel.onSendClick()
+
+                advanceUntilIdle()
+                expectNoEvents()
+            }
+            postCallCount shouldBe 0
+        }
+
+    @Test
+    fun `メッセージを送信すると一覧が再取得され、入力欄が閉じる`() =
+        runTest {
+            var getCallCount = 0
+            val viewModel =
+                createViewModel(
+                    getMessagesForThread = {
+                        getCallCount++
+                        delay(100) // 通信時間を模擬
+                        listOf(
+                            ThreadMessage(
+                                id = if (getCallCount == 1) "msg-1" else "msg-2",
+                                body = "body",
+                                creator = Creator(name = "name1"),
+                                comments = emptyList()
+                            )
+                        )
+                    }
+                )
+
+            viewModel.uiState.test {
+                awaitItem()
+                awaitItem()
+
+                val loadedState = awaitItem()
+                loadedState.threadMessages[0].id shouldBe "msg-1"
+
+                viewModel.onComposeClick()
+                awaitItem()
+
+                viewModel.onInputTextChange("新しいメッセージ")
+                awaitItem()
+
+                viewModel.onSendClick()
+                val sendingState = awaitItem()
+                sendingState.isSending shouldBe true
+
+                val sentState = awaitItem()
+                sentState.isSending shouldBe false
+                sentState.inputText shouldBe ""
+                sentState.isComposerOpen shouldBe false
+
+                val reloadedState = awaitItem()
+                reloadedState.threadMessages.size shouldBe 1
+                reloadedState.threadMessages[0].id shouldBe "msg-2"
+                // 送信後の再取得ではPull to Refreshのインジケータを出さない
+                reloadedState.isLoading shouldBe false
+                reloadedState.isRefreshing shouldBe false
+            }
+        }
+
+    @Test
+    fun `メッセージの送信に失敗すると入力内容を保持したままエラー状態になる`() =
+        runTest {
+            val viewModel =
+                createViewModel(
+                    postMessage = { _, _, _ ->
+                        delay(100) // 通信時間を模擬
+                        throw RuntimeException("test exception")
+                    }
+                )
+
+            viewModel.uiState.test {
+                awaitItem()
+                awaitItem()
+                awaitItem()
+
+                viewModel.onComposeClick()
+                awaitItem()
+
+                viewModel.onInputTextChange("送れなかったメッセージ")
+                awaitItem()
+
+                viewModel.onSendClick()
+                val sendingState = awaitItem()
+                sendingState.isSending shouldBe true
+
+                val errorState = awaitItem()
+                errorState.isSending shouldBe false
+                errorState.sendErrorMessageSeq shouldBe 1
+                errorState.inputText shouldBe "送れなかったメッセージ"
+                errorState.isComposerOpen shouldBe true
+            }
+        }
+
+    @Test
+    fun `メッセージの送信がキャンセルされてもエラー状態にはならない`() =
+        runTest {
+            val viewModel =
+                createViewModel(
+                    postMessage = { _, _, _ ->
+                        delay(100) // 通信時間を模擬
+                        throw CancellationException("test cancellation")
+                    }
+                )
+
+            viewModel.uiState.test {
+                awaitItem()
+                awaitItem()
+                awaitItem()
+
+                viewModel.onComposeClick()
+                awaitItem()
+
+                viewModel.onInputTextChange("text")
+                awaitItem()
+
+                viewModel.onSendClick()
+                val sendingState = awaitItem()
+                sendingState.isSending shouldBe true
+
+                advanceUntilIdle()
+                expectNoEvents()
+            }
+        }
+
+    @Test
+    fun `送信エラーのメッセージを表示し終えるとエラー状態がクリアされる`() =
+        runTest {
+            val viewModel =
+                createViewModel(
+                    postMessage = { _, _, _ -> throw RuntimeException("test exception") }
+                )
+
+            viewModel.uiState.test {
+                awaitItem()
+                awaitItem()
+                awaitItem()
+
+                viewModel.onComposeClick()
+                awaitItem()
+
+                viewModel.onInputTextChange("text")
+                awaitItem()
+
+                viewModel.onSendClick()
+                awaitItem()
+
+                val errorState = awaitItem()
+                errorState.sendErrorMessageSeq shouldBe 1
+
+                viewModel.onSendErrorMessageShown()
+                val clearedState = awaitItem()
+                clearedState.sendErrorMessageSeq shouldBe null
+            }
+        }
 }
 
 private class FakeSpaceRepository(
     private val getMessagesForThreadImpl: suspend (String) -> List<ThreadMessage>,
+    private val postMessageImpl: suspend (String, String, String) -> Unit = { _, _, _ -> },
 ) : SpaceRepository {
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = getMessagesForThreadImpl(threadId)
+
+    override suspend fun postMessage(
+        spaceId: String,
+        threadId: String,
+        text: String,
+    ) {
+        postMessageImpl(spaceId, threadId, text)
+    }
 }
