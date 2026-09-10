@@ -63,9 +63,13 @@ class ThreadViewModel @AssistedInject constructor(
     fun onSendMessage() {
         viewModelScope.launch {
             val text = _uiState.value.inputText
-            repository.postMessage(spaceId = SPACE_ID, threadId = threadId, body = text)
-            _uiState.value = _uiState.value.copy(inputText = "")
-            refreshMessages()
+            try {
+                repository.postMessage(spaceId = SPACE_ID, threadId = threadId, body = text)
+                _uiState.value = _uiState.value.copy(inputText = "")
+                refreshMessages()
+            } catch (_: Exception) {
+                _uiState.value = _uiState.value.copy(errorMessage = "メッセージを送信できませんでした")
+            }
         }
     }
 
