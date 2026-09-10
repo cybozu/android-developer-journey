@@ -142,6 +142,79 @@ class SpaceViewModelTest {
                 successState.errorMessageSeq shouldBe null
             }
         }
+
+    @Test
+    fun `更新すると最新のスレッド一覧が表示される`() =
+        runTest {
+            var callCount = 0
+            val viewModel =
+                createViewModel(
+                    getAllThreads = {
+                        callCount++
+                        listOf(
+                            Thread(
+                                id = if (callCount == 1) "thread-1" else "thread-2",
+                                spaceId = "3",
+                                name = "name",
+                                body = "body"
+                            )
+                        )
+                    }
+                )
+
+            viewModel.uiState.test {
+                awaitItem() // 初期状態
+                awaitItem() // ロード中
+
+                val loadedState = awaitItem()
+                loadedState.threads.size shouldBe 1
+                loadedState.threads[0].id shouldBe "thread-1"
+
+                viewModel.onRefresh()
+                val refreshingState = awaitItem()
+                refreshingState.isRefreshing shouldBe true
+
+                val refreshedState = awaitItem()
+                refreshedState.isRefreshing shouldBe false
+                refreshedState.threads.size shouldBe 1
+                refreshedState.threads[0].id shouldBe "thread-2"
+            }
+        }
+
+    @Test
+    fun `更新に失敗するとエラー状態になり、更新前の一覧が保持される`() =
+        runTest {
+            var callCount = 0
+            val viewModel =
+                createViewModel(
+                    getAllThreads = {
+                        callCount++
+                        if (callCount == 1) {
+                            listOf(Thread(id = "thread-1", spaceId = "3", name = "name", body = "body"))
+                        } else {
+                            throw RuntimeException("test exception")
+                        }
+                    }
+                )
+
+            viewModel.uiState.test {
+                awaitItem() // 初期状態
+                awaitItem() // ロード中
+
+                val loadedState = awaitItem()
+                loadedState.threads.size shouldBe 1
+
+                viewModel.onRefresh()
+                val refreshingState = awaitItem()
+                refreshingState.isRefreshing shouldBe true
+
+                val errorState = awaitItem()
+                errorState.isRefreshing shouldBe false
+                errorState.errorMessageSeq shouldBe 1
+                errorState.threads.size shouldBe 1
+                errorState.threads[0].id shouldBe "thread-1"
+            }
+        }
 }
 
 private class FakeSpaceRepository(

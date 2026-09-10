@@ -20,6 +20,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -65,7 +66,8 @@ fun SpaceScreen(
     SpaceContent(
         uiState = uiState,
         onThreadClick = onThreadClick,
-        snackbarHostState = snackbarHostState
+        snackbarHostState = snackbarHostState,
+        onRefresh = viewModel::onRefresh
     )
 }
 
@@ -75,6 +77,7 @@ fun SpaceContent(
     uiState: SpaceUiState,
     onThreadClick: (Thread) -> Unit,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onRefresh: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -93,15 +96,21 @@ fun SpaceContent(
                 CircularProgressIndicator()
             }
         } else {
-            LazyColumn(
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = onRefresh,
                 modifier =
                     Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
             ) {
-                items(uiState.threads) { thread ->
-                    ThreadListItem(thread = thread) {
-                        onThreadClick(thread)
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(uiState.threads) { thread ->
+                        ThreadListItem(thread = thread) {
+                            onThreadClick(thread)
+                        }
                     }
                 }
             }
@@ -160,6 +169,19 @@ class SpaceContentPreviewParameter :
             SpaceUiState(
                 threads = emptyList(),
                 isLoading = true
+            ),
+            SpaceUiState(
+                threads =
+                    listOf(
+                        Thread(
+                            id = "1",
+                            spaceId = "3",
+                            name = "thread-1",
+                            body = "plain text body"
+                        )
+                    ),
+                isLoading = false,
+                isRefreshing = true
             )
         )
     )
