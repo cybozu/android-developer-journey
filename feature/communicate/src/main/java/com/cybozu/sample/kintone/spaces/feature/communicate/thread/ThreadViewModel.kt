@@ -33,6 +33,30 @@ class ThreadViewModel @AssistedInject constructor(
         loadMessages(isRefresh = true)
     }
 
+    fun updateInputText(text: String) {
+        _uiState.value = _uiState.value.copy(inputText = text)
+    }
+
+    fun postComment() {
+        val text = _uiState.value.inputText
+        if (text.isBlank() || _uiState.value.isPosting) return
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isPosting = true, hasPostError = false)
+            try {
+                repository.postThreadComment(
+                    spaceId = SPACE_ID,
+                    threadId = threadId,
+                    text = text
+                )
+                _uiState.value = _uiState.value.copy(inputText = "", isPosting = false)
+                loadMessages(isRefresh = true)
+            } catch (_: Exception) {
+                _uiState.value = _uiState.value.copy(isPosting = false, hasPostError = true)
+            }
+        }
+    }
+
     private fun loadMessages(isRefresh: Boolean = false) {
         viewModelScope.launch {
             _uiState.value =
@@ -58,5 +82,9 @@ class ThreadViewModel @AssistedInject constructor(
                     )
             }
         }
+    }
+
+    companion object {
+        private const val SPACE_ID = "3"
     }
 }
