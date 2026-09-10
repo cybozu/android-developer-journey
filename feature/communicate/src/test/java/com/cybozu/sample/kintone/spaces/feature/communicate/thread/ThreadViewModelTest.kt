@@ -90,7 +90,7 @@ class ThreadViewModelTest {
                 // 初期状態・ローディング中・初回読み込み完了の3件は、今回の検証に不要なので読み飛ばす
                 skipItems(3)
 
-                viewModel.onRefresh()
+                viewModel.refreshMessages()
 
                 val refreshingState = awaitItem()
                 refreshingState.isRefreshing shouldBe true
@@ -119,7 +119,7 @@ class ThreadViewModelTest {
 
                 repository.shouldThrowOnGetMessages = true
 
-                viewModel.onRefresh()
+                viewModel.refreshMessages()
 
                 val refreshingState = awaitItem()
                 refreshingState.isRefreshing shouldBe true
@@ -136,11 +136,49 @@ class ThreadViewModelTest {
                 errorRefreshState.errorMessage shouldBe "メッセージを取得できませんでした"
             }
         }
+
+    @Test
+    fun `メッセージを送信すると一覧に反映される`() =
+        runTest {
+            val (viewModel, repository) = createViewModel()
+
+            viewModel.uiState.test {
+                // 初期状態・ローディング中・初回読み込み完了の3件は、今回の検証に不要なので読み飛ばす
+                skipItems(3)
+
+                viewModel.onInputTextChanged("hogehoge")
+                viewModel.onSendMessage()
+
+                val inputTextState = awaitItem()
+                inputTextState.inputText shouldBe "hogehoge"
+
+                val clearTextState = awaitItem()
+                clearTextState.inputText shouldBe ""
+
+                val refreshingState = awaitItem()
+                refreshingState.isRefreshing shouldBe true
+
+                val refreshedState = awaitItem()
+                refreshedState.isRefreshing shouldBe false
+                refreshedState.threadMessages.size shouldBe 3
+                refreshedState.threadMessages[0].id shouldBe "msg-1"
+                refreshedState.threadMessages[0].body shouldBe "thread-1"
+                refreshedState.threadMessages[0].creator shouldBe Creator(name = "name1")
+                refreshedState.threadMessages[1].id shouldBe "msg-2"
+                refreshedState.threadMessages[1].body shouldBe "thread-2"
+                refreshedState.threadMessages[1].creator shouldBe Creator(name = "name2")
+                refreshedState.threadMessages[2].id shouldBe "msg-3"
+                refreshedState.threadMessages[2].body shouldBe "hogehoge"
+                refreshedState.threadMessages[2].creator shouldBe Creator(name = "name3")
+            }
+        }
 }
 
 private class FakeSpaceRepository(
     var shouldThrowOnGetMessages: Boolean = false,
 ) : SpaceRepository {
+    private val list = mutableListOf<ThreadMessage>()
+
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
@@ -161,8 +199,17 @@ private class FakeSpaceRepository(
                     creator = Creator(name = "name2"),
                     comments = emptyList()
                 )
-            )
+            ) + list
         }
         return emptyList()
+    }
+
+    override suspend fun postMessage(
+        spaceId: String,
+        threadId: String,
+        body: String,
+    ) {
+        val threadMessage = ThreadMessage(id = "msg-3", body = body, creator = Creator(name = "name3"), comments = emptyList())
+        list.add(threadMessage)
     }
 }
