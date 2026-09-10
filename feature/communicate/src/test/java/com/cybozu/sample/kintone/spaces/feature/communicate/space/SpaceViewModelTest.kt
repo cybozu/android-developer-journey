@@ -70,7 +70,7 @@ private class FakeSpaceRepository : SpaceRepository {
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = emptyList()
 
-    override suspend fun addThreadComment(
+    override suspend fun postThreadComment(
         spaceId: String,
         threadId: String,
         text: String,

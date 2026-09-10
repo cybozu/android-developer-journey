@@ -44,7 +44,7 @@ class ThreadViewModel @AssistedInject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isPosting = true, hasPostError = false)
             try {
-                repository.addThreadComment(
+                repository.postThreadComment(
                     spaceId = SPACE_ID,
                     threadId = threadId,
                     text = text

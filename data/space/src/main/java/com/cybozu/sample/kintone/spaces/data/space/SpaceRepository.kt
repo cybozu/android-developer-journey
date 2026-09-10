@@ -8,7 +8,7 @@ interface SpaceRepository {
 
     suspend fun getMessagesForThread(threadId: String): List<ThreadMessage>
 
-    suspend fun addThreadComment(
+    suspend fun postThreadComment(
         spaceId: String,
         threadId: String,
         text: String,

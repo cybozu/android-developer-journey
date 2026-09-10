@@ -184,7 +184,7 @@ private class FakeSpaceRepository : SpaceRepository {
             )
     }
 
-    override suspend fun addThreadComment(
+    override suspend fun postThreadComment(
         spaceId: String,
         threadId: String,
         text: String,
@@ -214,7 +214,7 @@ private class PostingSpaceRepository : SpaceRepository {
                 )
             }
 
-    override suspend fun addThreadComment(
+    override suspend fun postThreadComment(
         spaceId: String,
         threadId: String,
         text: String,
@@ -228,7 +228,7 @@ private class FailingSpaceRepository : SpaceRepository {
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = throw RuntimeException("network error")
 
-    override suspend fun addThreadComment(
+    override suspend fun postThreadComment(
         spaceId: String,
         threadId: String,
         text: String,

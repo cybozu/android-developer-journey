@@ -1,11 +1,11 @@
 package com.cybozu.sample.kintone.spaces.data.space.entity
 
-internal data class AddThreadCommentBody(
+internal data class PostThreadCommentBody(
     val space: String,
     val thread: String,
-    val comment: AddThreadCommentContent,
+    val comment: PostThreadCommentContent,
 )
 
-internal data class AddThreadCommentContent(
+internal data class PostThreadCommentContent(
     val text: String,
 )
