@@ -33,7 +33,7 @@ class ThreadViewModelTest {
 
     private fun createViewModel(shouldFail: (callCount: Int) -> Boolean = { false }): ThreadViewModel {
         val repository = FakeSpaceRepository(shouldFail = shouldFail)
-        return ThreadViewModel(threadId = "thread-1", repository = repository)
+        return ThreadViewModel(spaceId = "space-1", threadId = "thread-1", repository = repository)
     }
 
     @Test
@@ -220,6 +220,46 @@ class ThreadViewModelTest {
             }
         }
     }
+
+    @Test
+    fun `メッセージを投稿できる`() {
+        runTest {
+            val viewModel = createViewModel(shouldFail = { false })
+
+            viewModel.uiState.test {
+                skipItems(3) // initialState,loadingState,loadedState
+
+                viewModel.postMessage("メッセージを投稿")
+
+                val postingState = awaitItem()
+                postingState.isPosting shouldBe true
+
+                val postedState = awaitItem()
+                postedState.isPosting shouldBe false
+                postedState.errorMessage shouldBe null
+            }
+        }
+    }
+
+    @Test
+    fun `メッセージ投稿に失敗したときエラー状態になる`() {
+        runTest {
+            val viewModel = createViewModel(shouldFail = { count -> count == 2 })
+
+            viewModel.uiState.test {
+                skipItems(3) // initialState,loadingState,loadedState
+
+                viewModel.postMessage("メッセージを投稿")
+
+                val postingState = awaitItem()
+                postingState.isPosting shouldBe true
+
+                val postErrorState = awaitItem()
+                postErrorState.isPosting shouldBe false
+                postErrorState.errorMessage shouldNotBe null
+            }
+        }
+    }
 }
 
 private class FakeSpaceRepository(
@@ -251,5 +291,16 @@ private class FakeSpaceRepository(
             )
         }
         return emptyList()
+    }
+
+    override suspend fun addMessageForThread(
+        space: String,
+        thread: String,
+        text: String,
+    ) {
+        callCount++
+        if (shouldFail(callCount)) {
+            throw IOException("メッセージ投稿失敗")
+        }
     }
 }

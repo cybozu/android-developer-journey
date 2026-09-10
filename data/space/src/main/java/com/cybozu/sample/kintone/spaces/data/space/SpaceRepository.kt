@@ -7,4 +7,10 @@ interface SpaceRepository {
     suspend fun getAllThreads(spaceId: String): List<Thread>
 
     suspend fun getMessagesForThread(threadId: String): List<ThreadMessage>
+
+    suspend fun addMessageForThread(
+        space: String,
+        thread: String,
+        text: String,
+    )
 }
