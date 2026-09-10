@@ -38,6 +38,6 @@ dependencies {
     implementation(libs.moshi.converter)
     implementation(libs.moshi.adapters)
     implementation(libs.moshi.kotlin)
-
+    implementation(project(":data:login"))
     testImplementation(libs.junit)
 }
