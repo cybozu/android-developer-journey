@@ -14,6 +14,8 @@ import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 import com.cybozu.sample.kintone.spaces.feature.communicate.SpaceRoute
 import com.cybozu.sample.kintone.spaces.feature.communicate.ThreadRoute
 import com.cybozu.sample.kintone.spaces.feature.communicate.communicateNavigation
+import com.cybozu.sample.kintone.spaces.feature.login.LoginRoute
+import com.cybozu.sample.kintone.spaces.feature.login.loginNavigation
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -31,7 +33,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun KintoneSpacesApp() {
-    val backStack = rememberNavBackStack(SpaceRoute)
+    val backStack = rememberNavBackStack(LoginRoute)
     NavDisplay(
         backStack = backStack,
         onBack = { backStack.removeLastOrNull() },
@@ -47,6 +49,11 @@ fun KintoneSpacesApp() {
                 communicateNavigation(
                     onThreadClick = { threadId, threadName ->
                         backStack.add(ThreadRoute(threadId = threadId, threadName = threadName))
+                    }
+                )
+                loginNavigation(
+                    onLoginSuccess = {
+                        backStack.add(SpaceRoute)
                     }
                 )
             }
