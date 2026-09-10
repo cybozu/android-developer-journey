@@ -3,6 +3,7 @@ package com.cybozu.sample.kintone.spaces.feature.communicate.space
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
+import com.cybozu.sample.kintone.spaces.feature.communicate.SPACE_ID
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +28,7 @@ class SpaceViewModel
             viewModelScope.launch {
                 _uiState.value = _uiState.value.copy(isLoading = true)
                 try {
-                    val threads = repository.getAllThreads(spaceId = "3")
+                    val threads = repository.getAllThreads(spaceId = SPACE_ID)
                     _uiState.value =
                         _uiState.value.copy(
                             threads = threads,

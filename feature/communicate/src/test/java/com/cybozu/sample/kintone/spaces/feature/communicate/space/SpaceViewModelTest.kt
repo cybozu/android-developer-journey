@@ -69,4 +69,12 @@ private class FakeSpaceRepository : SpaceRepository {
     }
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = emptyList()
+
+    override suspend fun postMessage(
+        spaceId: String,
+        threadId: String,
+        body: String,
+    ) {
+        TODO("Not yet implemented")
+    }
 }
