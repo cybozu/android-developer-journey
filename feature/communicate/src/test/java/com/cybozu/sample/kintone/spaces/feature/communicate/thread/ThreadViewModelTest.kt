@@ -168,6 +168,86 @@ class ThreadViewModelTest {
                 successState.errorMessageSeq shouldBe null
             }
         }
+
+    @Test
+    fun `更新すると最新のメッセージ一覧が表示される`() =
+        runTest {
+            var callCount = 0
+            val viewModel =
+                createViewModel(
+                    getMessagesForThread = {
+                        callCount++
+                        listOf(
+                            ThreadMessage(
+                                id = if (callCount == 1) "msg-1" else "msg-2",
+                                body = "body",
+                                creator = Creator(name = "name1"),
+                                comments = emptyList()
+                            )
+                        )
+                    }
+                )
+
+            viewModel.uiState.test {
+                awaitItem() // 初期状態
+                awaitItem() // ロード中
+
+                val loadedState = awaitItem()
+                loadedState.threadMessages.size shouldBe 1
+                loadedState.threadMessages[0].id shouldBe "msg-1"
+
+                viewModel.onRefresh()
+                val refreshingState = awaitItem()
+                refreshingState.isRefreshing shouldBe true
+
+                val refreshedState = awaitItem()
+                refreshedState.isRefreshing shouldBe false
+                refreshedState.threadMessages.size shouldBe 1
+                refreshedState.threadMessages[0].id shouldBe "msg-2"
+            }
+        }
+
+    @Test
+    fun `更新に失敗するとエラー状態になり、更新前の一覧が保持される`() =
+        runTest {
+            var callCount = 0
+            val viewModel =
+                createViewModel(
+                    getMessagesForThread = {
+                        callCount++
+                        if (callCount == 1) {
+                            listOf(
+                                ThreadMessage(
+                                    id = "msg-1",
+                                    body = "body",
+                                    creator = Creator(name = "name1"),
+                                    comments = emptyList()
+                                )
+                            )
+                        } else {
+                            throw RuntimeException("test exception")
+                        }
+                    }
+                )
+
+            viewModel.uiState.test {
+                awaitItem() // 初期状態
+                awaitItem() // ロード中
+
+                val loadedState = awaitItem()
+                loadedState.threadMessages.size shouldBe 1
+
+                viewModel.onRefresh()
+                val refreshingState = awaitItem()
+                refreshingState.isRefreshing shouldBe true
+
+                val errorState = awaitItem()
+                errorState.isRefreshing shouldBe false
+                errorState.errorMessageSeq shouldBe 1
+                errorState.threadMessages.size shouldBe 1
+                errorState.threadMessages[0].id shouldBe "msg-1"
+            }
+        }
 }
 
 private class FakeSpaceRepository(

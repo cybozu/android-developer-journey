@@ -5,5 +5,6 @@ import com.cybozu.sample.kintone.spaces.data.space.entity.Thread
 data class SpaceUiState(
     val threads: List<Thread> = emptyList(),
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
     val errorMessageSeq: Int? = null,
 )

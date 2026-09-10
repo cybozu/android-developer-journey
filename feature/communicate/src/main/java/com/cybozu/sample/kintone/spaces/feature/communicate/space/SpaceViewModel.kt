@@ -26,27 +26,42 @@ class SpaceViewModel
             loadThreads()
         }
 
-        private fun loadThreads() {
+        private fun loadThreads(refresh: Boolean = false) {
             viewModelScope.launch {
-                _uiState.value = _uiState.value.copy(isLoading = true)
+                _uiState.value =
+                    if (refresh) {
+                        _uiState.value.copy(isRefreshing = true)
+                    } else {
+                        _uiState.value.copy(isLoading = true)
+                    }
                 try {
                     val threads = repository.getAllThreads(spaceId = "3")
                     _uiState.value =
                         _uiState.value.copy(
                             threads = threads,
-                            isLoading = false
+                            isLoading = false,
+                            isRefreshing = false
                         )
                 } catch (e: CancellationException) {
                     throw e
                 } catch (_: Exception) {
                     errorMessageSeq++
-                    _uiState.value = _uiState.value.copy(isLoading = false, errorMessageSeq = errorMessageSeq)
+                    _uiState.value =
+                        _uiState.value.copy(
+                            isLoading = false,
+                            isRefreshing = false,
+                            errorMessageSeq = errorMessageSeq
+                        )
                 }
             }
         }
 
         fun onRetryClick() {
             loadThreads()
+        }
+
+        fun onRefresh() {
+            loadThreads(refresh = true)
         }
 
         fun onErrorMessageShown() {
