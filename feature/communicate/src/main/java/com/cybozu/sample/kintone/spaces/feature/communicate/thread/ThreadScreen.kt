@@ -106,12 +106,14 @@ fun ThreadContent(
         ) {
             if (uiState.isLoading) {
                 Box(
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
                 }
             } else {
                 LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(all = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
