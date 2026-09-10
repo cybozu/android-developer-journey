@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -71,7 +72,8 @@ fun ThreadScreen(
 
     ThreadContent(
         threadName = threadName,
-        uiState = uiState
+        uiState = uiState,
+        onRefresh = { viewModel.refresh() }
     )
 }
 
@@ -80,6 +82,7 @@ fun ThreadScreen(
 fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
+    onRefresh: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -93,27 +96,30 @@ fun ThreadContent(
             )
         }
     ) { innerPadding ->
-        if (uiState.isLoading) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            LazyColumn(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                contentPadding = PaddingValues(all = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(uiState.threadMessages) { threadMessage ->
-                    MessageListItem(threadMessage = threadMessage)
+        PullToRefreshBox(
+            isRefreshing = uiState.isRefreshing,
+            onRefresh = onRefresh,
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+        ) {
+            if (uiState.isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(all = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(uiState.threadMessages) { threadMessage ->
+                        MessageListItem(threadMessage = threadMessage)
+                    }
                 }
             }
         }
@@ -240,7 +246,8 @@ fun ThreadContentPreview(
     KintoneSpacesTheme {
         ThreadContent(
             threadName = "Sample Thread",
-            uiState = uiState
+            uiState = uiState,
+            onRefresh = {}
         )
     }
 }
