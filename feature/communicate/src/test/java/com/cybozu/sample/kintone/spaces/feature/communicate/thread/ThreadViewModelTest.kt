@@ -9,7 +9,9 @@ import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -30,10 +32,30 @@ class ThreadViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(): ThreadViewModel {
-        val repository = FakeSpaceRepository()
-        return ThreadViewModel(threadId = "thread-1", repository = repository)
-    }
+    private fun createViewModel(
+        getMessagesForThread: suspend (String) -> List<ThreadMessage> = { threadId ->
+            delay(100) // 通信時間を模擬
+            if (threadId == "thread-1") {
+                listOf(
+                    ThreadMessage(
+                        id = "msg-1",
+                        body = "thread-1",
+                        creator = Creator(name = "name1"),
+                        comments = emptyList()
+                    ),
+                    ThreadMessage(
+                        id = "msg-2",
+                        body = "thread-2",
+                        creator = Creator(name = "name2"),
+                        comments = emptyList()
+                    )
+                )
+            } else {
+                emptyList()
+            }
+        },
+    ): ThreadViewModel =
+        ThreadViewModel(threadId = "thread-1", repository = FakeSpaceRepository(getMessagesForThread))
 
     @Test
     fun `メッセージ一覧が取得できる`() =
@@ -65,7 +87,7 @@ class ThreadViewModelTest {
     fun `メッセージ取得に失敗するとエラー状態になる`() =
         runTest {
             val viewModel =
-                ThreadViewModel(threadId = "thread-1", repository = FailingFakeSpaceRepository())
+                createViewModel(getMessagesForThread = { throw RuntimeException("test exception") })
 
             viewModel.uiState.test {
                 val initialState = awaitItem()
@@ -85,13 +107,19 @@ class ThreadViewModelTest {
     fun `メッセージ取得がキャンセルされてもエラー状態にはならない`() =
         runTest {
             val viewModel =
-                ThreadViewModel(threadId = "thread-1", repository = CancellingFakeSpaceRepository())
+                createViewModel(
+                    getMessagesForThread = {
+                        delay(100) // 通信時間を模擬
+                        throw CancellationException("test cancellation")
+                    }
+                )
 
             viewModel.uiState.test {
                 awaitItem() // 初期状態
                 val loadingState = awaitItem()
                 loadingState.isLoading shouldBe true
 
+                advanceUntilIdle()
                 expectNoEvents()
             }
         }
@@ -99,8 +127,24 @@ class ThreadViewModelTest {
     @Test
     fun `リトライすると再度データ取得が行われる`() =
         runTest {
+            var callCount = 0
             val viewModel =
-                ThreadViewModel(threadId = "thread-1", repository = RetryableFakeSpaceRepository())
+                createViewModel(
+                    getMessagesForThread = {
+                        callCount++
+                        if (callCount == 1) {
+                            throw RuntimeException("test exception")
+                        }
+                        listOf(
+                            ThreadMessage(
+                                id = "msg-1",
+                                body = "retry success",
+                                creator = Creator(name = "name1"),
+                                comments = emptyList()
+                            )
+                        )
+                    }
+                )
 
             viewModel.uiState.test {
                 awaitItem()
@@ -126,59 +170,10 @@ class ThreadViewModelTest {
         }
 }
 
-private class FakeSpaceRepository : SpaceRepository {
+private class FakeSpaceRepository(
+    private val getMessagesForThreadImpl: suspend (String) -> List<ThreadMessage>,
+) : SpaceRepository {
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
-    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
-        if (threadId == "thread-1") {
-            return listOf(
-                ThreadMessage(
-                    id = "msg-1",
-                    body = "thread-1",
-                    creator = Creator(name = "name1"),
-                    comments = emptyList()
-                ),
-                ThreadMessage(
-                    id = "msg-2",
-                    body = "thread-2",
-                    creator = Creator(name = "name2"),
-                    comments = emptyList()
-                )
-            )
-        }
-        return emptyList()
-    }
-}
-
-private class FailingFakeSpaceRepository : SpaceRepository {
-    override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
-
-    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = throw RuntimeException("test exception")
-}
-
-private class CancellingFakeSpaceRepository : SpaceRepository {
-    override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
-
-    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = throw CancellationException("test cancellation")
-}
-
-private class RetryableFakeSpaceRepository : SpaceRepository {
-    private var callCount = 0
-
-    override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
-
-    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> {
-        callCount++
-        if (callCount == 1) {
-            throw RuntimeException("test exception")
-        }
-        return listOf(
-            ThreadMessage(
-                id = "msg-1",
-                body = "retry success",
-                creator = Creator(name = "name1"),
-                comments = emptyList()
-            )
-        )
-    }
+    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = getMessagesForThreadImpl(threadId)
 }
