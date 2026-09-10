@@ -14,10 +14,9 @@ import com.cybozu.sample.kintone.spaces.core.design.theme.KintoneSpacesTheme
 import com.cybozu.sample.kintone.spaces.feature.communicate.SpaceRoute
 import com.cybozu.sample.kintone.spaces.feature.communicate.ThreadRoute
 import com.cybozu.sample.kintone.spaces.feature.communicate.communicateNavigation
-import dagger.hilt.android.AndroidEntryPoint
 import com.cybozu.sample.kintone.spaces.feature.login.LoginRoute
 import com.cybozu.sample.kintone.spaces.feature.login.loginNavigation
-
+import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -52,7 +51,7 @@ fun KintoneSpacesApp() {
                         backStack.add(ThreadRoute(threadId = threadId, threadName = threadName))
                     }
                 )
-                loginNavigation (
+                loginNavigation(
                     onLoginSuccess = {
                         backStack.add(SpaceRoute)
                     }
