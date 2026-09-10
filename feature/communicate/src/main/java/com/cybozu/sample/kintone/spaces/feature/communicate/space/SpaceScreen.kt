@@ -85,12 +85,10 @@ fun SpaceContent(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
+        val contentModifier = Modifier.fillMaxSize().padding(innerPadding)
         if (uiState.isLoading) {
             Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
+                modifier = contentModifier,
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
@@ -99,10 +97,7 @@ fun SpaceContent(
             PullToRefreshBox(
                 isRefreshing = uiState.isRefreshing,
                 onRefresh = onRefresh,
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
+                modifier = contentModifier
             ) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
