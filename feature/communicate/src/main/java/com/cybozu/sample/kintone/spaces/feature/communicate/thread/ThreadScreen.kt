@@ -28,6 +28,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -84,7 +85,8 @@ fun ThreadScreen(
     ThreadContent(
         threadName = threadName,
         uiState = uiState,
-        snackbarHostState = snackbarHostState
+        snackbarHostState = snackbarHostState,
+        onRefresh = viewModel::onRefresh
     )
 }
 
@@ -94,6 +96,7 @@ fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onRefresh: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -119,16 +122,22 @@ fun ThreadContent(
                 CircularProgressIndicator()
             }
         } else {
-            LazyColumn(
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = onRefresh,
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .padding(innerPadding),
-                contentPadding = PaddingValues(all = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(innerPadding)
             ) {
-                items(uiState.threadMessages) { threadMessage ->
-                    MessageListItem(threadMessage = threadMessage)
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(all = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(uiState.threadMessages) { threadMessage ->
+                        MessageListItem(threadMessage = threadMessage)
+                    }
                 }
             }
         }
@@ -242,6 +251,19 @@ class ThreadContentPreviewParameter :
             ThreadUiState(
                 threadMessages = emptyList(),
                 isLoading = true
+            ),
+            ThreadUiState(
+                threadMessages =
+                    listOf(
+                        ThreadMessage(
+                            id = "1",
+                            body = "plain text",
+                            creator = Creator(name = "name1"),
+                            comments = emptyList()
+                        )
+                    ),
+                isLoading = false,
+                isRefreshing = true
             )
         )
     )
