@@ -18,19 +18,26 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,7 +72,9 @@ fun ThreadScreen(
     ThreadContent(
         threadName = threadName,
         uiState = uiState,
-        onRefresh = viewModel::refresh
+        onRefresh = viewModel::refresh,
+        onInputTextChange = viewModel::updateInputText,
+        onPostComment = viewModel::postComment
     )
 }
 
@@ -75,7 +84,18 @@ fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
     onRefresh: () -> Unit = {},
+    onInputTextChange: (String) -> Unit = {},
+    onPostComment: () -> Unit = {},
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val postErrorMessage = stringResource(R.string.thread_post_error)
+
+    LaunchedEffect(uiState.hasPostError) {
+        if (uiState.hasPostError) {
+            snackbarHostState.showSnackbar(postErrorMessage)
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -86,7 +106,34 @@ fun ThreadContent(
                     SystemBackNavButton()
                 }
             )
-        }
+        },
+        bottomBar = {
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextField(
+                    value = uiState.inputText,
+                    onValueChange = onInputTextChange,
+                    modifier = Modifier.weight(1f),
+                    placeholder = { Text(stringResource(R.string.thread_input_placeholder)) },
+                    enabled = !uiState.isPosting
+                )
+                IconButton(
+                    onClick = onPostComment,
+                    enabled = uiState.inputText.isNotBlank() && !uiState.isPosting
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Send,
+                        contentDescription = stringResource(R.string.thread_send)
+                    )
+                }
+            }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         PullToRefreshBox(
             isRefreshing = uiState.isRefreshing,

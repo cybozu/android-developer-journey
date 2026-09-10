@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="thread_fetch_error">メッセージを取得できませんでした</string>
+    <string name="thread_input_placeholder">メッセージを入力</string>
+    <string name="thread_send">送信</string>
+    <string name="thread_post_error">メッセージを投稿できませんでした</string>
 </resources>

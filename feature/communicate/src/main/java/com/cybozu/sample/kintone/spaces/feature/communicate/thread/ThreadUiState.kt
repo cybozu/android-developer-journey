@@ -7,4 +7,7 @@ data class ThreadUiState(
     val isLoading: Boolean = false,
     val hasError: Boolean = false,
     val isRefreshing: Boolean = false,
+    val inputText: String = "",
+    val isPosting: Boolean = false,
+    val hasPostError: Boolean = false,
 )

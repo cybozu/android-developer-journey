@@ -112,6 +112,40 @@ class ThreadViewModelTest {
                 errorState.isLoading shouldBe false
             }
         }
+
+    @Test
+    fun `メッセージを投稿すると一覧に反映される`() =
+        runTest {
+            val viewModel = createViewModel(repository = PostingSpaceRepository())
+
+            viewModel.uiState.test {
+                awaitItem()
+                awaitItem()
+                val loadedState = awaitItem()
+                loadedState.threadMessages.size shouldBe 1
+
+                viewModel.updateInputText("新しいメッセージ")
+                awaitItem().inputText shouldBe "新しいメッセージ"
+
+                viewModel.postComment()
+
+                val postingState = awaitItem()
+                postingState.isPosting shouldBe true
+                postingState.inputText shouldBe "新しいメッセージ"
+
+                val postedState = awaitItem()
+                postedState.isPosting shouldBe false
+                postedState.inputText shouldBe ""
+
+                val refreshingState = awaitItem()
+                refreshingState.isRefreshing shouldBe true
+
+                val refreshedState = awaitItem()
+                refreshedState.isRefreshing shouldBe false
+                refreshedState.threadMessages.size shouldBe 2
+                refreshedState.threadMessages[1].body shouldBe "新しいメッセージ"
+            }
+        }
 }
 
 private class FakeSpaceRepository : SpaceRepository {
@@ -149,10 +183,54 @@ private class FakeSpaceRepository : SpaceRepository {
                 comments = emptyList()
             )
     }
+
+    override suspend fun addThreadComment(
+        spaceId: String,
+        threadId: String,
+        text: String,
+    ) = Unit
+}
+
+private class PostingSpaceRepository : SpaceRepository {
+    private val postedTexts = mutableListOf<String>()
+
+    override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
+
+    override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> =
+        listOf(
+            ThreadMessage(
+                id = "msg-1",
+                body = "existing message",
+                creator = Creator(name = "name1"),
+                comments = emptyList()
+            )
+        ) +
+            postedTexts.mapIndexed { index, text ->
+                ThreadMessage(
+                    id = "posted-${index + 1}",
+                    body = text,
+                    creator = Creator(name = "me"),
+                    comments = emptyList()
+                )
+            }
+
+    override suspend fun addThreadComment(
+        spaceId: String,
+        threadId: String,
+        text: String,
+    ) {
+        postedTexts += text
+    }
 }
 
 private class FailingSpaceRepository : SpaceRepository {
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = throw RuntimeException("network error")
+
+    override suspend fun addThreadComment(
+        spaceId: String,
+        threadId: String,
+        text: String,
+    ): Unit = throw RuntimeException("network error")
 }
