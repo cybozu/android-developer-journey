@@ -83,7 +83,7 @@ fun ThreadScreen(
 fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -236,7 +236,7 @@ class ThreadContentPreviewParameter :
             ThreadUiState(
                 threadMessages = emptyList(),
                 isLoading = true,
-                errorMessage = null,
+                errorMessage = null
             )
         )
     )
