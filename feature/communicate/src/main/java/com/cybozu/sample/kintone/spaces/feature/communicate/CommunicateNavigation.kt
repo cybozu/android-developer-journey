@@ -20,4 +20,5 @@ fun EntryProviderScope<NavKey>.communicateNavigation(onThreadClick: (threadId: S
             threadName = threadRoute.threadName
         )
     }
+
 }

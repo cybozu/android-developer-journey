@@ -31,6 +31,7 @@ android {
 dependencies {
     implementation(project(":core:design"))
     implementation(project(":feature:communicate"))
+    implementation(project(":feature:login"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
