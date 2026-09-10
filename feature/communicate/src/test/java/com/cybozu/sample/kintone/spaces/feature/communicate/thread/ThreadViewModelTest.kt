@@ -115,11 +115,7 @@ class ThreadViewModelTest {
             val viewModel = createViewModel { false }
 
             viewModel.uiState.test {
-                awaitItem() // initialState
-
-                awaitItem() // loadingState
-
-                awaitItem() // loadedState
+                skipItems(3) // initialState,loadingState,loadedState
 
                 viewModel.refresh()
 
@@ -149,11 +145,7 @@ class ThreadViewModelTest {
             val viewModel = createViewModel(shouldFail = { count -> count == 2 })
 
             viewModel.uiState.test {
-                awaitItem() // initialState
-
-                awaitItem() // loadingState
-
-                awaitItem() // loadedState
+                skipItems(3) // initialState,loadingState,loadedState
 
                 viewModel.refresh()
 
@@ -177,11 +169,7 @@ class ThreadViewModelTest {
             val viewModel = createViewModel(shouldFail = { count -> count == 1 })
 
             viewModel.uiState.test {
-                awaitItem() // initialState
-
-                awaitItem() // loadingState
-
-                awaitItem() // errorState
+                skipItems(3) // initialState,loadingState,errorState
 
                 viewModel.clearErrorMessage()
                 awaitItem() // clearedState
@@ -214,11 +202,7 @@ class ThreadViewModelTest {
             val viewModel = createViewModel(shouldFail = { true })
 
             viewModel.uiState.test {
-                awaitItem() // initialState
-
-                awaitItem() // loadingState
-
-                awaitItem() // errorState
+                skipItems(3) // initialState,loadingState,errorState
 
                 viewModel.clearErrorMessage()
                 awaitItem() // clearedState

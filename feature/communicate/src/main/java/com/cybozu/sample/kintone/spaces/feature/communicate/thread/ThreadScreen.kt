@@ -71,15 +71,11 @@ fun ThreadScreen(
         }
     }
 
-    PullToRefreshBox(
-        isRefreshing = uiState.isRefreshing,
+    ThreadContent(
+        threadName = threadName,
+        uiState = uiState,
         onRefresh = { viewModel.refresh() }
-    ) {
-        ThreadContent(
-            threadName = threadName,
-            uiState = uiState
-        )
-    }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -87,6 +83,7 @@ fun ThreadScreen(
 fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
+    onRefresh: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -100,27 +97,32 @@ fun ThreadContent(
             )
         }
     ) { innerPadding ->
-        if (uiState.isLoading) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            LazyColumn(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                contentPadding = PaddingValues(all = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(uiState.threadMessages) { threadMessage ->
-                    MessageListItem(threadMessage = threadMessage)
+        PullToRefreshBox(
+            isRefreshing = uiState.isRefreshing,
+            onRefresh = onRefresh
+        ) {
+            if (uiState.isLoading) {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                LazyColumn(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                    contentPadding = PaddingValues(all = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(uiState.threadMessages) { threadMessage ->
+                        MessageListItem(threadMessage = threadMessage)
+                    }
                 }
             }
         }
@@ -234,7 +236,7 @@ class ThreadContentPreviewParameter :
             ThreadUiState(
                 threadMessages = emptyList(),
                 isLoading = true,
-                errorMessage = null
+                errorMessage = null,
             )
         )
     )
@@ -247,7 +249,8 @@ fun ThreadContentPreview(
     KintoneSpacesTheme {
         ThreadContent(
             threadName = "Sample Thread",
-            uiState = uiState
+            uiState = uiState,
+            onRefresh = {}
         )
     }
 }
