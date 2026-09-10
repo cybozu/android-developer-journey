@@ -102,7 +102,7 @@ fun ThreadContent(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(innerPadding),
+                    .padding(innerPadding)
         ) {
             if (uiState.isLoading) {
                 Box(
