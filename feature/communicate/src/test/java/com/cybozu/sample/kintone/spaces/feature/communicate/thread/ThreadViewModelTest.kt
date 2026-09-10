@@ -96,9 +96,7 @@ class ThreadViewModelTest {
             val viewModel = createViewModel(shouldFail = { true })
 
             viewModel.uiState.test {
-                awaitItem() // initialState
-
-                awaitItem() // loadingState
+                skipItems(2) // initialState〜loadingState
 
                 val errorState = awaitItem()
                 errorState.errorMessage shouldNotBe null
