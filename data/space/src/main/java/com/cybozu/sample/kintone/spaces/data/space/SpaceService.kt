@@ -1,5 +1,7 @@
 package com.cybozu.sample.kintone.spaces.data.space
 
+import com.cybozu.sample.kintone.spaces.data.space.entity.AddThreadCommentBody
+import com.cybozu.sample.kintone.spaces.data.space.entity.AddThreadCommentResponse
 import com.cybozu.sample.kintone.spaces.data.space.entity.GetAllThreadsBody
 import com.cybozu.sample.kintone.spaces.data.space.entity.GetMessagesForThreadBody
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadListResponse
@@ -20,4 +22,10 @@ internal interface SpaceService {
         @Header("X-Cybozu-Authorization") encodeString: String,
         @Body body: GetMessagesForThreadBody,
     ): ThreadMessageResponse
+
+    @POST("k/v1/space/thread/comment.json")
+    suspend fun addThreadComment(
+        @Header("X-Cybozu-Authorization") encodeString: String,
+        @Body body: AddThreadCommentBody,
+    ): AddThreadCommentResponse
 }

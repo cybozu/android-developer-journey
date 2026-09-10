@@ -1,5 +1,8 @@
 package com.cybozu.sample.kintone.spaces.data.space
 
+import com.cybozu.sample.kintone.spaces.data.space.entity.AddThreadCommentBody
+import com.cybozu.sample.kintone.spaces.data.space.entity.AddThreadCommentResponse
+import com.cybozu.sample.kintone.spaces.data.space.entity.CommentText
 import com.cybozu.sample.kintone.spaces.data.space.entity.GetAllThreadsBody
 import com.cybozu.sample.kintone.spaces.data.space.entity.GetMessagesForThreadBody
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadListResponse
@@ -24,5 +27,15 @@ internal class SpaceRemoteDataSource @Inject constructor(
         spaceService.getMessagesForThread(
             encodeString = usernamePassword.encode().base64(),
             body = GetMessagesForThreadBody(threadId = threadId)
+        )
+
+    suspend fun addThreadComment(
+        spaceId: String,
+        threadId: String,
+        text: String,
+    ): AddThreadCommentResponse =
+        spaceService.addThreadComment(
+            encodeString = usernamePassword.encode().base64(),
+            body = AddThreadCommentBody(space = spaceId, thread = threadId, comment = CommentText(text = text))
         )
 }
