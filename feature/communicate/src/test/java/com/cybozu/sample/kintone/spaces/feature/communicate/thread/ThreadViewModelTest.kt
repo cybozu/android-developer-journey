@@ -172,10 +172,33 @@ class ThreadViewModelTest {
                 refreshedState.threadMessages[2].creator shouldBe Creator(name = "name3")
             }
         }
+
+    @Test
+    fun `メッセージを送信する時のエラー`() =
+        runTest {
+            val (viewModel, repository) = createViewModel()
+
+            viewModel.uiState.test {
+                // 初期状態・ローディング中・初回読み込み完了の3件は、今回の検証に不要なので読み飛ばす
+                skipItems(3)
+
+                viewModel.onInputTextChanged("hugahuga")
+                repository.shouldThrowOnPostMessage = true
+                viewModel.onSendMessage()
+
+                val initialState = awaitItem()
+                initialState.inputText shouldBe "hugahuga"
+
+                val errorState = awaitItem()
+                errorState.errorMessage shouldBe "メッセージを送信できませんでした"
+                errorState.inputText shouldBe "hugahuga"
+            }
+        }
 }
 
 private class FakeSpaceRepository(
     var shouldThrowOnGetMessages: Boolean = false,
+    var shouldThrowOnPostMessage: Boolean = false,
 ) : SpaceRepository {
     private val list = mutableListOf<ThreadMessage>()
 
@@ -209,6 +232,9 @@ private class FakeSpaceRepository(
         threadId: String,
         body: String,
     ) {
+        if (shouldThrowOnPostMessage) {
+            throw RuntimeException("network error")
+        }
         val threadMessage = ThreadMessage(id = "msg-3", body = body, creator = Creator(name = "name3"), comments = emptyList())
         list.add(threadMessage)
     }
