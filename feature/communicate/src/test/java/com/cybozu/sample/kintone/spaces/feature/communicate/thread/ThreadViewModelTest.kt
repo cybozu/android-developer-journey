@@ -1,5 +1,6 @@
 package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
+import app.cash.turbine.skipItems
 import app.cash.turbine.test
 import com.cybozu.sample.kintone.spaces.data.space.SpaceRepository
 import com.cybozu.sample.kintone.spaces.data.space.entity.Creator
@@ -260,9 +261,7 @@ class ThreadViewModelTest {
             val viewModel = createViewModel()
 
             viewModel.uiState.test {
-                awaitItem()
-                awaitItem()
-                awaitItem()
+                skipItems(3) // 初期状態→ロード中→ロード完了までスキップ
 
                 viewModel.onComposeClick()
                 val openedState = awaitItem()
@@ -289,9 +288,7 @@ class ThreadViewModelTest {
                 )
 
             viewModel.uiState.test {
-                awaitItem()
-                awaitItem()
-                awaitItem()
+                skipItems(3) // 初期状態→ロード中→ロード完了までスキップ
 
                 viewModel.onSendClick()
 
@@ -364,9 +361,7 @@ class ThreadViewModelTest {
                 )
 
             viewModel.uiState.test {
-                awaitItem()
-                awaitItem()
-                awaitItem()
+                skipItems(3) // 初期状態→ロード中→ロード完了までスキップ
 
                 viewModel.onComposeClick()
                 awaitItem()
@@ -398,9 +393,7 @@ class ThreadViewModelTest {
                 )
 
             viewModel.uiState.test {
-                awaitItem()
-                awaitItem()
-                awaitItem()
+                skipItems(3) // 初期状態→ロード中→ロード完了までスキップ
 
                 viewModel.onComposeClick()
                 awaitItem()
@@ -426,9 +419,7 @@ class ThreadViewModelTest {
                 )
 
             viewModel.uiState.test {
-                awaitItem()
-                awaitItem()
-                awaitItem()
+                skipItems(3) // 初期状態→ロード中→ロード完了までスキップ
 
                 viewModel.onComposeClick()
                 awaitItem()
