@@ -1,10 +1,10 @@
 package com.cybozu.sample.kintone.spaces.data.space
 
-import com.cybozu.sample.kintone.spaces.data.space.entity.AddThreadCommentBody
-import com.cybozu.sample.kintone.spaces.data.space.entity.AddThreadCommentResponse
 import com.cybozu.sample.kintone.spaces.data.space.entity.CommentText
 import com.cybozu.sample.kintone.spaces.data.space.entity.GetAllThreadsBody
 import com.cybozu.sample.kintone.spaces.data.space.entity.GetMessagesForThreadBody
+import com.cybozu.sample.kintone.spaces.data.space.entity.PostThreadCommentBody
+import com.cybozu.sample.kintone.spaces.data.space.entity.PostThreadCommentResponse
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadListResponse
 import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessageResponse
 import javax.inject.Inject
@@ -29,13 +29,13 @@ internal class SpaceRemoteDataSource @Inject constructor(
             body = GetMessagesForThreadBody(threadId = threadId)
         )
 
-    suspend fun addThreadComment(
+    suspend fun postThreadComment(
         spaceId: String,
         threadId: String,
         text: String,
-    ): AddThreadCommentResponse =
-        spaceService.addThreadComment(
+    ): PostThreadCommentResponse =
+        spaceService.postThreadComment(
             encodeString = usernamePassword.encode().base64(),
-            body = AddThreadCommentBody(space = spaceId, thread = threadId, comment = CommentText(text = text))
+            body = PostThreadCommentBody(space = spaceId, thread = threadId, comment = CommentText(text = text))
         )
 }

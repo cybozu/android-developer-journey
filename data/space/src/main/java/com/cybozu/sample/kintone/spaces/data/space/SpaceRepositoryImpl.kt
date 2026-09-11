@@ -17,6 +17,6 @@ internal class SpaceRepositoryImpl @Inject constructor(
         threadId: String,
         text: String,
     ) {
-        spaceRemoteDataSource.addThreadComment(spaceId = spaceId, threadId = threadId, text = text)
+        spaceRemoteDataSource.postThreadComment(spaceId = spaceId, threadId = threadId, text = text)
     }
 }
