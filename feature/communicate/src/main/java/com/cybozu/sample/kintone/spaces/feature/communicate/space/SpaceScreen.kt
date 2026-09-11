@@ -65,6 +65,20 @@ fun SpaceContent(
             ) {
                 CircularProgressIndicator()
             }
+        } else if (uiState.threads.isEmpty()) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "スペースが見つかりません",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         } else {
             LazyColumn(
                 modifier =
@@ -133,6 +147,10 @@ class SpaceContentPreviewParameter :
             SpaceUiState(
                 threads = emptyList(),
                 isLoading = true
+            ),
+            SpaceUiState(
+                threads = emptyList(),
+                isLoading = false
             )
         )
     )

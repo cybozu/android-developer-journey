@@ -1,5 +1,6 @@
 package com.cybozu.sample.kintone.spaces.feature.communicate.thread
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -95,9 +96,18 @@ fun ThreadContent(
         },
         bottomBar = {
             Row(
-                modifier = Modifier
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                TextField(value = uiState.inputText, onValueChange = onInputTextChanged)
+                TextField(
+                    value = uiState.inputText,
+                    onValueChange = onInputTextChanged,
+                    modifier = Modifier.weight(1f)
+                )
                 Button(
                     onClick = onSendMessage
                 ) {
@@ -122,15 +132,28 @@ fun ThreadContent(
                 onRefresh = onRefresh,
                 modifier = Modifier.padding(innerPadding)
             ) {
-                LazyColumn(
-                    modifier =
-                        Modifier
-                            .fillMaxSize(),
-                    contentPadding = PaddingValues(all = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(uiState.threadMessages) { threadMessage ->
-                        MessageListItem(threadMessage = threadMessage)
+                if (uiState.threadMessages.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "まだメッセージがありません",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier =
+                            Modifier
+                                .fillMaxSize(),
+                        contentPadding = PaddingValues(all = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(uiState.threadMessages) { threadMessage ->
+                            MessageListItem(threadMessage = threadMessage)
+                        }
                     }
                 }
             }
@@ -186,14 +209,21 @@ private fun MessageCard(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.Top
         ) {
-            Icon(
-                imageVector = Icons.Filled.Person,
-                contentDescription = "$creatorName's icon",
+            Box(
                 modifier =
                     Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-            )
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Person,
+                    contentDescription = "$creatorName's icon",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(
@@ -276,6 +306,10 @@ class ThreadContentPreviewParameter :
                     ),
                 isLoading = false,
                 isRefreshing = true
+            ),
+            ThreadUiState(
+                threadMessages = emptyList(),
+                isLoading = false
             )
         )
     )
