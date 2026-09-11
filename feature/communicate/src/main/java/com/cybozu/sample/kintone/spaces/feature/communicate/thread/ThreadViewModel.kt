@@ -42,6 +42,10 @@ class ThreadViewModel @AssistedInject constructor(
         addMessage(text)
     }
 
+    fun updateText(text: String) {
+        _uiState.value = _uiState.value.copy(inputText = text)
+    }
+
     private fun loadMessages() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
@@ -92,14 +96,14 @@ class ThreadViewModel @AssistedInject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isPosting = true)
             try {
-                repository.addMessageForThread(space = spaceId, thread = threadId, text = text)
-                val threadMessages = repository.getMessagesForThread(threadId = threadId)
+                repository.addMessageForThread(spaceId = spaceId, threadId = threadId, text = text)
                 _uiState.value =
                     _uiState.value.copy(
-                        threadMessages = threadMessages,
                         isPosting = false,
-                        errorMessage = null
+                        errorMessage = null,
+                        inputText = ""
                     )
+                refreshMessages()
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {

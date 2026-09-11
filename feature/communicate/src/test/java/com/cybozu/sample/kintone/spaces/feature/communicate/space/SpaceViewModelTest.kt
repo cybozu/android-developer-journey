@@ -71,8 +71,8 @@ private class FakeSpaceRepository : SpaceRepository {
     override suspend fun getMessagesForThread(threadId: String): List<ThreadMessage> = emptyList()
 
     override suspend fun addMessageForThread(
-        space: String,
-        thread: String,
+        spaceId: String,
+        threadId: String,
         text: String,
     ) { }
 }

@@ -35,8 +35,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -78,11 +76,18 @@ fun ThreadScreen(
         }
     }
 
+    LaunchedEffect(uiState.isPosting) {
+        if (uiState.isPosting) {
+            Toast.makeText(context, "メッセージを投稿中", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     ThreadContent(
         threadName = threadName,
         uiState = uiState,
         onRefresh = { viewModel.refresh() },
-        onAddMessage = { text -> viewModel.postMessage(text) }
+        onAddMessage = { viewModel.postMessage(uiState.inputText) },
+        onUpdateText = { text -> viewModel.updateText(text) }
     )
 }
 
@@ -92,7 +97,8 @@ fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
     onRefresh: () -> Unit,
-    onAddMessage: (String) -> Unit,
+    onAddMessage: () -> Unit,
+    onUpdateText: (String) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -106,7 +112,6 @@ fun ThreadContent(
             )
         },
         bottomBar = {
-            var text by remember { mutableStateOf("") }
             Row(
                 modifier =
                     Modifier
@@ -118,14 +123,15 @@ fun ThreadContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextField(
-                    value = text,
-                    onValueChange = { text = it },
+                    value = uiState.inputText,
+                    onValueChange = onUpdateText,
                     placeholder = { Text("投稿する") }
                 )
-                Button(onClick = {
-                    onAddMessage(text)
-                    text = ""
-                }) {
+                Button(
+                    onClick =
+                    onAddMessage,
+                    enabled = uiState.inputText.isNotBlank()
+                ) {
                     Text("投稿")
                 }
             }
@@ -283,7 +289,8 @@ fun ThreadContentPreview(
             threadName = "Sample Thread",
             uiState = uiState,
             onRefresh = {},
-            onAddMessage = {}
+            onAddMessage = {},
+            onUpdateText = {}
         )
     }
 }

@@ -8,4 +8,5 @@ data class ThreadUiState(
     val isRefreshing: Boolean = false,
     val isPosting: Boolean = false,
     val errorMessage: String? = null,
+    val inputText: String = "",
 )

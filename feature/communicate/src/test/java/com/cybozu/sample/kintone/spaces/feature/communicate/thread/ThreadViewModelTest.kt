@@ -237,6 +237,8 @@ class ThreadViewModelTest {
                 val postedState = awaitItem()
                 postedState.isPosting shouldBe false
                 postedState.errorMessage shouldBe null
+
+                skipItems(2) // refreshingState,refreshedState
             }
         }
     }
@@ -260,12 +262,60 @@ class ThreadViewModelTest {
             }
         }
     }
+
+    @Test
+    fun `メッセージを投稿後、更新してメッセージ一覧を取得できる`() {
+        runTest {
+            val viewModel = createViewModel(shouldFail = { false })
+
+            viewModel.uiState.test {
+                skipItems(3) // initialState,loadingState,loadedState
+
+                viewModel.postMessage("メッセージを投稿")
+
+                skipItems(2) // postingState,postedState
+
+                val refreshingState = awaitItem()
+                refreshingState.isRefreshing shouldBe true
+
+                val refreshedState = awaitItem()
+                refreshedState.threadMessages.size shouldBe 3
+                refreshedState.threadMessages[0].id shouldBe "msg-1"
+                refreshedState.threadMessages[0].body shouldBe "thread-1"
+                refreshedState.threadMessages[0].creator shouldBe Creator(name = "name1")
+                refreshedState.threadMessages[1].id shouldBe "msg-2"
+                refreshedState.threadMessages[1].body shouldBe "thread-2"
+                refreshedState.threadMessages[1].creator shouldBe Creator(name = "name2")
+                refreshedState.threadMessages[2].id shouldBe "msg-3"
+                refreshedState.threadMessages[2].body shouldBe "メッセージを投稿"
+                refreshedState.threadMessages[2].creator shouldBe Creator(name = "newCreator")
+                refreshedState.isLoading shouldBe false
+                refreshedState.errorMessage shouldBe null
+                refreshedState.isRefreshing shouldBe false
+            }
+        }
+    }
 }
 
 private class FakeSpaceRepository(
     private val shouldFail: (callCount: Int) -> Boolean = { false },
 ) : SpaceRepository {
     private var callCount = 0
+    private val messages =
+        mutableListOf(
+            ThreadMessage(
+                id = "msg-1",
+                body = "thread-1",
+                creator = Creator(name = "name1"),
+                comments = emptyList()
+            ),
+            ThreadMessage(
+                id = "msg-2",
+                body = "thread-2",
+                creator = Creator(name = "name2"),
+                comments = emptyList()
+            )
+        )
 
     override suspend fun getAllThreads(spaceId: String): List<Thread> = emptyList()
 
@@ -275,32 +325,27 @@ private class FakeSpaceRepository(
             throw IOException("メッセージ取得失敗")
         }
         if (threadId == "thread-1") {
-            return listOf(
-                ThreadMessage(
-                    id = "msg-1",
-                    body = "thread-1",
-                    creator = Creator(name = "name1"),
-                    comments = emptyList()
-                ),
-                ThreadMessage(
-                    id = "msg-2",
-                    body = "thread-2",
-                    creator = Creator(name = "name2"),
-                    comments = emptyList()
-                )
-            )
+            return messages.toList()
         }
         return emptyList()
     }
 
     override suspend fun addMessageForThread(
-        space: String,
-        thread: String,
+        spaceId: String,
+        threadId: String,
         text: String,
     ) {
         callCount++
         if (shouldFail(callCount)) {
             throw IOException("メッセージ投稿失敗")
         }
+        messages.add(
+            ThreadMessage(
+                id = "msg-${messages.size + 1}",
+                body = text,
+                creator = Creator(name = "newCreator"),
+                comments = emptyList()
+            )
+        )
     }
 }

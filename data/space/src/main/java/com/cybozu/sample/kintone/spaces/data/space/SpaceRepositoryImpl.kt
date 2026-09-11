@@ -13,10 +13,10 @@ internal class SpaceRepositoryImpl @Inject constructor(
         spaceRemoteDataSource.getMessagesForThread(threadId = threadId).result.items
 
     override suspend fun addMessageForThread(
-        space: String,
-        thread: String,
+        spaceId: String,
+        threadId: String,
         text: String,
     ) {
-        spaceRemoteDataSource.addMessageForThread(space = space, thread = thread, text = text)
+        spaceRemoteDataSource.addMessageForThread(space = spaceId, thread = threadId, text = text)
     }
 }
