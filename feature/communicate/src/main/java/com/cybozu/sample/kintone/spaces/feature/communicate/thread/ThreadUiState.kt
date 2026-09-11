@@ -6,5 +6,7 @@ data class ThreadUiState(
     val threadMessages: List<ThreadMessage> = emptyList(),
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
+    val isPosting: Boolean = false,
     val errorMessage: String? = null,
+    val inputText: String = "",
 )

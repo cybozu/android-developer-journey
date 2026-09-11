@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -18,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,12 +28,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,12 +55,13 @@ import com.cybozu.sample.kintone.spaces.data.space.entity.ThreadMessage
 
 @Composable
 fun ThreadScreen(
+    spaceId: String,
     threadId: String,
     threadName: String,
     viewModel: ThreadViewModel =
         hiltViewModel(
             creationCallback = { factory: ThreadViewModelFactory ->
-                factory.create(threadId)
+                factory.create(spaceId, threadId)
             }
         ),
 ) {
@@ -70,10 +76,18 @@ fun ThreadScreen(
         }
     }
 
+    LaunchedEffect(uiState.isPosting) {
+        if (uiState.isPosting) {
+            Toast.makeText(context, "メッセージを投稿中", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     ThreadContent(
         threadName = threadName,
         uiState = uiState,
-        onRefresh = { viewModel.refresh() }
+        onRefresh = { viewModel.refresh() },
+        onAddMessage = { viewModel.postMessage(uiState.inputText) },
+        onUpdateText = { text -> viewModel.updateText(text) }
     )
 }
 
@@ -83,6 +97,8 @@ fun ThreadContent(
     threadName: String,
     uiState: ThreadUiState,
     onRefresh: () -> Unit,
+    onAddMessage: () -> Unit,
+    onUpdateText: (String) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -94,6 +110,31 @@ fun ThreadContent(
                     SystemBackNavButton()
                 }
             )
+        },
+        bottomBar = {
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding()
+                        .imePadding()
+                        .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextField(
+                    value = uiState.inputText,
+                    onValueChange = onUpdateText,
+                    placeholder = { Text("投稿する") }
+                )
+                Button(
+                    onClick =
+                    onAddMessage,
+                    enabled = uiState.inputText.isNotBlank()
+                ) {
+                    Text("投稿")
+                }
+            }
         }
     ) { innerPadding ->
         PullToRefreshBox(
@@ -247,7 +288,9 @@ fun ThreadContentPreview(
         ThreadContent(
             threadName = "Sample Thread",
             uiState = uiState,
-            onRefresh = {}
+            onRefresh = {},
+            onAddMessage = {},
+            onUpdateText = {}
         )
     }
 }

@@ -15,12 +15,16 @@ import kotlinx.coroutines.launch
 
 @AssistedFactory
 interface ThreadViewModelFactory {
-    fun create(threadId: String): ThreadViewModel
+    fun create(
+        @Assisted("spaceId") spaceId: String,
+        @Assisted("threadId") threadId: String,
+    ): ThreadViewModel
 }
 
 @HiltViewModel(assistedFactory = ThreadViewModelFactory::class)
 class ThreadViewModel @AssistedInject constructor(
-    @Assisted private val threadId: String,
+    @Assisted("spaceId") private val spaceId: String,
+    @Assisted("threadId") private val threadId: String,
     private val repository: SpaceRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ThreadUiState())
@@ -32,6 +36,14 @@ class ThreadViewModel @AssistedInject constructor(
 
     fun refresh() {
         refreshMessages()
+    }
+
+    fun postMessage(text: String) {
+        addMessage(text)
+    }
+
+    fun updateText(text: String) {
+        _uiState.value = _uiState.value.copy(inputText = text)
     }
 
     private fun loadMessages() {
@@ -75,6 +87,30 @@ class ThreadViewModel @AssistedInject constructor(
                     _uiState.value.copy(
                         isRefreshing = false,
                         errorMessage = "メッセージを取得できませんでした"
+                    )
+            }
+        }
+    }
+
+    private fun addMessage(text: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isPosting = true)
+            try {
+                repository.addMessageForThread(spaceId = spaceId, threadId = threadId, text = text)
+                _uiState.value =
+                    _uiState.value.copy(
+                        isPosting = false,
+                        errorMessage = null,
+                        inputText = ""
+                    )
+                refreshMessages()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                _uiState.value =
+                    _uiState.value.copy(
+                        isPosting = false,
+                        errorMessage = "メッセージを投稿できませんでした"
                     )
             }
         }

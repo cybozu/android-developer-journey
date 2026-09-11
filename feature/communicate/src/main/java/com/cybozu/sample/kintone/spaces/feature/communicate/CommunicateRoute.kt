@@ -8,6 +8,7 @@ data object SpaceRoute : NavKey
 
 @Serializable
 data class ThreadRoute(
+    val spaceId: String,
     val threadId: String,
     val threadName: String,
 ) : NavKey
